@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import MoviesData from "../components/moviesData";
 
 function RecommendMovie() {
   const [currentPosterIndex, setCurrentPosterIndex] = useState(0);
   const currentMovie = MoviesData[currentPosterIndex];
   const intervalRef = useRef(null);
+  const navigate = useNavigate();
 
   const handleNext = useCallback(() => {
     setCurrentPosterIndex((prevIndex) => (prevIndex + 1) % MoviesData.length);
@@ -27,6 +29,10 @@ function RecommendMovie() {
     intervalRef.current = setInterval(() => {
       handleNext();
     }, 10000);
+  };
+
+  const handleBooking = () => {
+    navigate(`/movie-details/${currentMovie.title}`);
   };
 
   useEffect(() => {
@@ -68,7 +74,10 @@ function RecommendMovie() {
             หมวดหมู่: {currentMovie.genre} | เรทผู้ชม: {currentMovie.rating} |{" "}
             {currentMovie.duration} | วันที่เข้าฉาย: {currentMovie.releaseDate}
           </h2>
-          <button className="bg-blue-400 w-40 h-12 font-semibold rounded-sm hover:bg-blue-900 text-sm">
+          <button
+            className="bg-blue-400 w-40 h-12 font-semibold rounded-sm hover:bg-blue-900 text-sm"
+            onClick={handleBooking}
+          >
             จองตั๋วภาพยนตร์
           </button>
         </div>
