@@ -57,18 +57,3 @@ const moviesData = [
 ];
 
 export default moviesData;
-
-// import moviesData from './DBMovies.json';
-
-// const getMoviesData = () => {
-//     return moviesData.movies;
-// };
-
-// export default getMoviesData;
-
-// const [movies, setMovies] = useState([]);
-//   useEffect(() => {
-//     // เรียกใช้ฟังก์ชันเพื่อดึงข้อมูลภาพยนตร์
-//     const data = getMoviesData();
-//     setMovies(data);
-//   }, []);
