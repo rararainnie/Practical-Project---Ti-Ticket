@@ -44,7 +44,7 @@ function RecommendMovie() {
         <img
           src={currentMovie.poster}
           alt="Movie Poster"
-          className="absolute w-[83%] h-full object-cover transition-opacity duration-500 ease-in-out"
+          className="absolute w-[83%] h-[100%] object-contain transition-opacity duration-500 ease-in-out"
         />
         {/* Previous Button */}
         <button
@@ -62,7 +62,7 @@ function RecommendMovie() {
         </button>
 
         {/* Detail Poster */}
-        <div className="w-[50%] absolute flex flex-col text-white p-4 bg-black bg-opacity-20 rounded-md bottom-10 mb-2">
+        <div className="w-[50%] absolute flex flex-col text-white p-4 bg-black bg-opacity-50 rounded-md bottom-0">
           <h1 className="font-bold text-xl mb-2">{currentMovie.title}</h1>
           <h2 className="font-semibold text-sm mb-5">
             หมวดหมู่: {currentMovie.genre} | เรทผู้ชม: {currentMovie.rating} |{" "}
