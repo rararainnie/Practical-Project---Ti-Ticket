@@ -14,12 +14,12 @@ function Navbar() {
 
           {/* Register/Login UI - Right Aligned */}
           <img className="w-10 h-10 ml-auto mr-3 " src={user} alt="User Icon" />
-          <button className="w-40 h-10 bg-red-700 text-white font-semibold rounded-xl hover:bg-gray-700 text-sm">
+          <button className="w-40 h-10 bg-red-700 text-white font-semibold rounded-xl hover:bg-red-900 text-sm">
             เข้าสู่ระบบ/ลงทะเบียน
           </button>
         </div>
       </nav>
-      <div className="boarder border-[1px] border-red-500 opacity-40 mt-3"></div>
+      {/* <div className="boarder border-[1px] border-red-500 opacity-40 mt-3"></div> */}
     </div>
   );
 }
