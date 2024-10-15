@@ -5,7 +5,6 @@ import HarryPotter from "../assets/moviePoster/harry_potter.jfif";
 import InsideOut2 from "../assets/moviePoster/in-side-out-2.jpeg";
 import Jaw from "../assets/moviePoster/Jaw.jfif";
 
-
 const moviesData = [
     {
         poster: Garfield_Poster,
@@ -58,3 +57,18 @@ const moviesData = [
 ];
 
 export default moviesData;
+
+// import moviesData from './DBMovies.json';
+
+// const getMoviesData = () => {
+//     return moviesData.movies;
+// };
+
+// export default getMoviesData;
+
+// const [movies, setMovies] = useState([]);
+//   useEffect(() => {
+//     // เรียกใช้ฟังก์ชันเพื่อดึงข้อมูลภาพยนตร์
+//     const data = getMoviesData();
+//     setMovies(data);
+//   }, []);
