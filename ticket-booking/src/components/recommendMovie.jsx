@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
-import movies from "../components/moviesDetail";
+import movies from "./moviesData";
 
 function RecommendMovie() {
   const [currentPosterIndex, setCurrentPosterIndex] = useState(0);
