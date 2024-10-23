@@ -91,14 +91,14 @@ function ShowTheaterAndMovie() {
   };
 
   const handleSubmit = () => {
-    if (!selectedCinema && !selectedMovie) {
-      alert('Please select both Cinema and Movie');
-    } else if (!selectedCinema) {
-      alert(`Please select a Cinema.\nSelected Movie: ${selectedMovie.title}`);
-    } else if (!selectedMovie) {
-      alert(`Please select a Movie.\nSelected Cinema: ${selectedCinema.name}`);
+    if (!selectedCinema?.name && !selectedMovie?.title) {
+      alert('กรุณาเลือกโรงภาพยนตร์ หรือ ภาพยนตร์ หรือ ทั้งสองอย่าง');
+    } else if (selectedMovie?.title && !selectedCinema?.name) {
+      alert(`ภาพยนตร์ที่เลือก: ${selectedMovie.title}`);
+    } else if (!selectedMovie?.title && selectedCinema?.name) {
+      alert(`โรงภาพยนตร์ที่เลือก: ${selectedCinema.name}`);
     } else {
-      alert(`Selected Movie: ${selectedMovie.title}\nSelected Cinema: ${selectedCinema.name}`);
+      alert(`ภาพยนตร์ที่เลือก: ${selectedMovie.title}\nโรงภาพยนตร์ที่เลือก: ${selectedCinema.name}`);
     }
   };
 
@@ -142,8 +142,7 @@ function ShowTheaterAndMovie() {
       {/* Movie Selection Pop-Up */}
       {showMovieModal && (
         <div ref={popupRef} className="absolute z-10 bg-white rounded-md shadow-lg w-[50%] mt-20">
-          <h2 className="text-lg font-bold p-2">เลือกภาพยนตร์</h2>
-          <div className="flex flex-wrap justify-between max-h-60 overflow-y-auto">
+          <div className="flex flex-wrap justify-between max-h-80 overflow-y-auto">
             {moviesData.map((movie) => (
               <div
                 key={movie.id}
@@ -162,8 +161,7 @@ function ShowTheaterAndMovie() {
       {/* Cinema Selection Pop-Up */}
       {showCinemaModal && (
         <div ref={popupRef} className="absolute z-10 bg-white rounded-md shadow-lg w-[50%] mt-20">
-          <h2 className="text-lg font-bold p-2">เลือกโรงภาพยนตร์</h2>
-          <div className="flex flex-wrap justify-between max-h-48 overflow-y-auto">
+          <div className="flex flex-wrap justify-between max-h-80 overflow-y-auto">
             {zones.map((zone) => (
               <div key={zone.id} className="w-[48%] p-2">
                 <h3 className="font-semibold">{zone.name}</h3>
