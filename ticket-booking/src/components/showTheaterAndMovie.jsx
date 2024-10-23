@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Buffer } from 'buffer';
 
 function ShowTheaterAndMovie() {
@@ -9,6 +9,7 @@ function ShowTheaterAndMovie() {
   const [selectedCinema, setSelectedCinema] = useState([]);
   const [showMovieModal, setShowMovieModal] = useState(false); // For controlling Movie Modal visibility
   const [showCinemaModal, setShowCinemaModal] = useState(false); // For controlling Cinema Modal visibility
+  const popupRef = useRef(null);
 
   // Fetch Movies
   useEffect(() => {
@@ -63,6 +64,20 @@ function ShowTheaterAndMovie() {
       .catch(error => {
         console.error('Error fetching zones:', error);
       });
+  }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (popupRef.current && !popupRef.current.contains(event.target)) {
+        setShowMovieModal(false);
+        setShowCinemaModal(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   const handleSelectMovie = (movie) => {
@@ -126,7 +141,7 @@ function ShowTheaterAndMovie() {
 
       {/* Movie Selection Pop-Up */}
       {showMovieModal && (
-        <div className="absolute z-10 bg-white rounded-md shadow-lg w-[50%] mt-20">
+        <div ref={popupRef} className="absolute z-10 bg-white rounded-md shadow-lg w-[50%] mt-20">
           <h2 className="text-lg font-bold p-2">เลือกภาพยนตร์</h2>
           <div className="flex flex-wrap justify-between max-h-60 overflow-y-auto">
             {moviesData.map((movie) => (
@@ -146,7 +161,7 @@ function ShowTheaterAndMovie() {
 
       {/* Cinema Selection Pop-Up */}
       {showCinemaModal && (
-        <div className="absolute z-10 bg-white rounded-md shadow-lg w-[50%] mt-20">
+        <div ref={popupRef} className="absolute z-10 bg-white rounded-md shadow-lg w-[50%] mt-20">
           <h2 className="text-lg font-bold p-2">เลือกโรงภาพยนตร์</h2>
           <div className="flex flex-wrap justify-between max-h-48 overflow-y-auto">
             {zones.map((zone) => (
