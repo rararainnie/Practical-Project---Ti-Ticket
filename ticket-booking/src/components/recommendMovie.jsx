@@ -1,8 +1,32 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef,  } from "react";
 import { useNavigate } from "react-router-dom";
-import MoviesData from "../components/moviesData";
+import { Buffer } from 'buffer';
 
 function RecommendMovie() {
+  const [MoviesData, setMovies] = useState([]);
+  useEffect(() => {
+    // ดึงข้อมูลจาก backend
+    fetch('http://localhost:3001/movies')
+      .then(response => response.json())
+      .then(data => {
+        // แปลงข้อมูลที่ได้รับให้เป็นรูปแบบที่ต้องการ
+        const formattedMovies = data.map(movie => ({
+          id: movie.MovieId,
+          poster: `data:image/jpeg;base64,${Buffer.from(movie.Image).toString('base64')}`, // แปลง Buffer เป็น Base64
+          title: movie.Title,
+          genre: movie.Genre,
+          rating: movie.Rating.toString(),
+          duration: `${movie.Duration} นาที`,
+          releaseDate: new Date(movie.ReleaseDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }),
+          description: movie.Description,
+        }));
+        setMovies(formattedMovies);
+      })
+      .catch(error => {
+        console.error('Error fetching movies:', error);
+      });
+    }, []);
+
   const [currentPosterIndex, setCurrentPosterIndex] = useState(0);
   const currentMovie = MoviesData[currentPosterIndex];
   const intervalRef = useRef(null);
@@ -12,7 +36,7 @@ function RecommendMovie() {
     setCurrentPosterIndex((prevIndex) => (prevIndex + 1) % MoviesData.length);
     resetInterval();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [MoviesData.length]);
 
   const handlePrevious = useCallback(() => {
     setCurrentPosterIndex(
@@ -20,7 +44,7 @@ function RecommendMovie() {
     );
     resetInterval();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [MoviesData.length]);
 
   const resetInterval = () => {
     if (intervalRef.current) {
@@ -28,11 +52,11 @@ function RecommendMovie() {
     }
     intervalRef.current = setInterval(() => {
       handleNext();
-    }, 10000);
+    }, 5000);
   };
 
   const handleBooking = () => {
-    navigate(`/movie-details/${currentMovie.title}`);
+    navigate(`/movie-details/${currentMovie.title}`, { state: { currentMovie } });
   };
 
   useEffect(() => {
@@ -42,7 +66,11 @@ function RecommendMovie() {
       clearInterval(intervalRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [MoviesData.length]);
+
+  if (!currentMovie) {
+    return <div>Loading...</div>; // แสดง loading หรือข้อความอื่น ๆ ขณะรอข้อมูล
+  }
 
   return (
     <div className="flex justify-center items-center mt-3 relative">

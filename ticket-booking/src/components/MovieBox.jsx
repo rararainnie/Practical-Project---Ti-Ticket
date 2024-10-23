@@ -1,11 +1,12 @@
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 
-function MovieBox({ image, name, date, time }) {
+function MovieBox({ movie }) {
   const navigate = useNavigate();
 
   const handleBoxClick = () => {
-    navigate(`/movie-details/${name}`);
+    // Navigate to movie details and pass the movie object via state
+    navigate(`/movie-details/${movie.title}`, { state: { movie } });
   };
   return (
     <div
@@ -14,19 +15,19 @@ function MovieBox({ image, name, date, time }) {
     >
       <div className="flex flex-col text-center items-center">
         <img
-          src={image}
-          alt={name}
+          src={movie.poster}
+          alt={movie.title}
           className="h-[400px] rounded-3xl object-cover"
         />
 
         <div className="ml-3 flex flex-col mt-3">
           <div>
-            <h2 className="text-lg font-extrabold text-white">{name}</h2>
+            <h2 className="text-lg font-extrabold text-white">{movie.title}</h2>
             <p className="text-sm text-yellow-500 mt-3">
-              <strong>Date:</strong> {date}
+              <strong>Date:</strong> {movie.releaseDate}
             </p>
             <p className="text-sm text-yellow-500  mt-1">
-              <strong>Time:</strong> {time}
+              <strong>Time:</strong> {movie.duration}
             </p>
           </div>
 
@@ -45,10 +46,7 @@ function MovieBox({ image, name, date, time }) {
 }
 
 MovieBox.propTypes = {
-  image: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  date: PropTypes.string.isRequired,
-  time: PropTypes.string.isRequired,
+  movie: PropTypes.object.isRequired,
 };
 
 export default MovieBox;

@@ -4,6 +4,7 @@ import Avengers from "../assets/moviePoster/Avengers.jpeg";
 import HarryPotter from "../assets/moviePoster/harry_potter.jfif";
 import InsideOut2 from "../assets/moviePoster/in-side-out-2.jpeg";
 import Jaw from "../assets/moviePoster/Jaw.jfif";
+// import { useEffect, useState } from 'react';
 
 const moviesData = [
     {
