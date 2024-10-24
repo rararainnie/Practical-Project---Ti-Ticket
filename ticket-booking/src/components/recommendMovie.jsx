@@ -110,7 +110,7 @@ function RecommendMovie() {
             {movie.duration} | วันที่เข้าฉาย: {movie.releaseDate}
           </h2>
           <button
-            className="bg-blue-400 w-40 h-12 font-semibold rounded-sm hover:bg-blue-900 text-sm"
+            className="bg-red-500 w-40 h-12 font-semibold rounded-sm hover:bg-red-700 text-sm"
             onClick={handleBooking}
           >
             จองตั๋วภาพยนตร์
