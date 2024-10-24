@@ -36,7 +36,6 @@ function Home() {
       <Navbar />
       <RecommendMovie />
       <ShowTheaterAndMovie />
-
       <div className="pt-1 w-[60%] mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {movies.map((movie) => (
