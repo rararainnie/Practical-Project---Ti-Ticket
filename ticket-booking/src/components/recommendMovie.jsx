@@ -1,31 +1,38 @@
-import { useState, useEffect, useCallback, useRef,  } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Buffer } from 'buffer';
+import { Buffer } from "buffer";
 
 function RecommendMovie() {
   const [MoviesData, setMovies] = useState([]);
   useEffect(() => {
     // ดึงข้อมูลจาก backend
-    fetch('http://localhost:3001/movies')
-      .then(response => response.json())
-      .then(data => {
+    fetch("http://localhost:3001/movies")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
         // แปลงข้อมูลที่ได้รับให้เป็นรูปแบบที่ต้องการ
-        const formattedMovies = data.map(movie => ({
+        const formattedMovies = data.map((movie) => ({
           id: movie.MovieId,
-          poster: `data:image/jpeg;base64,${Buffer.from(movie.Image).toString('base64')}`, // แปลง Buffer เป็น Base64
+          poster: `data:image/jpeg;base64,${Buffer.from(movie.Image).toString(
+            "base64"
+          )}`, // แปลง Buffer เป็น Base64
           title: movie.Title,
           genre: movie.Genre,
           rating: movie.Rating.toString(),
           duration: `${movie.Duration} นาที`,
-          releaseDate: new Date(movie.ReleaseDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }),
+          releaseDate: new Date(movie.ReleaseDate).toLocaleDateString("th-TH", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
           description: movie.Description,
         }));
         setMovies(formattedMovies);
       })
-      .catch(error => {
-        console.error('Error fetching movies:', error);
+      .catch((error) => {
+        console.error("Error fetching movies:", error);
       });
-    }, []);
+  }, []);
 
   const [currentPosterIndex, setCurrentPosterIndex] = useState(0);
   const movie = MoviesData[currentPosterIndex];
@@ -57,10 +64,6 @@ function RecommendMovie() {
 
   const handleBooking = () => {
     navigate(`/movie-details/${movie.title}`, { state: { movie } });
-  };
-
-  const handleBooking = () => {
-    navigate(`/movie-details/${currentMovie.title}`);
   };
 
   useEffect(() => {
