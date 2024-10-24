@@ -10,7 +10,7 @@ function MovieDetails() {
   if (!movie) return <p className="text-black">Movie not found</p>;
 
   const handleBooking = () => {
-    navigate(`/movie-details/${movie.title}`);
+    navigate(`/movie-details/${movie.title}`, { state: { movie } });
   };
 
   return (

@@ -10,6 +10,10 @@ function ShowTheaterAndMovie() {
   const [showMovieModal, setShowMovieModal] = useState(false); // For controlling Movie Modal visibility
   const [showCinemaModal, setShowCinemaModal] = useState(false); // For controlling Cinema Modal visibility
   const popupRef = useRef(null);
+  const cinemaButtonRef = useRef(null);
+  const movieButtonRef = useRef(null);
+  const [isHoveredMovieButton, setIsHoveredMovieButton] = useState(false);
+  const [isHoveredCinemaButton, setIsHoveredCinemaButton] = useState(false);
 
   // Fetch Movies
   useEffect(() => {
@@ -68,7 +72,12 @@ function ShowTheaterAndMovie() {
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (popupRef.current && !popupRef.current.contains(event.target)) {
+      if (
+        popupRef.current && 
+        !popupRef.current.contains(event.target) &&
+        !cinemaButtonRef.current.contains(event.target) &&
+        !movieButtonRef.current.contains(event.target)
+      ) {
         setShowMovieModal(false);
         setShowCinemaModal(false);
       }
@@ -90,6 +99,16 @@ function ShowTheaterAndMovie() {
     setShowCinemaModal(false);
   };
 
+  const handleCinemaClick = () => {
+    setShowCinemaModal(prev => !prev);
+    setShowMovieModal(false);
+  };
+
+  const handleMovieClick = () => {
+    setShowMovieModal(prev => !prev);
+    setShowCinemaModal(false);
+  };
+
   const handleSubmit = () => {
     if (!selectedCinema?.name && !selectedMovie?.title) {
       alert('กรุณาเลือกโรงภาพยนตร์ หรือ ภาพยนตร์ หรือ ทั้งสองอย่าง');
@@ -104,33 +123,49 @@ function ShowTheaterAndMovie() {
 
   return (
     <div className="flex justify-center mt-8 relative mb-5">
-      <div className="w-[50%] bg-gray-500 bg-opacity-30 rounded-md p-4">
+      <div className="w-[50%] bg-gray-500 bg-opacity-30 rounded-md p-5">
         <div className="flex space-x-4">
-          {/* Column: Select Cinema */}
+          {/* คอลัมน์: เลือกโรงภาพยนตร์ */}
           <div className="flex-1 relative">
-            <div
-              onClick={() => setShowCinemaModal(!showCinemaModal) || setShowMovieModal(false)} // Open cinema modal
-              className="w-full p-2 rounded-md bg-white cursor-pointer flex justify-between items-center"
+            <button
+              ref={cinemaButtonRef}
+              onClick={handleCinemaClick}
+              onMouseEnter={() => setIsHoveredCinemaButton(true)}
+              onMouseLeave={() => setIsHoveredCinemaButton(false)}
+              className="w-full p-2 text-left border-b border-white flex justify-between items-center"
+              style={{
+                color: showCinemaModal || isHoveredCinemaButton ? 'red' : 'white',
+                transition: 'color 0.3s ease'
+              }}
             >
-              <span>{selectedCinema.name || '-- กรุณาเลือกโรงภาพยนตร์ --'}</span>
-            </div>
+              <span>{selectedCinema.name || 'โรงภาพยนตร์ทั้งหมด'}</span>
+              <span>{showCinemaModal ? '△' : '▽'}</span>
+            </button>
           </div>
 
-          {/* Column: Select Movie */}
+          {/* คอลัมน์: เลือกภาพยนตร์ */}
           <div className="flex-1 relative">
-            <div
-              onClick={() => setShowMovieModal(!showMovieModal) || setShowCinemaModal(false)} // Open movie modal
-              className="w-full p-2 rounded-md bg-white cursor-pointer flex justify-between items-center"
+            <button
+              ref={movieButtonRef}
+              onClick={handleMovieClick}
+              onMouseEnter={() => setIsHoveredMovieButton(true)}
+              onMouseLeave={() => setIsHoveredMovieButton(false)}
+              className="w-full p-2 text-left border-b border-white flex justify-between items-center"
+              style={{
+                color: showMovieModal|| isHoveredMovieButton ? 'red' : 'white',
+                transition: 'color 0.3s ease'
+              }}
             >
-              <span>{selectedMovie.title || '-- กรุณาเลือกภาพยนตร์ --'}</span>
-            </div>
+              <span>{selectedMovie.title || 'ภาพยนตร์ทั้งหมด'}</span>
+              <span>{showMovieModal ? '△' : '▽'}</span>
+            </button>
           </div>
 
           {/* Column: Search Button */}
           <div className="flex-1 flex items-center justify-center">
             <button
               onClick={handleSubmit}
-              className="w-full p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+              className="w-full p-2 bg-red-500 text-white rounded-md hover:bg-red-700"
               disabled={!selectedMovie || !selectedCinema} // Disable if no movie or cinema is selected
             >
               รอบฉาย

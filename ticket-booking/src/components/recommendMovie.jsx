@@ -28,7 +28,7 @@ function RecommendMovie() {
     }, []);
 
   const [currentPosterIndex, setCurrentPosterIndex] = useState(0);
-  const currentMovie = MoviesData[currentPosterIndex];
+  const movie = MoviesData[currentPosterIndex];
   const intervalRef = useRef(null);
   const navigate = useNavigate();
 
@@ -56,7 +56,7 @@ function RecommendMovie() {
   };
 
   const handleBooking = () => {
-    navigate(`/movie-details/${currentMovie.title}`, { state: { currentMovie } });
+    navigate(`/movie-details/${movie.title}`, { state: { movie } });
   };
 
   useEffect(() => {
@@ -68,7 +68,7 @@ function RecommendMovie() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [MoviesData.length]);
 
-  if (!currentMovie) {
+  if (!movie) {
     return <div>Loading...</div>; // แสดง loading หรือข้อความอื่น ๆ ขณะรอข้อมูล
   }
 
@@ -76,7 +76,7 @@ function RecommendMovie() {
     <div className="flex justify-center items-center mt-3 relative">
       <div className="w-full max-w-[60%] h-[70vh] flex items-center justify-center overflow-hidden">
         <img
-          src={currentMovie.poster}
+          src={movie.poster}
           alt="Movie Poster"
           className="absolute w-[83%] h-[100%] object-contain transition-opacity duration-500 ease-in-out"
         />
@@ -97,10 +97,10 @@ function RecommendMovie() {
 
         {/* Detail Poster */}
         <div className="w-[50%] absolute flex flex-col text-white p-4 bg-black bg-opacity-50 rounded-md bottom-0">
-          <h1 className="font-bold text-xl mb-2">{currentMovie.title}</h1>
+          <h1 className="font-bold text-xl mb-2">{movie.title}</h1>
           <h2 className="font-semibold text-sm mb-5">
-            หมวดหมู่: {currentMovie.genre} | เรทผู้ชม: {currentMovie.rating} |{" "}
-            {currentMovie.duration} | วันที่เข้าฉาย: {currentMovie.releaseDate}
+            หมวดหมู่: {movie.genre} | เรทผู้ชม: {movie.rating} |{" "}
+            {movie.duration} | วันที่เข้าฉาย: {movie.releaseDate}
           </h2>
           <button
             className="bg-blue-400 w-40 h-12 font-semibold rounded-sm hover:bg-blue-900 text-sm"
