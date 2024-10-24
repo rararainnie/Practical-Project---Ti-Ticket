@@ -1,7 +1,7 @@
 import Navbar from "../components/navbar";
 import RecommendMovie from "../components/recommendMovie";
 import ShowTheaterAndMovie from "../components/showTheaterAndMovie";
-import MovieBox from "../components/MovieBox";
+import MovieBox from "../components/movieBox";
 import { useEffect, useState } from 'react';
 import { Buffer } from 'buffer';
 

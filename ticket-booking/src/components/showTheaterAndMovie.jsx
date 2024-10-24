@@ -100,12 +100,12 @@ function ShowTheaterAndMovie() {
   };
 
   const handleCinemaClick = () => {
-    setShowCinemaModal(prev => !prev);
+    setShowCinemaModal(!showCinemaModal);
     setShowMovieModal(false);
   };
 
   const handleMovieClick = () => {
-    setShowMovieModal(prev => !prev);
+    setShowMovieModal(!showMovieModal);
     setShowCinemaModal(false);
   };
 
