@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import redImage from "../assets/red.png";
 import googleLogo from "../assets/pic/google_logo.webp";
 
-function LoginPopup({ onClose, onOpenRegister }) {
+function LoginPopup({ onClose, onOpenRegister, onOpenResetPassword }) {
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
@@ -42,7 +42,10 @@ function LoginPopup({ onClose, onOpenRegister }) {
             />
           </div>
 
-          <button className="text-sm text-red-500 underline self-end">
+          <button
+            className="text-sm text-red-500 underline self-end"
+            onClick={onOpenResetPassword}
+          >
             ลืมรหัสผ่าน?
           </button>
 
@@ -78,6 +81,7 @@ function LoginPopup({ onClose, onOpenRegister }) {
 LoginPopup.propTypes = {
   onClose: PropTypes.func.isRequired,
   onOpenRegister: PropTypes.func.isRequired,
+  onOpenResetPassword: PropTypes.func.isRequired,
 };
 
 export default LoginPopup;
