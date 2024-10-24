@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/navbar";
 import SelectTheaterAndMovieBar from "../components/showTheaterAndMovie";

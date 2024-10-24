@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/navbar";
 
@@ -80,9 +79,5 @@ function MovieDetails() {
     </div>
   );
 }
-
-MovieDetails.propTypes = {
-  movie: PropTypes.object,
-};
 
 export default MovieDetails;

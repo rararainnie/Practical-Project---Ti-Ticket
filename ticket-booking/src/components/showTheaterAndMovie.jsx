@@ -90,12 +90,14 @@ function ShowTheaterAndMovie() {
   }, []);
 
   const handleSelectMovie = (movie) => {
-    setSelectedMovie(movie);
+    if (selectedMovie === movie) setSelectedMovie([]);
+    else setSelectedMovie(movie);
     setShowMovieModal(false);
   };
 
   const handleSelectCinema = (cinema) => {
-    setSelectedCinema(cinema);
+    if (selectedCinema === cinema) setSelectedCinema([]);
+    else setSelectedCinema(cinema);
     setShowCinemaModal(false);
   };
 
@@ -182,7 +184,9 @@ function ShowTheaterAndMovie() {
               <div
                 key={movie.id}
                 onClick={() => handleSelectMovie(movie)} // Select movie
-                className="flex flex-col items-center text-center p-2 hover:bg-gray-200 cursor-pointer"
+                className={`flex flex-col items-center text-center p-2 cursor-pointer ${
+                  movie === selectedMovie ? 'bg-red-200' : 'hover:bg-gray-200'
+                }`}
               >
                 <img src={movie.poster} alt={movie.title} className="w-40" />
                 <span>{movie.releaseDate}</span> 
@@ -204,12 +208,14 @@ function ShowTheaterAndMovie() {
                   <div
                     key={cinema.id}
                     onClick={() => handleSelectCinema(cinema)}
-                    className="flex items-center p-2 hover:bg-gray-200 cursor-pointer"
+                    className={`flex flex-col items-center text-center p-2 cursor-pointer ${
+                      cinema === selectedCinema ? 'bg-red-200' : 'hover:bg-gray-200'
+                    }`}
                   >
                     <span>{cinema.name}</span>
                   </div>
                 ))}
-              </div>
+               </div>
             ))}
           </div>
         </div>
