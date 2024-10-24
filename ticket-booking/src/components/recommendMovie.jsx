@@ -59,6 +59,10 @@ function RecommendMovie() {
     navigate(`/movie-details/${movie.title}`, { state: { movie } });
   };
 
+  const handleBooking = () => {
+    navigate(`/movie-details/${currentMovie.title}`);
+  };
+
   useEffect(() => {
     resetInterval();
 
