@@ -56,7 +56,7 @@ function RecommendMovie() {
   };
 
   const handleBooking = () => {
-    navigate(`/movie-details/${movie.title}`, { state: { movie } });
+    navigate(`/movie-reservation/${movie.title}`, { state: { movie } });
   };
 
   useEffect(() => {
