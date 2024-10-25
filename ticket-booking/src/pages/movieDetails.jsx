@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/navbar";
 
@@ -10,7 +9,7 @@ function MovieDetails() {
   if (!movie) return <p className="text-black">Movie not found</p>;
 
   const handleBooking = () => {
-    navigate(`/movie-details/${movie.title}`, { state: { movie } });
+    navigate(`/movie-reservation/${movie.title}`, { state: { movie } });
   };
 
   return (
@@ -31,7 +30,7 @@ function MovieDetails() {
               {movie.duration} | วันที่เข้าฉาย: {movie.releaseDate}
             </h2>
             <button
-              className="bg-blue-400 w-40 h-12 font-semibold rounded-sm hover:bg-blue-900 text-sm"
+              className="bg-red-500 w-40 h-12 font-semibold rounded-sm hover:bg-red-700 text-sm"
               onClick={handleBooking}
             >
               จองตั๋วภาพยนตร์
@@ -80,9 +79,5 @@ function MovieDetails() {
     </div>
   );
 }
-
-MovieDetails.propTypes = {
-  movie: PropTypes.object,
-};
 
 export default MovieDetails;
