@@ -227,7 +227,7 @@ function ShowTheaterAndMovie() {
                   <div
                     key={cinema.id}
                     onClick={() => handleSelectCinema(cinema)}
-                    className={`flex flex-col items-center text-center p-2 cursor-pointer ${
+                    className={`flex items-center p-2 hover:bg-gray-200 cursor-pointer ${
                       cinema === selectedCinema ? 'bg-red-200' : 'hover:bg-gray-200'
                     }`}
                   >

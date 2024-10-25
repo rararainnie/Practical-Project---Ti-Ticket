@@ -12,7 +12,7 @@ app.use(cors());
 const db = createConnection({
   host: "localhost", // หรือ IP ของฐานข้อมูล MySQL
   user: "root", // ชื่อผู้ใช้งาน MySQL
-  password: "rainnie", // รหัสผ่าน MySQL (ให้ใส่รหัสของคุณ)
+  password: "pun1234", // รหัสผ่าน MySQL (ให้ใส่รหัสของคุณ)
   database: "movies_ticket_schema", // ชื่อฐานข้อมูล
 });
 
