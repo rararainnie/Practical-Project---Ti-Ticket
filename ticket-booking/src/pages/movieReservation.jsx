@@ -1,12 +1,63 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/navbar";
 import SelectTheaterAndMovieBar from "../components/showTheaterAndMovie";
 
 function MovieReservation() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { movie, cinema } = location.state || {};
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { movie, cinema } = location.state || {};
+    const [cinemas, setCinemas] = useState([]);
+    const [movies, setMovies] = useState([]);
+    const [showTimes, setShowTimes] = useState([]);
+
+    useEffect(() => {
+        if (movie?.id && cinema?.id === undefined) {
+            console.log(1)
+            fetchCinemasForMovie(movie.id);
+        } else if (cinema?.id && movie?.id === undefined) {
+            console.log(2)
+            fetchMoviesForCinema(cinema.id);
+        } else if (movie?.id && cinema?.id) {
+            console.log(3)
+            fetchShowTimes(movie.id, cinema.id);
+        }
+    }, [movie, cinema]);
+
+    const fetchCinemasForMovie = async (movieId) => {
+        try {
+            const response = await fetch(`http://localhost:3001/movie/${movieId}/cinemas`);
+            const data = await response.json();
+            setCinemas(data);
+            console.log(data)
+            data.forEach(cinema => fetchShowTimes(movieId, cinema.CinemaLocationCode));
+        } catch (error) {
+            console.error('Error fetching cinemas:', error);
+        }
+    };
+
+    const fetchMoviesForCinema = async (cinemaId) => {
+        try {
+            const response = await fetch(`http://localhost:3001/cinema/${cinemaId}/movies`);
+            const data = await response.json();
+            setMovies(data);
+            console.log(data)
+            data.forEach(movie => fetchShowTimes(movie.MovieID, cinemaId));
+        } catch (error) {
+            console.error('Error fetching movies:', error);
+        }
+    };
+
+    const fetchShowTimes = async (movieId, cinemaId) => {
+        try {
+            const response = await fetch(`http://localhost:3001/movie/${movieId}/cinema/${cinemaId}`);
+            const data = await response.json();
+            console.log(data)
+            setShowTimes(prevShowTimes => [...prevShowTimes, ...data]);
+        } catch (error) {
+            console.error('Error fetching show times:', error);
+        }
+    };
 
   const handleDetails = () => {
     navigate(`/movie-details/${movie.title}`, { state: { movie } });

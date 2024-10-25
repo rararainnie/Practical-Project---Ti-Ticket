@@ -86,7 +86,7 @@ app.get("/cinema/:locationId/movies", (req, res) => {
 });
 
 // API เพื่อดึงข้อมูลโรงภาพยนตร์จาก MovieID
-app.get("/movie/:movieId/cinemas", (req, res) => {
+app.get("/movie/:MovieId/cinemas", (req, res) => {
   const movieId = req.params.movieId;
 
   const query = `
@@ -107,38 +107,7 @@ app.get("/movie/:movieId/cinemas", (req, res) => {
 });
 
 // API เพื่อดึงข้อมูล CinemaNo และ ShowTime โดยใช้ MovieID และ CinemaLocationCode
-app.get("/movie/:movieId/cinema/:cinemaLocationCode", (req, res) => {
-  const movieId = req.params.movieId;
-  const cinemaLocationCode = req.params.cinemaLocationCode;
-
-  const query = `
-    SELECT 
-        mcn.*, 
-        st.*
-    FROM 
-        Movies_has_CinemaNo mcn
-    JOIN 
-        ShowTime st 
-        ON mcn.Movies_MovieID = st.Movies_MovieID
-        AND mcn.CinemaLocation_CinemaLocationCode = st.CinemaLocation_CinemaLocationCode
-        AND mcn.CinemaNo = st.CinemaNo
-    WHERE 
-        mcn.Movies_MovieID = ? 
-        AND mcn.CinemaLocation_CinemaLocationCode = ?
-  `;
-
-  db.query(query, [movieId, cinemaLocationCode], (err, results) => {
-    if (err) {
-      console.error("Error fetching cinema and showtime:", err);
-      res.status(500).send("Error fetching cinema and showtime");
-    } else {
-      res.json(results);
-    }
-  });
-});
-
-// API เพื่อดึงข้อมูล CinemaNo และ ShowTime โดยใช้ MovieID และ CinemaLocationCode
-app.get("/movie/:movieId/cinema/:cinemaLocationCode", (req, res) => {
+app.get("/movie/:Movies_MovieID/cinema/:CinemaLocationCode", (req, res) => {
   const movieId = req.params.movieId;
   const cinemaLocationCode = req.params.cinemaLocationCode;
 
@@ -153,12 +122,9 @@ app.get("/movie/:movieId/cinema/:cinemaLocationCode", (req, res) => {
     JOIN 
         CinemaLocation cl 
         ON st.CinemaLocation_CinemaLocationCode = cl.CinemaLocationCode
-    JOIN 
-        Movies m
-        ON st.Movies_MovieID = m.MovieID
     WHERE 
         st.Movies_MovieID = ? 
-        AND st.CinemaLocation_CinemaLocationCode = ?;
+        AND st.CinemaLocation_CinemaLocationCode = ?
   `;
 
   db.query(query, [movieId, cinemaLocationCode], (err, results) => {

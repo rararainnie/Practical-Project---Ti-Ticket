@@ -1,8 +1,10 @@
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
+// import { useState } from "react";
 
 function MovieBox({ movie }) {
   const navigate = useNavigate();
+  // const [cinema, setCinema] = useState([]);
 
   const handleBoxClick = () => {
     // Navigate to movie details and pass the movie object via state

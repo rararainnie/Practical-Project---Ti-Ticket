@@ -22,22 +22,34 @@ function ShowTheaterAndMovie() {
     fetch("http://localhost:3001/movies")
       .then((response) => response.json())
       .then((data) => {
-        const formattedMovies = data.map((movie) => ({
-          id: movie.MovieId,
-          poster: `data:image/jpeg;base64,${Buffer.from(movie.Image).toString(
-            "base64"
-          )}`,
-          title: movie.Title,
-          genre: movie.Genre,
-          rating: movie.Rating.toString(),
-          duration: `${movie.Duration} นาที`,
-          releaseDate: new Date(movie.ReleaseDate).toLocaleDateString("th-TH", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
-          description: movie.Description,
-        }));
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0); // เซ็ตเวลาเป็น 00:00:00 เพื่อเปรียบเทียบเฉพาะวัน
+
+        const formattedMovies = data
+          .map((movie) => {
+            const releaseDate = new Date(movie.ReleaseDate);
+            releaseDate.setHours(0, 0, 0, 0);
+
+            return {
+              id: movie.MovieId,
+              poster: `data:image/jpeg;base64,${Buffer.from(movie.Image).toString(
+                "base64"
+              )}`,
+              title: movie.Title,
+              genre: movie.Genre,
+              rating: movie.Rating.toString(),
+              duration: `${movie.Duration} นาที`,
+              releaseDate: releaseDate.toLocaleDateString("th-TH", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }),
+              rawReleaseDate: releaseDate, // เก็บ Date object ไว้สำหรับการเปรียบเทียบ
+              description: movie.Description,
+            };
+          })
+          .filter((movie) => movie.rawReleaseDate <= currentDate); // กรองเฉพาะหนังที่วันฉายไม่เกินวันปัจจุบัน
+
         setMoviesData(formattedMovies);
       })
       .catch((error) => {
@@ -223,22 +235,20 @@ function ShowTheaterAndMovie() {
             {zones.map((zone) => (
               <div key={zone.id} className="w-[48%] p-2">
                 <h3 className="font-semibold">{zone.name}</h3>
-                {cinemaLocations
-                  .filter((c) => c.zone === zone.id)
-                  .map((c) => (
-                    <div
-                      key={c.id}
-                      onClick={() => handleSelectCinema(c)}
-                      className={`flex items-center p-2 hover:bg-gray-200 cursor-pointer ${
-                        c === cinema
-                          ? "bg-red-200 rounded-lg"
-                          : "hover:bg-gray-200 hover:rounded-lg"
-                      }`}
-                    >
-                      <span>{c.name}</span>
-                    </div>
-                  ))}
-              </div>
+                {cinemaLocations.filter(c => c.zone === zone.id).map(c => (
+                  <div
+                    key={c.id}
+                    onClick={() => handleSelectCinema(c)}
+                    className={`flex items-center p-2 hover:bg-gray-200 cursor-pointer ml-5 ${
+                      c === cinema 
+                        ? "bg-red-200 rounded-lg"
+                        : "hover:bg-gray-200 hover:rounded-lg"
+                    }`}
+                  >
+                    <span>{c.name}</span>
+                  </div>
+                ))}
+               </div>
             ))}
           </div>
         </div>
