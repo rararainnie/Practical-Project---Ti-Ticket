@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import LoginPopup from "../components/popupLogin";
 import RegisterPopup from "../components/popupRegister";
 import ResetPasswordPopup from "../components/popReset";
@@ -11,11 +12,22 @@ function Navbar() {
   const openPopup = (popupName) => setActivePopup(popupName);
   const closePopup = () => setActivePopup(null);
 
+  const navigate = useNavigate();
+
+  const handleLogoClick = () => {
+    navigate(`/`);
+  };
+
   return (
     <div>
       <nav className="flex flex-col w-[60%] mx-auto">
         <div className="flex items-center w-full mt-3">
-          <img className="w-12 h-12 ml-[40%]" src={redImage} alt="Logo" />
+          <img
+            className="w-12 h-12 ml-[40%] cursor-pointer"
+            src={redImage}
+            alt="Logo"
+            onClick={handleLogoClick}
+          />
           <span className="text-red-500 text-2xl">TI TICKET</span>
           <img className="w-10 h-10 ml-auto mr-3" src={user} alt="User Icon" />
           <button
