@@ -6,7 +6,7 @@ function MovieBox({ movie }) {
 
   const handleBoxClick = () => {
     // Navigate to movie details and pass the movie object via state
-    navigate(`/movie-details/${movie.title}`, { state: { movie } });
+    navigate(`/movie-reservation/${movie.title}`, { state: { movie } });
   };
   return (
     <div

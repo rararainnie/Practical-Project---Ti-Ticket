@@ -64,6 +64,113 @@ app.get("/zone", (req, res) => {
   });
 });
 
+// API เพื่อดึงหนังทุกเรื่องตาม CinemaLocation
+app.get('/cinema/:locationId/movies', (req, res) => {
+  const locationId = req.params.locationId;
+  
+  const query = `
+    SELECT m.* 
+    FROM CinemaLocation_has_Movies clm
+    JOIN Movies m ON clm.Movies_MovieID = m.MovieID
+    WHERE clm.CinemaLocation_CinemaLocationCode = ?
+  `;
+
+  db.query(query, [locationId], (err, results) => {
+    if (err) {
+      console.error('Error fetching movies:', err);
+      res.status(500).send('Error fetching movies');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+// API เพื่อดึงข้อมูลโรงภาพยนตร์จาก MovieID
+app.get('/movie/:movieId/cinemas', (req, res) => {
+  const movieId = req.params.movieId;
+  
+  const query = `
+    SELECT cl.*
+    FROM CinemaLocation_has_Movies clm
+    JOIN CinemaLocation cl ON clm.CinemaLocation_CinemaLocationCode = cl.CinemaLocationCode
+    WHERE clm.Movies_MovieID = ?
+  `;
+
+  db.query(query, [movieId], (err, results) => {
+    if (err) {
+      console.error('Error fetching cinemas:', err);
+      res.status(500).send('Error fetching cinemas');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+// API เพื่อดึงข้อมูล CinemaNo และ ShowTime โดยใช้ MovieID และ CinemaLocationCode
+app.get('/movie/:movieId/cinema/:cinemaLocationCode', (req, res) => {
+  const movieId = req.params.movieId;
+  const cinemaLocationCode = req.params.cinemaLocationCode;
+  
+  const query = `
+    SELECT 
+        mcn.*, 
+        st.*
+    FROM 
+        Movies_has_CinemaNo mcn
+    JOIN 
+        ShowTime st 
+        ON mcn.Movies_MovieID = st.Movies_MovieID
+        AND mcn.CinemaLocation_CinemaLocationCode = st.CinemaLocation_CinemaLocationCode
+        AND mcn.CinemaNo = st.CinemaNo
+    WHERE 
+        mcn.Movies_MovieID = ? 
+        AND mcn.CinemaLocation_CinemaLocationCode = ?
+  `;
+
+  db.query(query, [movieId, cinemaLocationCode], (err, results) => {
+    if (err) {
+      console.error('Error fetching cinema and showtime:', err);
+      res.status(500).send('Error fetching cinema and showtime');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+// API เพื่อดึงข้อมูล CinemaNo และ ShowTime โดยใช้ MovieID และ CinemaLocationCode
+app.get('/movie/:movieId/cinema/:cinemaLocationCode', (req, res) => {
+  const movieId = req.params.movieId;
+  const cinemaLocationCode = req.params.cinemaLocationCode;
+  
+  const query = `
+    SELECT 
+        st.CinemaNo,
+        st.ShowDateTime,
+        cl.Name AS CinemaLocationName,
+        cl.Address AS CinemaLocationAddress
+    FROM 
+        ShowTime st
+    JOIN 
+        CinemaLocation cl 
+        ON st.CinemaLocation_CinemaLocationCode = cl.CinemaLocationCode
+    JOIN 
+        Movies m
+        ON st.Movies_MovieID = m.MovieID
+    WHERE 
+        st.Movies_MovieID = ? 
+        AND st.CinemaLocation_CinemaLocationCode = ?;
+  `;
+
+  db.query(query, [movieId, cinemaLocationCode], (err, results) => {
+    if (err) {
+      console.error('Error fetching cinema and showtime:', err);
+      res.status(500).send('Error fetching cinema and showtime');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
 // เริ่มต้นเซิร์ฟเวอร์
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

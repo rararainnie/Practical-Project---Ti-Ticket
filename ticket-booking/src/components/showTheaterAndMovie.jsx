@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import { Buffer } from "buffer";
+import { useNavigate } from "react-router-dom";
 
 function ShowTheaterAndMovie() {
+  const navigate = useNavigate();
   const [moviesData, setMoviesData] = useState([]);
   const [cinemaLocations, setCinemaLocations] = useState([]);
   const [zones, setZones] = useState([]);
-  const [selectedMovie, setSelectedMovie] = useState([]);
-  const [selectedCinema, setSelectedCinema] = useState([]);
+  const [movie, setMovie] = useState([]);
+  const [cinema, setCinema] = useState([]);
   const [showMovieModal, setShowMovieModal] = useState(false); // For controlling Movie Modal visibility
   const [showCinemaModal, setShowCinemaModal] = useState(false); // For controlling Cinema Modal visibility
   const popupRef = useRef(null);
@@ -95,15 +97,15 @@ function ShowTheaterAndMovie() {
     };
   }, []);
 
-  const handleSelectMovie = (movie) => {
-    if (selectedMovie === movie) setSelectedMovie([]);
-    else setSelectedMovie(movie);
+  const handleSelectMovie = (selectedMovie) => {
+    if (movie === selectedMovie) setMovie([]);
+    else setMovie(selectedMovie);
     setShowMovieModal(false);
   };
 
-  const handleSelectCinema = (cinema) => {
-    if (selectedCinema === cinema) setSelectedCinema([]);
-    else setSelectedCinema(cinema);
+  const handleSelectCinema = (selectedCinema) => {
+    if (cinema === selectedCinema) setCinema([]);
+    else setCinema(selectedCinema);
     setShowCinemaModal(false);
   };
 
@@ -118,17 +120,13 @@ function ShowTheaterAndMovie() {
   };
 
   const handleSubmit = () => {
-    if (!selectedCinema?.name && !selectedMovie?.title) {
+    if (!cinema?.name && !movie?.title) {
       alert("กรุณาเลือกโรงภาพยนตร์ หรือ ภาพยนตร์ หรือ ทั้งสองอย่าง");
-    } else if (selectedMovie?.title && !selectedCinema?.name) {
-      alert(`ภาพยนตร์ที่เลือก: ${selectedMovie.title}`);
-    } else if (!selectedMovie?.title && selectedCinema?.name) {
-      alert(`โรงภาพยนตร์ที่เลือก: ${selectedCinema.name}`);
     } else {
-      alert(
-        `ภาพยนตร์ที่เลือก: ${selectedMovie.title}\nโรงภาพยนตร์ที่เลือก: ${selectedCinema.name}`
-      );
-    }
+      navigate(`/movie-reservation/${movie.title}`, { 
+        state: { movie, cinema } 
+      });
+    };
   };
 
   return (
@@ -149,7 +147,7 @@ function ShowTheaterAndMovie() {
                 transition: "color 0.3s ease",
               }}
             >
-              <span>{selectedCinema.name || "โรงภาพยนตร์ทั้งหมด"}</span>
+              <span>{cinema.name || "โรงภาพยนตร์ทั้งหมด"}</span>
               <span>{showCinemaModal ? "△" : "▽"}</span>
             </button>
           </div>
@@ -167,7 +165,7 @@ function ShowTheaterAndMovie() {
                 transition: "color 0.3s ease",
               }}
             >
-              <span>{selectedMovie.title || "ภาพยนตร์ทั้งหมด"}</span>
+              <span>{movie.title || "ภาพยนตร์ทั้งหมด"}</span>
               <span>{showMovieModal ? "△" : "▽"}</span>
             </button>
           </div>
@@ -177,7 +175,7 @@ function ShowTheaterAndMovie() {
             <button
               onClick={handleSubmit}
               className="w-full p-2 bg-red-500 text-white rounded-md hover:bg-red-700"
-              disabled={!selectedMovie || !selectedCinema} // Disable if no movie or cinema is selected
+              disabled={!movie || !cinema} // Disable if no movie or cinema is selected
             >
               รอบฉาย
             </button>
@@ -192,21 +190,21 @@ function ShowTheaterAndMovie() {
           className="absolute z-10 bg-white rounded-md shadow-lg w-[50%]  mt-20"
         >
           <div className="flex flex-wrap gap-3 max-h-[40vh] overflow-y-auto">
-            {moviesData.map((movie) => (
+            {moviesData.map((m) => (
               <div
-                key={movie.id}
-                onClick={() => handleSelectMovie(movie)} // Select movie
+                key={m.id}
+                onClick={() => handleSelectMovie(m)} // Select movie
                 className={`flex flex-col items-center text-center p-2 cursor-pointer ${
-                  movie === selectedMovie ? 'bg-red-200' : 'hover:bg-gray-200'
+                  m === movie ? 'bg-red-200' : 'hover:bg-gray-200'
                 }`}
               >
                 <img
-                  src={movie.poster}
-                  alt={movie.title}
+                  src={m.poster}
+                  alt={m.title}
                   className="w-40 h-60 rounded-xl mb-2"
                 />
-                <span>{movie.releaseDate}</span>
-                <span>{movie.title}</span>
+                <span>{m.releaseDate}</span>
+                <span>{m.title}</span>
               </div>
             ))}
           </div>
@@ -223,15 +221,15 @@ function ShowTheaterAndMovie() {
             {zones.map((zone) => (
               <div key={zone.id} className="w-[48%] p-2">
                 <h3 className="font-semibold">{zone.name}</h3>
-                {cinemaLocations.filter(cinema => cinema.zone === zone.id).map(cinema => (
+                {cinemaLocations.filter(c => c.zone === zone.id).map(c => (
                   <div
-                    key={cinema.id}
-                    onClick={() => handleSelectCinema(cinema)}
+                    key={c.id}
+                    onClick={() => handleSelectCinema(c)}
                     className={`flex items-center p-2 hover:bg-gray-200 cursor-pointer ${
-                      cinema === selectedCinema ? 'bg-red-200' : 'hover:bg-gray-200'
+                      c === cinema ? 'bg-red-200' : 'hover:bg-gray-200'
                     }`}
                   >
-                    <span>{cinema.name}</span>
+                    <span>{c.name}</span>
                   </div>
                 ))}
                </div>

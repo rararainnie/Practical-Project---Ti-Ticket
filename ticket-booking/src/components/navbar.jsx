@@ -28,7 +28,9 @@ function Navbar() {
             alt="Logo"
             onClick={handleLogoClick}
           />
-          <span className="text-red-500 text-2xl">TI TICKET</span>
+          <span className="text-red-500 text-2xl cursor-pointer"
+            onClick={handleLogoClick}
+          > TI TICKET </span>
           <img className="w-10 h-10 ml-auto mr-3" src={user} alt="User Icon" />
           <button
             className="w-40 h-10 bg-red-700 text-white font-semibold rounded-xl hover:bg-red-900 text-sm"
