@@ -195,7 +195,9 @@ function ShowTheaterAndMovie() {
                 key={m.id}
                 onClick={() => handleSelectMovie(m)} // Select movie
                 className={`flex flex-col items-center text-center p-2 cursor-pointer ${
-                  m === movie ? 'bg-red-200' : 'hover:bg-gray-200'
+                  m === movie 
+                    ? "bg-red-200 rounded-xl"
+                    : "hover:bg-gray-200 hover:rounded-xl"
                 }`}
               >
                 <img
@@ -226,7 +228,9 @@ function ShowTheaterAndMovie() {
                     key={c.id}
                     onClick={() => handleSelectCinema(c)}
                     className={`flex items-center p-2 hover:bg-gray-200 cursor-pointer ${
-                      c === cinema ? 'bg-red-200' : 'hover:bg-gray-200'
+                      c === cinema 
+                        ? "bg-red-200 rounded-lg"
+                        : "hover:bg-gray-200 hover:rounded-lg"
                     }`}
                   >
                     <span>{c.name}</span>
