@@ -187,23 +187,23 @@ function ShowTheaterAndMovie() {
       {showMovieModal && (
         <div
           ref={popupRef}
-          className="absolute z-10 bg-white rounded-md shadow-lg w-[50%]  mt-20"
+          className="absolute z-10 bg-white rounded-md shadow-lg w-[50%] mt-20"
         >
-          <div className="flex flex-wrap gap-3 my-3 max-h-[40vh] overflow-y-auto">
-            {moviesData.map((movie) => (
+          <div className="flex flex-wrap gap-3 max-h-[40vh] overflow-y-auto">
+            {moviesData.map((m) => (
               <div
-                key={movie.id}
-                onClick={() => handleSelectMovie(movie)} // Select movie
+                key={m.id}
+                onClick={() => handleSelectMovie(m)} // Select movie
                 className={`flex flex-col items-center text-center p-2 cursor-pointer ${
-                  movie === selectedMovie
+                  m === movie
                     ? "bg-red-200 rounded-xl"
                     : "hover:bg-gray-200 hover:rounded-xl"
                 }`}
               >
                 <img
-                  src={movie.poster}
-                  alt={movie.title}
-                  className="w-40 h-60 rounded-xl"
+                  src={m.poster}
+                  alt={m.title}
+                  className="w-40 h-60 rounded-xl mb-2"
                 />
                 <span>{m.releaseDate}</span>
                 <span>{m.title}</span>
@@ -224,18 +224,18 @@ function ShowTheaterAndMovie() {
               <div key={zone.id} className="w-[48%] p-2">
                 <h3 className="font-semibold">{zone.name}</h3>
                 {cinemaLocations
-                  .filter((cinema) => cinema.zone === zone.id)
-                  .map((cinema) => (
+                  .filter((c) => c.zone === zone.id)
+                  .map((c) => (
                     <div
-                      key={cinema.id}
-                      onClick={() => handleSelectCinema(cinema)}
-                      className={`flex flex-col ml-5 p-2 cursor-pointer ${
-                        cinema === selectedCinema
+                      key={c.id}
+                      onClick={() => handleSelectCinema(c)}
+                      className={`flex items-center p-2 hover:bg-gray-200 cursor-pointer ${
+                        c === cinema
                           ? "bg-red-200 rounded-lg"
                           : "hover:bg-gray-200 hover:rounded-lg"
                       }`}
                     >
-                      <span>{cinema.name}</span>
+                      <span>{c.name}</span>
                     </div>
                   ))}
               </div>
