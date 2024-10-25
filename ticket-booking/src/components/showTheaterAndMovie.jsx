@@ -191,19 +191,21 @@ function ShowTheaterAndMovie() {
           ref={popupRef}
           className="absolute z-10 bg-white rounded-md shadow-lg w-[50%]  mt-20"
         >
-          <div className="flex flex-wrap gap-3 max-h-[40vh] overflow-y-auto">
+          <div className="flex flex-wrap gap-3 my-3 max-h-[40vh] overflow-y-auto">
             {moviesData.map((movie) => (
               <div
                 key={movie.id}
                 onClick={() => handleSelectMovie(movie)} // Select movie
                 className={`flex flex-col items-center text-center p-2 cursor-pointer ${
-                  movie === selectedMovie ? "bg-red-200" : "hover:bg-gray-200"
+                  movie === selectedMovie
+                    ? "bg-red-200 rounded-xl"
+                    : "hover:bg-gray-200 hover:rounded-xl"
                 }`}
               >
                 <img
                   src={movie.poster}
                   alt={movie.title}
-                  className="w-40 h-60 rounded-xl mb-2"
+                  className="w-40 h-60 rounded-xl"
                 />
                 <span>{movie.releaseDate}</span>
                 <span>{movie.title}</span>
@@ -229,10 +231,10 @@ function ShowTheaterAndMovie() {
                     <div
                       key={cinema.id}
                       onClick={() => handleSelectCinema(cinema)}
-                      className={`flex flex-col items-center text-center p-2 cursor-pointer ${
+                      className={`flex flex-col ml-5 p-2 cursor-pointer ${
                         cinema === selectedCinema
-                          ? "bg-red-200"
-                          : "hover:bg-gray-200"
+                          ? "bg-red-200 rounded-lg"
+                          : "hover:bg-gray-200 hover:rounded-lg"
                       }`}
                     >
                       <span>{cinema.name}</span>
