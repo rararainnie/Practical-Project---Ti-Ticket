@@ -135,10 +135,10 @@ function ShowTheaterAndMovie() {
     if (!cinema?.name && !movie?.title) {
       alert("กรุณาเลือกโรงภาพยนตร์ หรือ ภาพยนตร์ หรือ ทั้งสองอย่าง");
     } else {
-      navigate(`/movie-reservation/${movie.title}`, { 
-        state: { movie, cinema } 
+      navigate(`/movie-reservation/${movie.title}`, {
+        state: { movie, cinema },
       });
-    };
+    }
   };
 
   return (
@@ -199,7 +199,7 @@ function ShowTheaterAndMovie() {
       {showMovieModal && (
         <div
           ref={popupRef}
-          className="absolute z-10 bg-white rounded-md shadow-lg w-[50%]  mt-20"
+          className="absolute z-10 bg-white rounded-md shadow-lg w-[50%] mt-20"
         >
           <div className="flex flex-wrap gap-3 max-h-[40vh] overflow-y-auto">
             {moviesData.map((m) => (
@@ -207,7 +207,7 @@ function ShowTheaterAndMovie() {
                 key={m.id}
                 onClick={() => handleSelectMovie(m)} // Select movie
                 className={`flex flex-col items-center text-center p-2 cursor-pointer ${
-                  m === movie 
+                  m === movie
                     ? "bg-red-200 rounded-xl"
                     : "hover:bg-gray-200 hover:rounded-xl"
                 }`}
