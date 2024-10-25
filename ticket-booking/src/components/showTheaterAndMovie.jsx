@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import { Buffer } from "buffer";
+import { useNavigate } from "react-router-dom";
 
 function ShowTheaterAndMovie() {
+  const navigate = useNavigate();
   const [moviesData, setMoviesData] = useState([]);
   const [cinemaLocations, setCinemaLocations] = useState([]);
   const [zones, setZones] = useState([]);
-  const [selectedMovie, setSelectedMovie] = useState([]);
-  const [selectedCinema, setSelectedCinema] = useState([]);
+  const [movie, setMovie] = useState([]);
+  const [cinema, setCinema] = useState([]);
   const [showMovieModal, setShowMovieModal] = useState(false); // For controlling Movie Modal visibility
   const [showCinemaModal, setShowCinemaModal] = useState(false); // For controlling Cinema Modal visibility
   const popupRef = useRef(null);
@@ -95,15 +97,15 @@ function ShowTheaterAndMovie() {
     };
   }, []);
 
-  const handleSelectMovie = (movie) => {
-    if (selectedMovie === movie) setSelectedMovie([]);
-    else setSelectedMovie(movie);
+  const handleSelectMovie = (selectedMovie) => {
+    if (movie === selectedMovie) setMovie([]);
+    else setMovie(selectedMovie);
     setShowMovieModal(false);
   };
 
-  const handleSelectCinema = (cinema) => {
-    if (selectedCinema === cinema) setSelectedCinema([]);
-    else setSelectedCinema(cinema);
+  const handleSelectCinema = (selectedCinema) => {
+    if (cinema === selectedCinema) setCinema([]);
+    else setCinema(selectedCinema);
     setShowCinemaModal(false);
   };
 
@@ -118,16 +120,12 @@ function ShowTheaterAndMovie() {
   };
 
   const handleSubmit = () => {
-    if (!selectedCinema?.name && !selectedMovie?.title) {
+    if (!cinema?.name && !movie?.title) {
       alert("กรุณาเลือกโรงภาพยนตร์ หรือ ภาพยนตร์ หรือ ทั้งสองอย่าง");
-    } else if (selectedMovie?.title && !selectedCinema?.name) {
-      alert(`ภาพยนตร์ที่เลือก: ${selectedMovie.title}`);
-    } else if (!selectedMovie?.title && selectedCinema?.name) {
-      alert(`โรงภาพยนตร์ที่เลือก: ${selectedCinema.name}`);
     } else {
-      alert(
-        `ภาพยนตร์ที่เลือก: ${selectedMovie.title}\nโรงภาพยนตร์ที่เลือก: ${selectedCinema.name}`
-      );
+      navigate(`/movie-reservation/${movie.title}`, {
+        state: { movie, cinema },
+      });
     }
   };
 
@@ -149,7 +147,7 @@ function ShowTheaterAndMovie() {
                 transition: "color 0.3s ease",
               }}
             >
-              <span>{selectedCinema.name || "โรงภาพยนตร์ทั้งหมด"}</span>
+              <span>{cinema.name || "โรงภาพยนตร์ทั้งหมด"}</span>
               <span>{showCinemaModal ? "△" : "▽"}</span>
             </button>
           </div>
@@ -167,7 +165,7 @@ function ShowTheaterAndMovie() {
                 transition: "color 0.3s ease",
               }}
             >
-              <span>{selectedMovie.title || "ภาพยนตร์ทั้งหมด"}</span>
+              <span>{movie.title || "ภาพยนตร์ทั้งหมด"}</span>
               <span>{showMovieModal ? "△" : "▽"}</span>
             </button>
           </div>
@@ -177,7 +175,7 @@ function ShowTheaterAndMovie() {
             <button
               onClick={handleSubmit}
               className="w-full p-2 bg-red-500 text-white rounded-md hover:bg-red-700"
-              disabled={!selectedMovie || !selectedCinema} // Disable if no movie or cinema is selected
+              disabled={!movie || !cinema} // Disable if no movie or cinema is selected
             >
               รอบฉาย
             </button>
@@ -207,8 +205,8 @@ function ShowTheaterAndMovie() {
                   alt={movie.title}
                   className="w-40 h-60 rounded-xl"
                 />
-                <span>{movie.releaseDate}</span>
-                <span>{movie.title}</span>
+                <span>{m.releaseDate}</span>
+                <span>{m.title}</span>
               </div>
             ))}
           </div>
