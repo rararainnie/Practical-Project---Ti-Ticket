@@ -12,7 +12,7 @@ app.use(cors());
 const db = createConnection({
   host: "localhost", // หรือ IP ของฐานข้อมูล MySQL
   user: "root", // ชื่อผู้ใช้งาน MySQL
-  password: "pun1234", // รหัสผ่าน MySQL (ให้ใส่รหัสของคุณ)
+  password: "rainnie", // รหัสผ่าน MySQL (ให้ใส่รหัสของคุณ)
   database: "movies_ticket_schema", // ชื่อฐานข้อมูล
 });
 
@@ -65,9 +65,9 @@ app.get("/zone", (req, res) => {
 });
 
 // API เพื่อดึงหนังทุกเรื่องตาม CinemaLocation
-app.get('/cinema/:locationId/movies', (req, res) => {
+app.get("/cinema/:locationId/movies", (req, res) => {
   const locationId = req.params.locationId;
-  
+
   const query = `
     SELECT m.* 
     FROM CinemaLocation_has_Movies clm
@@ -77,8 +77,8 @@ app.get('/cinema/:locationId/movies', (req, res) => {
 
   db.query(query, [locationId], (err, results) => {
     if (err) {
-      console.error('Error fetching movies:', err);
-      res.status(500).send('Error fetching movies');
+      console.error("Error fetching movies:", err);
+      res.status(500).send("Error fetching movies");
     } else {
       res.json(results);
     }
@@ -86,9 +86,9 @@ app.get('/cinema/:locationId/movies', (req, res) => {
 });
 
 // API เพื่อดึงข้อมูลโรงภาพยนตร์จาก MovieID
-app.get('/movie/:movieId/cinemas', (req, res) => {
+app.get("/movie/:movieId/cinemas", (req, res) => {
   const movieId = req.params.movieId;
-  
+
   const query = `
     SELECT cl.*
     FROM CinemaLocation_has_Movies clm
@@ -98,8 +98,8 @@ app.get('/movie/:movieId/cinemas', (req, res) => {
 
   db.query(query, [movieId], (err, results) => {
     if (err) {
-      console.error('Error fetching cinemas:', err);
-      res.status(500).send('Error fetching cinemas');
+      console.error("Error fetching cinemas:", err);
+      res.status(500).send("Error fetching cinemas");
     } else {
       res.json(results);
     }
@@ -107,10 +107,10 @@ app.get('/movie/:movieId/cinemas', (req, res) => {
 });
 
 // API เพื่อดึงข้อมูล CinemaNo และ ShowTime โดยใช้ MovieID และ CinemaLocationCode
-app.get('/movie/:movieId/cinema/:cinemaLocationCode', (req, res) => {
+app.get("/movie/:movieId/cinema/:cinemaLocationCode", (req, res) => {
   const movieId = req.params.movieId;
   const cinemaLocationCode = req.params.cinemaLocationCode;
-  
+
   const query = `
     SELECT 
         mcn.*, 
@@ -129,8 +129,8 @@ app.get('/movie/:movieId/cinema/:cinemaLocationCode', (req, res) => {
 
   db.query(query, [movieId, cinemaLocationCode], (err, results) => {
     if (err) {
-      console.error('Error fetching cinema and showtime:', err);
-      res.status(500).send('Error fetching cinema and showtime');
+      console.error("Error fetching cinema and showtime:", err);
+      res.status(500).send("Error fetching cinema and showtime");
     } else {
       res.json(results);
     }
@@ -138,10 +138,10 @@ app.get('/movie/:movieId/cinema/:cinemaLocationCode', (req, res) => {
 });
 
 // API เพื่อดึงข้อมูล CinemaNo และ ShowTime โดยใช้ MovieID และ CinemaLocationCode
-app.get('/movie/:movieId/cinema/:cinemaLocationCode', (req, res) => {
+app.get("/movie/:movieId/cinema/:cinemaLocationCode", (req, res) => {
   const movieId = req.params.movieId;
   const cinemaLocationCode = req.params.cinemaLocationCode;
-  
+
   const query = `
     SELECT 
         st.CinemaNo,
@@ -163,8 +163,8 @@ app.get('/movie/:movieId/cinema/:cinemaLocationCode', (req, res) => {
 
   db.query(query, [movieId, cinemaLocationCode], (err, results) => {
     if (err) {
-      console.error('Error fetching cinema and showtime:', err);
-      res.status(500).send('Error fetching cinema and showtime');
+      console.error("Error fetching cinema and showtime:", err);
+      res.status(500).send("Error fetching cinema and showtime");
     } else {
       res.json(results);
     }
