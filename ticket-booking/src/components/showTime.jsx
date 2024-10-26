@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import ShowSeats from "../components/showSeats";
 
-function ShowTime({ showTimes }) {
+function ShowTime({ movie, cinema, showTimes }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [days, setDays] = useState([]);
   const [selectedDate, setSelectedDate] = useState(
@@ -84,7 +84,7 @@ function ShowTime({ showTimes }) {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-between w-full">
+      <div className="flex flex-col">
         <div className="flex border rounded-md p-2 bg-white w-full">
           <h1 className="flex-1 text-center">เลือกรอบภาพยนตร์</h1>
           <h1 className="flex-1 text-center">เลือกที่นั่ง</h1>
@@ -100,7 +100,7 @@ function ShowTime({ showTimes }) {
             &lt;
           </button>
 
-          <div className="flex gap-x-2 ">
+          <div className="flex gap-x-2">
             {days.slice(currentIndex, currentIndex + 11).map((day, index) => {
               const isToday =
                 day.fullDate === new Date().toISOString().split("T")[0];
@@ -143,7 +143,6 @@ function ShowTime({ showTimes }) {
           </button>
         </div>
       </div>
-
       <div className="mt-8">
         {showTimes.length > 0 ? (
           (() => {
@@ -256,21 +255,22 @@ function ShowTime({ showTimes }) {
           <p className="text-xl text-yellow-500">ไม่พบรอบฉายสำหรับภาพนตร์นี้</p>
         )}
       </div>
-
       {selectedTimeCode && (
-        <div className="mt-8">
-          <ShowSeats
-            timeCode={selectedTimeCode}
-            showDateTime={selectedShowDateTime}
-          />
-        </div>
-      )}
+        <ShowSeats
+          timeCode={selectedTimeCode}
+          showDateTime={selectedShowDateTime}
+          movie={movie}
+          cinema={cinema}
+        />
+      )}{" "}
     </>
   );
 }
 
 ShowTime.propTypes = {
   showTimes: PropTypes.array.isRequired,
+  movie: PropTypes.object.isRequired,
+  cinema: PropTypes.object.isRequired,
 };
 
 export default ShowTime;

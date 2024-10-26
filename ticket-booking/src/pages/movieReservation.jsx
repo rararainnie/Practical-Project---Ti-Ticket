@@ -160,13 +160,15 @@ function MovieReservation() {
                 รายละเอียด
               </button>
               {cinema && (
-                <p className="selected-cinema text-lg mt-3">
+                <p className="selected-cinema tex t-lg mt-3">
                   โรงภาพยนตร์ที่เลือก: {cinema.name}
                 </p>
               )}
             </div>
           </div>
         )}
+      </div>
+      <div className="w-[70%] flex flex-col mx-auto">
         {(movie.id || (movie.id && cinema.id)) && (
           <ShowTime movie={movie} cinema={cinema} showTimes={showTimes} />
         )}
