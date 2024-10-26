@@ -46,7 +46,6 @@ function Home() {
       .catch((error) => {
         console.error("Error fetching movies:", error);
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filterMovies = (index, movieList = movies) => {
@@ -86,7 +85,7 @@ function Home() {
       <ShowTheaterAndMovie />
       <div className="pt-1 w-[60%] mx-auto">
         <h1 className="text-red-500 text-3xl text-center">ภาพยนตร์</h1>
-        <div className="text-white text-xl text-center space-x-10 mt-5 mb-5">
+        <div className="text-white text-xl text-center space-x-10 mt-5 mb-5 ">
           <span
             className={`cursor-pointer hover:underline hover:decoration-red-400 hover:text-white ${
               underlined === 0

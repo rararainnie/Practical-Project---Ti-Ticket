@@ -14,12 +14,14 @@ function ShowSeats({ timeCode, showDateTime }) {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`http://localhost:3001/showtime/${timeCode}/seats`);
+        const response = await fetch(
+          `http://localhost:3001/showtime/${timeCode}/seats`
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        console.log(data)
+        console.log(data);
         setSeats(data);
       } catch (err) {
         console.error("เกิดข้อผิดพลาดในการดึงข้อมูลที่นั่ง:", err);
@@ -35,9 +37,9 @@ function ShowSeats({ timeCode, showDateTime }) {
   }, [timeCode]);
 
   const handleSeatClick = (seat) => {
-    setSelectedSeats(prevSelectedSeats => {
-      if (prevSelectedSeats.some(s => s.SeatCode === seat.SeatCode)) {
-        return prevSelectedSeats.filter(s => s.SeatCode !== seat.SeatCode);
+    setSelectedSeats((prevSelectedSeats) => {
+      if (prevSelectedSeats.some((s) => s.SeatCode === seat.SeatCode)) {
+        return prevSelectedSeats.filter((s) => s.SeatCode !== seat.SeatCode);
       } else {
         return [...prevSelectedSeats, seat];
       }
@@ -45,25 +47,30 @@ function ShowSeats({ timeCode, showDateTime }) {
   };
 
   const renderSeats = () => {
-    const rows = [...new Set(seats.map(seat => seat.SeatName[0]))].sort();
-    return rows.map(row => (
+    const rows = [...new Set(seats.map((seat) => seat.SeatName[0]))].sort();
+    return rows.map((row) => (
       <div key={row} className="flex justify-center my-2">
         <span className="w-8 text-center">{row}</span>
         {seats
-          .filter(seat => seat.SeatName.startsWith(row))
-          .sort((a, b) => parseInt(a.SeatName.slice(1)) - parseInt(b.SeatName.slice(1)))
-          .map(seat => (
+          .filter((seat) => seat.SeatName.startsWith(row))
+          .sort(
+            (a, b) =>
+              parseInt(a.SeatName.slice(1)) - parseInt(b.SeatName.slice(1))
+          )
+          .map((seat) => (
             <button
               key={seat.SeatCode}
               className={`w-8 h-8 mx-1 rounded ${
-                seat.Status === 'available'
-                  ? selectedSeats.some(s => s.SeatCode === seat.SeatCode)
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-green-500 hover:bg-green-600'
-                  : 'bg-gray-500 cursor-not-allowed'
+                seat.Status === "available"
+                  ? selectedSeats.some((s) => s.SeatCode === seat.SeatCode)
+                    ? "bg-blue-500 text-white"
+                    : "bg-green-500 hover:bg-green-600"
+                  : "bg-gray-500 cursor-not-allowed"
               }`}
-              onClick={() => seat.Status === 'available' && handleSeatClick(seat)}
-              disabled={seat.Status !== 'available'}
+              onClick={() =>
+                seat.Status === "available" && handleSeatClick(seat)
+              }
+              disabled={seat.Status !== "available"}
             >
               {seat.SeatName.slice(1)}
             </button>
@@ -73,7 +80,10 @@ function ShowSeats({ timeCode, showDateTime }) {
   };
 
   const calculateTotalPrice = () => {
-    return selectedSeats.reduce((total, seat) => total + parseFloat(seat.Price), 0);
+    return selectedSeats.reduce(
+      (total, seat) => total + parseFloat(seat.Price),
+      0
+    );
   };
 
   const handleBooking = () => {
@@ -81,20 +91,22 @@ function ShowSeats({ timeCode, showDateTime }) {
       alert("กรุณาเลือกที่นั่งอย่างน้อย 1 ที่นั่ง");
       return;
     }
-    
+
     const bookingData = {
       timeCode,
       showDateTime,
       selectedSeats,
-      totalPrice: calculateTotalPrice()
+      totalPrice: calculateTotalPrice(),
     };
-    
+
     navigate("/booking-confirmation", { state: bookingData });
   };
 
-  if (loading) return <p className="text-white text-center">กำลังโหลดข้อมูลที่นั่ง...</p>;
+  if (loading)
+    return <p className="text-white text-center">กำลังโหลดข้อมูลที่นั่ง...</p>;
   if (error) return <p className="text-red-500 text-center">{error}</p>;
-  if (seats.length === 0) return <p className="text-white text-center">ไม่พบข้อมูลที่นั่ง</p>;
+  if (seats.length === 0)
+    return <p className="text-white text-center">ไม่พบข้อมูลที่นั่ง</p>;
 
   return (
     <div className="mt-8">
@@ -107,7 +119,10 @@ function ShowSeats({ timeCode, showDateTime }) {
       </div>
       <div className="mt-4 text-white">
         <p>รอบฉาย: {new Date(showDateTime).toLocaleString()}</p>
-        <p>ที่นั่งที่เลือก: {selectedSeats.map(seat => seat.SeatName).join(', ')}</p>
+        <p>
+          ที่นั่งที่เลือก:{" "}
+          {selectedSeats.map((seat) => seat.SeatName).join(", ")}
+        </p>
         <p>ราคารวม: {calculateTotalPrice().toFixed(2)} บาท</p>
       </div>
       <button
