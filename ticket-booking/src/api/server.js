@@ -71,7 +71,7 @@ app.get("/cinema/:CinemaLocationCode/movies", (req, res) => {
   const query = `
     SELECT m.* 
     FROM CinemaLocation_has_Movies clm
-    JOIN movies m ON clm.Movies_MovieID = m.MovieID
+    JOIN Movies m ON clm.Movies_MovieID = m.MovieID
     WHERE clm.CinemaLocation_CinemaLocationCode = ?
   `;
 
@@ -120,7 +120,7 @@ app.get("/movie/:MovieID/cinema/:CinemaLocationCode", (req, res) => {
         cl.Name AS CinemaLocationName,
         cl.CinemaLocationCode AS CinemaLocationId
     FROM 
-        showTime st
+        ShowTime st
     JOIN 
         CinemaNo cn ON st.CinemaNo_CinemaNoCode = cn.CinemaNoCode
     JOIN 
@@ -173,12 +173,12 @@ app.get("/showtime/:TimeCode/seats", (req, res) => {
 app.use(express.json());
 
 // API เพื่ออัปเดต Status ของที่นั่ง
-app.put('/seat/:SeatCode/status', (req, res) => {
+app.put("/seat/:SeatCode/status", (req, res) => {
   const seatCode = req.params.SeatCode;
   const { Status } = req.body;
-  
+
   if (!Status) {
-    return res.status(400).send('Status is required');
+    return res.status(400).send("Status is required");
   }
 
   const query = `
@@ -189,13 +189,13 @@ app.put('/seat/:SeatCode/status', (req, res) => {
 
   db.query(query, [Status, seatCode], (err, result) => {
     if (err) {
-      console.error('เกิดข้อผิดพลาดในการอัปเดตสถานะที่นั่ง:', err);
-      res.status(500).send('เกิดข้อผิดพลาดในการอัปเดตสถานะที่นั่ง');
+      console.error("เกิดข้อผิดพลาดในการอัปเดตสถานะที่นั่ง:", err);
+      res.status(500).send("เกิดข้อผิดพลาดในการอัปเดตสถานะที่นั่ง");
     } else {
       if (result.affectedRows === 0) {
-        res.status(404).send('ไม่พบที่นั่งที่ระบุ');
+        res.status(404).send("ไม่พบที่นั่งที่ระบุ");
       } else {
-        res.status(200).send('อัปเดตสถานะที่นั่งเรียบร้อยแล้ว');
+        res.status(200).send("อัปเดตสถานะที่นั่งเรียบร้อยแล้ว");
       }
     }
   });
