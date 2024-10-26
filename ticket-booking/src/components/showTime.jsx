@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import ShowSeats from "../components/showSeats";
 
 function ShowTime({ showTimes }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [days, setDays] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedTimeCode, setSelectedTimeCode] = useState(null);
+  const [selectedShowDateTime, setSelectedShowDateTime] = useState(null);
+//   const [isShowSeats, setIsShowSeats] = useState(false);
 
   useEffect(() => {
     console.log("showtimes", showTimes)
@@ -34,6 +37,8 @@ function ShowTime({ showTimes }) {
 
   const handleDateClick = (fullDate) => {
     setSelectedDate(fullDate);
+    setSelectedTimeCode(null);
+    setSelectedShowDateTime(null);
   };
 
   const handlePrevious = () => {
@@ -45,18 +50,14 @@ function ShowTime({ showTimes }) {
   };
 
   const handleTimeClick = (timeCode, showDateTime) => {
-    const showTime = new Date(showDateTime);
-    const currentTime = new Date();
-    const timeDifference = showTime.getTime() - currentTime.getTime();
-    const minutesDifference = timeDifference / (1000 * 60);
-
-    if (minutesDifference > 30) {
-      if (selectedTimeCode === timeCode) setSelectedTimeCode(null);
-      else setSelectedTimeCode(timeCode);
-      console.log("เลือก TimeCode:", timeCode);
+    if (selectedTimeCode === timeCode) {
+      setSelectedTimeCode(null);
+      setSelectedShowDateTime(null);
     } else {
-      console.log("ไม่สามารถเลือกรอบฉายนี้ได้ เนื่องจากเลยเวลาไปแล้ว");
+      setSelectedTimeCode(timeCode);
+      setSelectedShowDateTime(showDateTime);
     }
+    console.log("เลือก TimeCode:", timeCode, showDateTime);
   };
 
   const filterShowTimesByDate = (showTimes, selectedDate) => {
@@ -84,7 +85,7 @@ function ShowTime({ showTimes }) {
             &lt;
           </button>
 
-          <div className="flex gap-x-2 overflow-x-auto">
+          <div className="flex gap-x-2 ">
             {days.slice(currentIndex, currentIndex + 11).map((day, index) => {
               const isToday = day.fullDate === new Date().toISOString().split('T')[0];
               return (
@@ -195,6 +196,12 @@ function ShowTime({ showTimes }) {
           <p className="text-xl text-yellow-500">ไม่พบรอบฉายสำหรับภาพนตร์นี้</p>
         )}
       </div>
+
+      {selectedTimeCode && (
+        <div className="mt-8">
+          <ShowSeats timeCode={selectedTimeCode} showDateTime={selectedShowDateTime} />
+        </div>
+      )}
     </>
   );
 }
