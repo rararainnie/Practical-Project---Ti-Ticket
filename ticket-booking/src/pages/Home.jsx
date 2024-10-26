@@ -12,7 +12,7 @@ function Home() {
 
   const handleClick = (index) => {
     setUnderlined(index);
-    filterMovies(index);
+    filterMovies(index, movies);
   };
 
   useEffect(() => {
@@ -20,9 +20,10 @@ function Home() {
     fetch("http://localhost:3001/movies")
       .then((response) => response.json())
       .then((data) => {
+        console.log("ข้อมูลที่ได้รับจาก API:", data);
         // Format the data
         const formattedMovies = data.map((movie) => ({
-          id: movie.MovieId,
+          id: movie.MovieID,
           poster: `data:image/jpeg;base64,${Buffer.from(movie.Image).toString(
             "base64"
           )}`,
@@ -69,8 +70,9 @@ function Home() {
   };
 
   useEffect(() => {
+    console.log("setMovies", movies)
     console.log("Filtered Movies:", filteredMovies);
-  }, [filteredMovies]);
+  }, [filteredMovies, movies]);
 
   return (
     <div className="bg-black min-h-screen">
@@ -103,6 +105,7 @@ function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {filteredMovies.length > 0 ? (
             filteredMovies.map((movie) => (
+              console.log("movie", movie),
               <MovieBox key={movie.id} movie={movie} />
             ))
           ) : (

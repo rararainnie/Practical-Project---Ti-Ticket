@@ -26,7 +26,7 @@ function RecommendMovie() {
             releaseDate.setHours(0, 0, 0, 0);
 
             return {
-              id: movie.MovieId,
+              id: movie.MovieID,
               poster: `data:image/jpeg;base64,${Buffer.from(movie.Image).toString(
                 "base64"
               )}`,
