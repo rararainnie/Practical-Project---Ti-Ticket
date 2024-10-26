@@ -49,7 +49,6 @@ function ShowTheaterAndMovie() {
             };
           })
           .filter((movie) => movie.rawReleaseDate <= currentDate); // กรองเฉพาะหนังที่วันฉายไม่เกินวันปัจจุบัน
-
         setMoviesData(formattedMovies);
       })
       .catch((error) => {
@@ -134,6 +133,16 @@ function ShowTheaterAndMovie() {
   const handleSubmit = () => {
     if (!cinema?.name && !movie?.title) {
       alert("กรุณาเลือกโรงภาพยนตร์ หรือ ภาพยนตร์ หรือ ทั้งสองอย่าง");
+    } else if (cinema?.name && !movie?.title) {
+      console.log("show cinema", cinema);
+      navigate(`/movie-reservation/${cinema.name}`, {
+        state: { movie, cinema },
+      });
+      // } else if (!cinema?.name && movie?.title) {
+      //   console.log("show movie", movie)
+      //   navigate(`/movie-reservation/${movie.title}`, {
+      //     state: { movie },
+      //   });
     } else {
       navigate(`/movie-reservation/${movie.title}`, {
         state: { movie, cinema },

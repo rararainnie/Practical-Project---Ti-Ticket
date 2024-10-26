@@ -65,8 +65,8 @@ app.get("/zone", (req, res) => {
 });
 
 // API เพื่อดึงหนังทุกเรื่องตาม CinemaLocation
-app.get("/cinema/:locationId/movies", (req, res) => {
-  const locationId = req.params.locationId;
+app.get("/cinema/:CinemaLocationCode/movies", (req, res) => {
+  const locationId = req.params.CinemaLocationCode; // แก้ไขจาก locationId เป็น CinemaLocationCode
 
   const query = `
     SELECT m.* 
@@ -86,8 +86,8 @@ app.get("/cinema/:locationId/movies", (req, res) => {
 });
 
 // API เพื่อดึงข้อมูลโรงภาพยนตร์จาก MovieID
-app.get("/movie/:MovieId/cinemas", (req, res) => {
-  const movieId = req.params.movieId;
+app.get("/movie/:MovieID/cinemas", (req, res) => {
+  const movieId = req.params.MovieID; // แก้ไขจาก movieID เป็น MovieID
 
   const query = `
     SELECT cl.*
@@ -107,29 +107,62 @@ app.get("/movie/:MovieId/cinemas", (req, res) => {
 });
 
 // API เพื่อดึงข้อมูล CinemaNo และ ShowTime โดยใช้ MovieID และ CinemaLocationCode
-app.get("/movie/:Movies_MovieID/cinema/:CinemaLocationCode", (req, res) => {
-  const movieId = req.params.movieId;
-  const cinemaLocationCode = req.params.cinemaLocationCode;
+app.get("/movie/:MovieID/cinema/:CinemaLocationCode", (req, res) => {
+  const movieId = req.params.MovieID;
+  const cinemaLocationCode = req.params.CinemaLocationCode;
 
   const query = `
     SELECT 
-        st.CinemaNo_CinemaNoCode,
+        st.TimeCode,
         st.ShowDateTime,
-        cl.Name AS CinemaLocationName
+        st.CinemaNo_CinemaNoCode AS CinemaNo,
+        cn.Name AS CinemaNoName,
+        cl.Name AS CinemaLocationName,
+        cl.CinemaLocationCode AS CinemaLocationId
     FROM 
         showTime st
     JOIN 
-        cinemaLocation cl 
-        ON st.CinemaLocation_CinemaLocationCode = cl.CinemaLocationCode
+        CinemaNo cn ON st.CinemaNo_CinemaNoCode = cn.CinemaNoCode
+    JOIN 
+        CinemaLocation cl ON cn.CinemaLocation_CinemaLocationCode = cl.CinemaLocationCode
     WHERE 
         st.Movies_MovieID = ? 
-        AND st.CinemaLocation_CinemaLocationCode = ?
+        AND cl.CinemaLocationCode = ?
+    ORDER BY 
+        cl.Name
   `;
 
   db.query(query, [movieId, cinemaLocationCode], (err, results) => {
     if (err) {
-      console.error("Error fetching cinema and showtime:", err);
-      res.status(500).send("Error fetching cinema and showtime");
+      console.error("เกิดข้อผิดพลาดในการดึงข้อมูลโรงภาพยนตร์และรอบฉาย:", err);
+      res.status(500).send("เกิดข้อผิดพลาดในการดึงข้อมูลโรงภาพยนตร์และรอบฉาย");
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+// API เพื่อดึงข้อมูล Seat ที่เกี่ยวข้องกับ TimeCode
+app.get("/showtime/:TimeCode/seats", (req, res) => {
+  const timeCode = req.params.TimeCode;
+
+  const query = `
+    SELECT 
+        s.*
+    FROM 
+        Seats s
+    JOIN 
+        ShowTime st ON s.ShowTime_TimeCode = st.TimeCode
+    WHERE 
+        s.ShowTime_TimeCode = ?
+    ORDER BY 
+        s.SeatName
+  `;
+
+  db.query(query, [timeCode], (err, results) => {
+    if (err) {
+      console.error("เกิดข้อผิดพลาดในการดึงข้อมูลที่นั่ง:", err);
+      res.status(500).send("เกิดข้อผิดพลาดในการดึงข้อมูลที่นั่ง");
     } else {
       res.json(results);
     }
