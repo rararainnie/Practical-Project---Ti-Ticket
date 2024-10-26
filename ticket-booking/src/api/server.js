@@ -71,7 +71,7 @@ app.get("/cinema/:locationId/movies", (req, res) => {
   const query = `
     SELECT m.* 
     FROM CinemaLocation_has_Movies clm
-    JOIN Movies m ON clm.Movies_MovieID = m.MovieID
+    JOIN movies m ON clm.Movies_MovieID = m.MovieID
     WHERE clm.CinemaLocation_CinemaLocationCode = ?
   `;
 
@@ -113,14 +113,13 @@ app.get("/movie/:Movies_MovieID/cinema/:CinemaLocationCode", (req, res) => {
 
   const query = `
     SELECT 
-        st.CinemaNo,
+        st.CinemaNo_CinemaNoCode,
         st.ShowDateTime,
-        cl.Name AS CinemaLocationName,
-        cl.Address AS CinemaLocationAddress
+        cl.Name AS CinemaLocationName
     FROM 
-        ShowTime st
+        showTime st
     JOIN 
-        CinemaLocation cl 
+        cinemaLocation cl 
         ON st.CinemaLocation_CinemaLocationCode = cl.CinemaLocationCode
     WHERE 
         st.Movies_MovieID = ? 

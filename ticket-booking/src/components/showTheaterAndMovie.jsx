@@ -31,10 +31,10 @@ function ShowTheaterAndMovie() {
             releaseDate.setHours(0, 0, 0, 0);
 
             return {
-              id: movie.MovieId,
-              poster: `data:image/jpeg;base64,${Buffer.from(movie.Image).toString(
-                "base64"
-              )}`,
+              id: movie.MovieID,
+              poster: `data:image/jpeg;base64,${Buffer.from(
+                movie.Image
+              ).toString("base64")}`,
               title: movie.Title,
               genre: movie.Genre,
               rating: movie.Rating.toString(),
@@ -235,20 +235,22 @@ function ShowTheaterAndMovie() {
             {zones.map((zone) => (
               <div key={zone.id} className="w-[48%] p-2">
                 <h3 className="font-semibold">{zone.name}</h3>
-                {cinemaLocations.filter(c => c.zone === zone.id).map(c => (
-                  <div
-                    key={c.id}
-                    onClick={() => handleSelectCinema(c)}
-                    className={`flex items-center p-2 hover:bg-gray-200 cursor-pointer ml-5 ${
-                      c === cinema 
-                        ? "bg-red-200 rounded-lg"
-                        : "hover:bg-gray-200 hover:rounded-lg"
-                    }`}
-                  >
-                    <span>{c.name}</span>
-                  </div>
-                ))}
-               </div>
+                {cinemaLocations
+                  .filter((c) => c.zone === zone.id)
+                  .map((c) => (
+                    <div
+                      key={c.id}
+                      onClick={() => handleSelectCinema(c)}
+                      className={`flex items-center p-2 hover:bg-gray-200 cursor-pointer ml-5 ${
+                        c === cinema
+                          ? "bg-red-200 rounded-lg"
+                          : "hover:bg-gray-200 hover:rounded-lg"
+                      }`}
+                    >
+                      <span>{c.name}</span>
+                    </div>
+                  ))}
+              </div>
             ))}
           </div>
         </div>
