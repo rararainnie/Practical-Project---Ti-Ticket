@@ -105,10 +105,9 @@ function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {filteredMovies.length > 0 ? (
             filteredMovies.map((movie) => (
-              console.log("movie", movie),
-              <MovieBox key={movie.id} movie={movie} />
+              < MovieBox key={movie.id} movie={movie} />
             ))
-          ) : (
+          ) : ( 
             <p className="text-white">ไม่พบภาพยนตร์</p>
           )}
         </div>

@@ -2,6 +2,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Navbar from "../components/navbar";
 import SelectTheaterAndMovieBar from "../components/showTheaterAndMovie";
+import MovieBox from "../components/movieBox";
+import { Buffer } from "buffer";
 
 function MovieReservation() {
   const navigate = useNavigate();
@@ -36,15 +38,42 @@ function MovieReservation() {
   };
 
   const fetchMoviesForCinema = async (cinemaId) => {
-      try {
-          const response = await fetch(`http://localhost:3001/cinema/${cinemaId}/movies`);
-          const data = await response.json();
-          setMovies(data);
-          console.log(data)
-          // data.forEach(movie => fetchShowTimes(movie.MovieID, cinemaId));
-      } catch (error) {
-          console.error('Error fetching movies:', error);
-      }
+    try {
+        const response = await fetch(`http://localhost:3001/cinema/${cinemaId}/movies`);
+        const data = await response.json();
+        console.log(data);
+
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
+
+        const formattedMovies = data
+            .map((movie) => {
+                const releaseDate = new Date(movie.ReleaseDate);
+                releaseDate.setHours(0, 0, 0, 0);
+
+                return {
+                    id: movie.MovieID,
+                    poster: `data:image/jpeg;base64,${Buffer.from(movie.Image).toString("base64")}`,
+                    title: movie.Title,
+                    genre: movie.Genre,
+                    rating: movie.Rating.toString(),
+                    duration: `${movie.Duration} นาที`,
+                    releaseDate: releaseDate.toLocaleDateString("th-TH", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                    }),
+                    rawReleaseDate: releaseDate,
+                    description: movie.Description,
+                };
+            })
+            .filter((movie) => movie.rawReleaseDate <= currentDate);
+
+        setMovies(formattedMovies);
+        console.log(formattedMovies);
+    } catch (error) {
+        console.error('เกิดข้อผิดพลาดในการดึงข้อมูลภาพยนตร์:', error);
+    }
   };
 
   const fetchShowTimes = async (movieId, cinemaId) => {
@@ -104,11 +133,19 @@ function MovieReservation() {
 
   const [selectedTimeCode, setSelectedTimeCode] = useState(null);
 
-  const handleTimeClick = (timeCode) => {
-    if (selectedTimeCode === timeCode) setSelectedTimeCode(null);
-    else setSelectedTimeCode(timeCode);
-    console.log("Selected TimeCode:", timeCode);
-    // คุณสามารถเพิ่มโค้ดเพิ่มเติมที่นี่เพื่อจัดการกั TimeCode ที่ถูกเลือก
+  const handleTimeClick = (timeCode, showDateTime) => {
+    const showTime = new Date(showDateTime);
+    const currentTime = new Date();
+    const timeDifference = showTime.getTime() - currentTime.getTime();
+    const minutesDifference = timeDifference / (1000 * 60);
+
+    if (minutesDifference > 30) {
+      if (selectedTimeCode === timeCode) setSelectedTimeCode(null);
+      else setSelectedTimeCode(timeCode);
+      console.log("เลือก TimeCode:", timeCode);
+    } else {
+      console.log("ไม่สามารถเลือกรอบฉายนี้ได้ เนื่องจากเลยเวลาไปแล้ว");
+    }
   };
 
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -130,17 +167,15 @@ function MovieReservation() {
           <Navbar />
           <SelectTheaterAndMovieBar />
           <div className="w-[60%] mx-auto">
-              {cinema != null && !movie.id && (
+              {cinema && !movie?.id && (
                   <div className="text-white mt-8">
                       <h2 className="text-2xl font-bold mb-4">โรงภาพยนตร์: {cinema.name}</h2>
                       {movies.length > 0 ? (
-                          <ul>
-                              {movies.map((movie) => (
-                                  <li key={movie.MovieID} className="mb-2">
-                                      {movie.Title} - {movie.ReleaseDate}
-                                  </li>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                              {movies.map((movieItem) => (
+                                  <MovieBox key={movieItem.id} movie={movieItem} />
                               ))}
-                          </ul>
+                          </div>
                       ) : (
                           <p className="text-xl text-yellow-500">ไม่พบภาพยนตร์ในโรงภาพยนตร์นี้</p>
                       )}
@@ -272,26 +307,36 @@ function MovieReservation() {
                                               <div className="flex flex-wrap gap-2">
                                                   {[...cinema.ShowTimes].map(timeStr => JSON.parse(timeStr))
                                                       .sort((a, b) => new Date(a.ShowDateTime) - new Date(b.ShowDateTime))
-                                                      .map((time, timeIndex) => (
-                                                          <button 
+                                                      .map((time, timeIndex) => {
+                                                          const showTime = new Date(time.ShowDateTime);
+                                                          const currentTime = new Date();
+                                                          const timeDifference = showTime.getTime() - currentTime.getTime();
+                                                          const minutesDifference = timeDifference / (1000 * 60);
+                                                          const isDisabled = minutesDifference <= 30;
+
+                                                          return (
+                                                            <button 
                                                               key={timeIndex} 
                                                               className={`px-3 py-1 rounded ${
-                                                                  selectedTimeCode === time.TimeCode 
-                                                                  ? 'bg-blue-500 text-white' 
-                                                                  : 'bg-red-500 text-white hover:bg-red-600'
+                                                                isDisabled
+                                                                  ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                                                                  : selectedTimeCode === time.TimeCode 
+                                                                    ? 'bg-blue-500 text-white' 
+                                                                    : 'bg-red-500 text-white hover:bg-red-600'
                                                               }`}
-                                                              onClick={() => handleTimeClick(time.TimeCode)}
-                                                          >
-                                                              {new Date(time.ShowDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                          </button>
-                                                      ))
-                                                  }
+                                                              onClick={() => handleTimeClick(time.TimeCode, time.ShowDateTime)}
+                                                              disabled={isDisabled}
+                                                            >
+                                                              {showTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                            </button>
+                                                          );
+                                                      })}
                                               </div>
                                           </div>
                                       ))}
                                   </div>
-                              ));
-                            })()
+                                ));
+                              })()
                           ) : (
                             <p className="text-xl text-yellow-500">ไม่พบรอบฉายสำหรับภาพยนตร์นี้</p>
                           )}
