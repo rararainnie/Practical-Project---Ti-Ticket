@@ -2,13 +2,13 @@ import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 // import { useState } from "react";
 
-function MovieBox({ movie }) {
+function MovieBox({ movie, cinema }) {
   const navigate = useNavigate();
   // const [cinema, setCinema] = useState([]);
 
   const handleBoxClick = () => {
     // Navigate to movie details and pass the movie object via state
-    navigate(`/movie-reservation/${movie.title}`, { state: { movie } });
+    navigate(`/movie-reservation/${movie.title}`, { state: { movie, cinema } });
   };
   return (
     <div
@@ -49,6 +49,7 @@ function MovieBox({ movie }) {
 
 MovieBox.propTypes = {
   movie: PropTypes.object.isRequired,
+  cinema: PropTypes.object.isRequired,
 };
 
 export default MovieBox;
