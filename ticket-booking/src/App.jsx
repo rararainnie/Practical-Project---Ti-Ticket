@@ -18,6 +18,7 @@ function App() {
           <Route path="/movie-reservation/:movieName" element={<MovieReservation />} />
           <Route path="/booking-confirmation/:movieName/:userFName" element={<BookingConfirmation />} />
           <Route path="/profile/:userFName" element={<ProfilePage />} />
+          <Route path="/adminPage/:adminFName"></Route>
         </Routes>
       </Router>
     </AuthProvider>

@@ -285,7 +285,7 @@ app.post('/register', (req, res) => {
     }
 
     // เพิ่มผู้ใช้ใหม่ลงในฐานข้อมูล
-    const insertQuery = 'INSERT INTO User (Email, Password, FName, LName, Status) VALUES (?, ?, ?, ?, "active")';
+    const insertQuery = 'INSERT INTO User (Email, Password, FName, LName, Status) VALUES (?, ?, ?, ?, "User")';
     db.query(insertQuery, [Email, Password, FName, LName], (err, result) => {
       if (err) {
         console.error('เกิดข้อผิดพลาดในการลงทะเบียน:', err);
