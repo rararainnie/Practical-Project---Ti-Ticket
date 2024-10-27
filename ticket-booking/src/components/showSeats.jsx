@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
+import seatSingle from "../assets/pic/seatSingle.png";
+import seatPair from "../assets/pic/seatPair.png";
+import checkMark from "../assets/pic/checkmark.png";
+import userIcon from "../assets/pic/iconUser.png";
 
 function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
   const [seats, setSeats] = useState([]);
@@ -46,6 +50,19 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
     });
   };
 
+  const getSeatImage = (seat) => {
+    if (seat.Status !== "available") {
+      return userIcon;
+    } else if (selectedSeats.some((s) => s.SeatCode === seat.SeatCode)) {
+      return checkMark;
+    } else {
+      if (seat.SeatName.startsWith("A")) return seatPair;
+      if (seat.SeatName.startsWith("B")) return seatSingle;
+      if (seat.SeatName.startsWith("C")) return seatSingle;
+    }
+    return null;
+  };
+
   const renderSeats = () => {
     const rows = [...new Set(seats.map((seat) => seat.SeatName[0]))].sort();
     return rows.map((row) => (
@@ -60,19 +77,18 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
           .map((seat) => (
             <button
               key={seat.SeatCode}
-              className={`w-8 h-8 mx-1 rounded ${
-                seat.Status === "available"
-                  ? selectedSeats.some((s) => s.SeatCode === seat.SeatCode)
-                    ? "bg-blue-500 text-white"
-                    : "bg-green-500 hover:bg-green-600"
-                  : "bg-gray-500 cursor-not-allowed"
-              }`}
               onClick={() =>
                 seat.Status === "available" && handleSeatClick(seat)
               }
               disabled={seat.Status !== "available"}
             >
-              {seat.SeatName.slice(1)}
+              <img
+                src={getSeatImage(seat)}
+                alt={seat.SeatCode}
+                className={`mx-1 object-contain ${
+                  getSeatImage(seat) === userIcon ? "w-7" : "w-10"
+                }`}
+              />
             </button>
           ))}
         <span className="ml-auto opacity-30">{row}</span>
@@ -113,11 +129,30 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
 
   return (
     <div className="mt-8">
-      <h2 className="w-[75%] text-white text-2xl text-center mb-4">
-        เลือกที่นั่ง
-      </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
         <div className="bg-gray-800 p-4 rounded-lg w-[150%]">
+          <div className="w-[30%] flex justify-between mx-auto mb-5 text-yellow-500 items-center">
+            <div className="w-20 h-32 flex flex-col ">
+              <img
+                src={seatSingle}
+                alt="Premium Seat"
+                className="w-full h-auto"
+              />
+              <p className="text-center mt-2">Premium</p>
+              <p className="text-center">200 บาท</p>
+            </div>
+
+            <div className="w-20 h-32 flex flex-col  ">
+              <img
+                src={seatPair}
+                alt="Suite Pair Seat"
+                className="w-full h-auto"
+              />
+              <p className="text-center mt-2">Suite (Pair)</p>
+              <p className="text-center">240 บาท</p>
+            </div>
+          </div>
+
           <div className="w-full h-12 bg-gray-700 mb-8 flex items-center justify-center text-white">
             จอภาพ
           </div>
