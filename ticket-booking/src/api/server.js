@@ -12,7 +12,7 @@ app.use(cors());
 const db = createConnection({
   host: "localhost", // หรือ IP ของฐานข้อมูล MySQL
   user: "root", // ชื่อผู้ใช้งาน MySQL
-  password: "pun1234", // รหัสผ่าน MySQL (ให้ใส่รหัสของคุณ)
+  password: "rainnie", // รหัสผ่าน MySQL (ให้ใส่รหัสของคุณ)
   database: "movies_ticket_schema", // ชื่อฐานข้อมูล
 });
 
@@ -65,9 +65,9 @@ app.get("/zone", (req, res) => {
 });
 
 // API เพื่อดึงหนังทุกเรื่องตาม CinemaLocation
-app.get('/cinema/:CinemaLocationCode/movies', (req, res) => {
+app.get("/cinema/:CinemaLocationCode/movies", (req, res) => {
   const locationId = req.params.CinemaLocationCode; // แก้ไขจาก locationId เป็น CinemaLocationCode
-  
+
   const query = `
     SELECT m.* 
     FROM CinemaLocation_has_Movies clm
@@ -77,8 +77,8 @@ app.get('/cinema/:CinemaLocationCode/movies', (req, res) => {
 
   db.query(query, [locationId], (err, results) => {
     if (err) {
-      console.error('Error fetching movies:', err);
-      res.status(500).send('Error fetching movies');
+      console.error("Error fetching movies:", err);
+      res.status(500).send("Error fetching movies");
     } else {
       res.json(results);
     }
@@ -86,9 +86,9 @@ app.get('/cinema/:CinemaLocationCode/movies', (req, res) => {
 });
 
 // API เพื่อดึงข้อมูลโรงภาพยนตร์จาก MovieID
-app.get('/movie/:MovieID/cinemas', (req, res) => {
+app.get("/movie/:MovieID/cinemas", (req, res) => {
   const movieId = req.params.MovieID; // แก้ไขจาก movieID เป็น MovieID
-  
+
   const query = `
     SELECT cl.*
     FROM CinemaLocation_has_Movies clm
@@ -98,8 +98,8 @@ app.get('/movie/:MovieID/cinemas', (req, res) => {
 
   db.query(query, [movieId], (err, results) => {
     if (err) {
-      console.error('Error fetching cinemas:', err);
-      res.status(500).send('Error fetching cinemas');
+      console.error("Error fetching cinemas:", err);
+      res.status(500).send("Error fetching cinemas");
     } else {
       res.json(results);
     }
@@ -107,10 +107,10 @@ app.get('/movie/:MovieID/cinemas', (req, res) => {
 });
 
 // API เพื่อดึงข้อมูล CinemaNo และ ShowTime โดยใช้ MovieID และ CinemaLocationCode
-app.get('/movie/:MovieID/cinema/:CinemaLocationCode', (req, res) => {
+app.get("/movie/:MovieID/cinema/:CinemaLocationCode", (req, res) => {
   const movieId = req.params.MovieID;
   const cinemaLocationCode = req.params.CinemaLocationCode;
-  
+
   const query = `
     SELECT 
         st.TimeCode,
@@ -134,8 +134,8 @@ app.get('/movie/:MovieID/cinema/:CinemaLocationCode', (req, res) => {
 
   db.query(query, [movieId, cinemaLocationCode], (err, results) => {
     if (err) {
-      console.error('เกิดข้อผิดพลาดในการดึงข้อมูลโรงภาพยนตร์และรอบฉาย:', err);
-      res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูลโรงภาพยนตร์และรอบฉาย');
+      console.error("เกิดข้อผิดพลาดในการดึงข้อมูลโรงภาพยนตร์และรอบฉาย:", err);
+      res.status(500).send("เกิดข้อผิดพลาดในการดึงข้อมูลโรงภาพยนตร์และรอบฉาย");
     } else {
       res.json(results);
     }
@@ -143,9 +143,9 @@ app.get('/movie/:MovieID/cinema/:CinemaLocationCode', (req, res) => {
 });
 
 // API เพื่อดึงข้อมูล Seat ที่เกี่ยวข้องกับ TimeCode
-app.get('/showtime/:TimeCode/seats', (req, res) => {
+app.get("/showtime/:TimeCode/seats", (req, res) => {
   const timeCode = req.params.TimeCode;
-  
+
   const query = `
     SELECT 
         s.*
@@ -161,8 +161,8 @@ app.get('/showtime/:TimeCode/seats', (req, res) => {
 
   db.query(query, [timeCode], (err, results) => {
     if (err) {
-      console.error('เกิดข้อผิดพลาดในการดึงข้อมูลที่นั่ง:', err);
-      res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูลที่นั่ง');
+      console.error("เกิดข้อผิดพลาดในการดึงข้อมูลที่นั่ง:", err);
+      res.status(500).send("เกิดข้อผิดพลาดในการดึงข้อมูลที่นั่ง");
     } else {
       res.json(results);
     }
@@ -173,12 +173,12 @@ app.get('/showtime/:TimeCode/seats', (req, res) => {
 app.use(express.json());
 
 // API เพื่ออัปเดต Status ของที่นั่ง
-app.put('/seat/:SeatCode/status', (req, res) => {
+app.put("/seat/:SeatCode/status", (req, res) => {
   const seatCode = req.params.SeatCode;
   const { Status } = req.body;
-  
+
   if (!Status) {
-    return res.status(400).send('Status is required');
+    return res.status(400).send("Status is required");
   }
 
   const query = `
@@ -189,13 +189,13 @@ app.put('/seat/:SeatCode/status', (req, res) => {
 
   db.query(query, [Status, seatCode], (err, result) => {
     if (err) {
-      console.error('เกิดข้อผิดพลาดในการอัปเดตสถานะที่นั่ง:', err);
-      res.status(500).send('เกิดข้อผิดพลาดในการอัปเดตสถานะที่นั่ง');
+      console.error("เกิดข้อผิดพลาดในการอัปเดตสถานะที่นั่ง:", err);
+      res.status(500).send("เกิดข้อผิดพลาดในการอัปเดตสถานะที่นั่ง");
     } else {
       if (result.affectedRows === 0) {
-        res.status(404).send('ไม่พบที่นั่งที่ระบุ');
+        res.status(404).send("ไม่พบที่นั่งที่ระบุ");
       } else {
-        res.status(200).send('อัปเดตสถานะที่นั่งเรียบร้อยแล้ว');
+        res.status(200).send("อัปเดตสถานะที่นั่งเรียบร้อยแล้ว");
       }
     }
   });

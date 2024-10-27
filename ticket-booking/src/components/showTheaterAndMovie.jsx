@@ -32,9 +32,9 @@ function ShowTheaterAndMovie() {
 
             return {
               id: movie.MovieID,
-              poster: `data:image/jpeg;base64,${Buffer.from(movie.Image).toString(
-                "base64"
-              )}`,
+              poster: `data:image/jpeg;base64,${Buffer.from(
+                movie.Image
+              ).toString("base64")}`,
               title: movie.Title,
               genre: movie.Genre,
               rating: movie.Rating.toString(),
@@ -134,15 +134,15 @@ function ShowTheaterAndMovie() {
     if (!cinema?.name && !movie?.title) {
       alert("กรุณาเลือกโรงภาพยนตร์ หรือ ภาพยนตร์ หรือ ทั้งสองอย่าง");
     } else if (cinema?.name && !movie?.title) {
-      console.log("show cinema", cinema)
+      console.log("show cinema", cinema);
       navigate(`/movie-reservation/${cinema.name}`, {
         state: { movie, cinema },
       });
-    // } else if (!cinema?.name && movie?.title) {
-    //   console.log("show movie", movie)
-    //   navigate(`/movie-reservation/${movie.title}`, {
-    //     state: { movie },
-    //   });
+      // } else if (!cinema?.name && movie?.title) {
+      //   console.log("show movie", movie)
+      //   navigate(`/movie-reservation/${movie.title}`, {
+      //     state: { movie },
+      //   });
     } else {
       navigate(`/movie-reservation/${movie.title}`, {
         state: { movie, cinema },
@@ -244,20 +244,22 @@ function ShowTheaterAndMovie() {
             {zones.map((zone) => (
               <div key={zone.id} className="w-[48%] p-2">
                 <h3 className="font-semibold">{zone.name}</h3>
-                {cinemaLocations.filter(c => c.zone === zone.id).map(c => (
-                  <div
-                    key={c.id}
-                    onClick={() => handleSelectCinema(c)}
-                    className={`flex items-center p-2 hover:bg-gray-200 cursor-pointer ml-5 ${
-                      c === cinema 
-                        ? "bg-red-200 rounded-lg"
-                        : "hover:bg-gray-200 hover:rounded-lg"
-                    }`}
-                  >
-                    <span>{c.name}</span>
-                  </div>
-                ))}
-               </div>
+                {cinemaLocations
+                  .filter((c) => c.zone === zone.id)
+                  .map((c) => (
+                    <div
+                      key={c.id}
+                      onClick={() => handleSelectCinema(c)}
+                      className={`flex items-center p-2 hover:bg-gray-200 cursor-pointer ml-5 ${
+                        c === cinema
+                          ? "bg-red-200 rounded-lg"
+                          : "hover:bg-gray-200 hover:rounded-lg"
+                      }`}
+                    >
+                      <span>{c.name}</span>
+                    </div>
+                  ))}
+              </div>
             ))}
           </div>
         </div>

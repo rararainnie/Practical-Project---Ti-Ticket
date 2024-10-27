@@ -31,10 +31,10 @@ function Home() {
           genre: movie.Genre,
           rating: movie.Rating.toString(),
           duration: `${movie.Duration} นาที`,
-          releaseDate: new Date(movie.ReleaseDate).toLocaleDateString('th-TH', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
+          releaseDate: new Date(movie.ReleaseDate).toLocaleDateString("th-TH", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
           }),
           date: new Date(movie.ReleaseDate),
           description: movie.Description,
@@ -54,23 +54,27 @@ function Home() {
 
     if (index === 0) {
       // กำลังฉาย: แสดงหนังที่วันฉายไม่เกินวันปัจจุบัน
-      setFilteredMovies(movieList.filter(movie => {
-        const releaseDate = new Date(movie.date);
-        releaseDate.setHours(0, 0, 0, 0);
-        return releaseDate <= currentDate;
-      }));
+      setFilteredMovies(
+        movieList.filter((movie) => {
+          const releaseDate = new Date(movie.date);
+          releaseDate.setHours(0, 0, 0, 0);
+          return releaseDate <= currentDate;
+        })
+      );
     } else {
       // โปรแกรมหน้า: แสดงหนังที่วันฉายเลยวันปัจจุบันไปแล้ว
-      setFilteredMovies(movieList.filter(movie => {
-        const releaseDate = new Date(movie.date);
-        releaseDate.setHours(0, 0, 0, 0);
-        return releaseDate > currentDate;
-      }));
+      setFilteredMovies(
+        movieList.filter((movie) => {
+          const releaseDate = new Date(movie.date);
+          releaseDate.setHours(0, 0, 0, 0);
+          return releaseDate > currentDate;
+        })
+      );
     }
   };
 
   useEffect(() => {
-    console.log("setMovies", movies)
+    console.log("setMovies", movies);
     console.log("Filtered Movies:", filteredMovies);
   }, [filteredMovies, movies]);
 
@@ -84,9 +88,10 @@ function Home() {
         <div className="text-white text-xl text-center space-x-10 mt-5 mb-5 ">
           <span
             className={`cursor-pointer hover:underline hover:decoration-red-400 hover:text-white ${
-              underlined === 0 
-              ? "text-white underline decoration-red-400" 
-              : "text-gray-400"}`}
+              underlined === 0
+                ? "text-white underline decoration-red-400"
+                : "text-gray-400"
+            }`}
             onClick={() => handleClick(0)}
           >
             กำลังฉาย
@@ -94,9 +99,10 @@ function Home() {
 
           <span
             className={`cursor-pointer hover:underline hover:decoration-red-400 hover:text-white ${
-              underlined === 1 
-              ? "text-white underline decoration-red-400" 
-              : "text-gray-400"}`}
+              underlined === 1
+                ? "text-white underline decoration-red-400"
+                : "text-gray-400"
+            }`}
             onClick={() => handleClick(1)}
           >
             โปรแกรมหน้า
@@ -105,9 +111,9 @@ function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {filteredMovies.length > 0 ? (
             filteredMovies.map((movie) => (
-              < MovieBox key={movie.id} movie={movie} />
+              <MovieBox key={movie.id} movie={movie} />
             ))
-          ) : ( 
+          ) : (
             <p className="text-white">ไม่พบภาพยนตร์</p>
           )}
         </div>
