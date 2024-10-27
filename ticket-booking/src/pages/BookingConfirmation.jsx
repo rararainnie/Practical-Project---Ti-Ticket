@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 function BookingConfirmation() {
   const location = useLocation();
@@ -8,6 +9,7 @@ function BookingConfirmation() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isBookingConfirmed, setIsBookingConfirmed] = useState(false);
+  const { currentUser } = useContext(AuthContext);
 
   if (!bookingData) {
     return <div>ไม่พบข้อมูลการจอง</div>;
@@ -20,7 +22,10 @@ function BookingConfirmation() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ Status: newStatus }),
+        body: JSON.stringify({ 
+          Status: newStatus,
+          UserID: currentUser.UserID
+        }),
       });
       
       if (!response.ok) {

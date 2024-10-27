@@ -3,8 +3,9 @@ import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import LoginPopup from "./popupLogin";
-import seatSingle from "../assets/pic/seatSingle.png";
-import seatPair from "../assets/pic/seatPair.png";
+import standardSeat from "../assets/pic/standardSeat.png";
+import premiumSeat from "../assets/pic/premiumSeat.png";
+import pairSeat from "../assets/pic/pairSeat.png";
 import checkMark from "../assets/pic/checkmark.png";
 import userIcon from "../assets/pic/iconUser.png";
 
@@ -60,15 +61,15 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
     } else if (selectedSeats.some((s) => s.SeatCode === seat.SeatCode)) {
       return checkMark;
     } else {
-      if (seat.SeatName.startsWith("A")) return seatPair;
-      if (seat.SeatName.startsWith("B")) return seatSingle;
-      if (seat.SeatName.startsWith("C")) return seatSingle;
+      if (seat.Price === "600.00") return pairSeat;
+      if (seat.Price === "240.00") return premiumSeat;
+      if (seat.Price === "200.00") return standardSeat;
     }
     return null;
   };
 
   const renderSeats = () => {
-    const rows = [...new Set(seats.map((seat) => seat.SeatName[0]))].sort();
+    const rows = [...new Set(seats.map((seat) => seat.SeatName[0]))].sort().reverse();
     return rows.map((row) => (
       <div key={row} className="flex my-5 text-white text-lg">
         <span className="mr-auto opacity-30">{row}</span>
@@ -85,12 +86,17 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
                 seat.Status === "available" && handleSeatClick(seat)
               }
               disabled={seat.Status !== "available"}
+              className={`${row === 'A' ? 'mx-8' : ''}`}
             >
               <img
                 src={getSeatImage(seat)}
                 alt={seat.SeatCode}
-                className={`mx-1 object-contain ${
-                  getSeatImage(seat) === userIcon ? "w-7" : "w-10"
+                className={`object-contain ${
+                  getSeatImage(seat) === userIcon 
+                    ? "w-7" 
+                    : row === 'A' 
+                      ? "w-14 mx-4" // เพิ่มขนาดสำหรับแถว A
+                      : "w-10 mx-1"
                 }`}
               />
             </button>
@@ -126,7 +132,7 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
       cinema,
     };
 
-    navigate("/booking-confirmation", { state: bookingData });
+    navigate(`/booking-confirmation/${movie.Name}/${currentUser.FName}`, { state: bookingData });
   };
 
   const closeLoginPopup = () => {
@@ -147,25 +153,35 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
     <div className="mt-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
         <div className="bg-gray-800 p-4 rounded-lg w-[150%]">
-          <div className="w-[30%] flex justify-between mx-auto mb-5 text-yellow-500 items-center">
+          <div className="w-[50%] flex justify-between mx-auto my-7 text-yellow-500 items-center">
             <div className="w-20 h-32 flex flex-col ">
               <img
-                src={seatSingle}
+                src={standardSeat}
+                alt="Standard Seat"
+                className="w-full h-auto"
+              />
+              <p className="text-center mt-2">Standard</p>
+              <p className="text-center">200 บาท</p>
+            </div>
+
+            <div className="w-20 h-32 flex flex-col ">
+              <img
+                src={premiumSeat}
                 alt="Premium Seat"
                 className="w-full h-auto"
               />
               <p className="text-center mt-2">Premium</p>
-              <p className="text-center">200 บาท</p>
+              <p className="text-center">240 บาท</p>
             </div>
 
             <div className="w-20 h-32 flex flex-col  ">
               <img
-                src={seatPair}
+                src={pairSeat}
                 alt="Suite Pair Seat"
                 className="w-full h-auto"
               />
               <p className="text-center mt-2">Suite (Pair)</p>
-              <p className="text-center">240 บาท</p>
+              <p className="text-center">600 บาท</p>
             </div>
           </div>
 
@@ -203,18 +219,6 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
           </div>
         </div>
       </div>
-      <div className="mt-4 text-white">
-        <p>รอบฉาย: {new Date(showDateTime).toLocaleString()}</p>
-        <p>ที่นั่งที่เลือก: {selectedSeats.map(seat => seat.SeatName).join(', ')}</p>
-        <p>ราคารวม: {calculateTotalPrice().toFixed(2)} บาท</p>
-      </div>
-      <button
-        onClick={handleBooking}
-        className="mt-4 bg-yellow-500 text-black px-4 py-2 rounded hover:bg-yellow-600"
-      >
-        จองที่นั่ง
-      </button>
-
       {showLoginPopup && (
         <LoginPopup
           onClose={closeLoginPopup}

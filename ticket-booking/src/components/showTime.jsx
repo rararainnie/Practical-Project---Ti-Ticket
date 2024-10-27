@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
 import ShowSeats from "../components/showSeats";
 
@@ -10,45 +10,49 @@ function ShowTime({ movie, cinema, showTimes }) {
   );
   const [selectedTimeCode, setSelectedTimeCode] = useState(null);
   const [selectedShowDateTime, setSelectedShowDateTime] = useState(null);
-  //   const [isShowSeats, setIsShowSeats] = useState(false);
+  const seatsRef = useRef(null);
 
   useEffect(() => {
-    console.log("showtimes", showTimes);
-    const generateDays = () => {
-      const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      const monthNames = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ];
-
-      const today = new Date();
-      const upcomingDays = Array.from({ length: 32 }).map((_, index) => {
-        const date = new Date(today);
-        date.setDate(today.getDate() + index);
-        return {
-          day: dayNames[date.getDay()],
-          date: date.getDate(),
-          month: monthNames[date.getMonth()],
-          year: date.getFullYear(),
-          fullDate: date.toISOString().split("T")[0],
-        };
-      });
-
-      setDays(upcomingDays);
-    };
-
+    // รีเซ็ตค่าเมื่อ showTimes เปลี่ยนแปลง
+    setSelectedTimeCode(null);
+    setSelectedShowDateTime(null);
+    setSelectedDate(new Date().toISOString().split("T")[0]);
+    setCurrentIndex(0);
     generateDays();
-  }, []);
+  }, [showTimes]);
+
+  const generateDays = () => {
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    const today = new Date();
+    const upcomingDays = Array.from({ length: 32 }).map((_, index) => {
+      const date = new Date(today);
+      date.setDate(today.getDate() + index);
+      return {
+        day: dayNames[date.getDay()],
+        date: date.getDate(),
+        month: monthNames[date.getMonth()],
+        year: date.getFullYear(),
+        fullDate: date.toISOString().split("T")[0],
+      };
+    });
+
+    setDays(upcomingDays);
+  };
 
   const handleDateClick = (fullDate) => {
     setSelectedDate(fullDate);
@@ -65,14 +69,15 @@ function ShowTime({ movie, cinema, showTimes }) {
   };
 
   const handleTimeClick = (timeCode, showDateTime) => {
-    if (selectedTimeCode === timeCode) {
-      setSelectedTimeCode(null);
-      setSelectedShowDateTime(null);
-    } else {
-      setSelectedTimeCode(timeCode);
-      setSelectedShowDateTime(showDateTime);
-    }
-    console.log("เลือก TimeCode:", timeCode, showDateTime);
+    setSelectedTimeCode(timeCode);
+    setSelectedShowDateTime(showDateTime);
+    
+    // รอให้ state อัปเดตและ component render เสร็จก่อนเลื่อนหน้าจอ
+    setTimeout(() => {
+      if (seatsRef.current) {
+        seatsRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 200);
   };
 
   const filterShowTimesByDate = (showTimes, selectedDate) => {
@@ -81,6 +86,12 @@ function ShowTime({ movie, cinema, showTimes }) {
       return showTimeDate.toISOString().split("T")[0] === selectedDate;
     });
   };
+
+  useEffect(() => {
+    if (selectedTimeCode && seatsRef.current) {
+      seatsRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [selectedTimeCode]);
 
   return (
     <>
@@ -255,22 +266,25 @@ function ShowTime({ movie, cinema, showTimes }) {
           <p className="text-xl text-yellow-500">ไม่พบรอบฉายสำหรับภาพนตร์นี้</p>
         )}
       </div>
-      {selectedTimeCode && (
-        <ShowSeats
-          timeCode={selectedTimeCode}
-          showDateTime={selectedShowDateTime}
-          movie={movie}
-          cinema={cinema}
-        />
-      )}{" "}
+      {selectedTimeCode && showTimes.length > 0 && (
+        <div ref={seatsRef}>
+          <ShowSeats
+            key={selectedTimeCode}
+            timeCode={selectedTimeCode}
+            showDateTime={selectedShowDateTime}
+            movie={movie}
+            cinema={cinema}
+          />
+        </div>
+      )}
     </>
   );
 }
 
 ShowTime.propTypes = {
-  showTimes: PropTypes.array.isRequired,
   movie: PropTypes.object.isRequired,
   cinema: PropTypes.object.isRequired,
+  showTimes: PropTypes.array.isRequired,
 };
 
 export default ShowTime;

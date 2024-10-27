@@ -9,6 +9,7 @@ function Home() {
   const [movies, setMovies] = useState([]);
   const [underlined, setUnderlined] = useState(0);
   const [filteredMovies, setFilteredMovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleClick = (index) => {
     setUnderlined(index);
@@ -16,17 +17,17 @@ function Home() {
   };
 
   useEffect(() => {
-    // Fetch data from backend
-    fetch("http://localhost:3001/movies")
-      .then((response) => response.json())
-      .then((data) => {
+    const fetchMovies = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('http://localhost:3001/movies');
+        const data = await response.json();
         console.log("ข้อมูลที่ได้รับจาก API:", data);
-        // Format the data
+
+        // จัดรูปแบบข้อมูล
         const formattedMovies = data.map((movie) => ({
           id: movie.MovieID,
-          poster: `data:image/jpeg;base64,${Buffer.from(movie.Image).toString(
-            "base64"
-          )}`,
+          poster: `data:image/jpeg;base64,${Buffer.from(movie.Image).toString("base64")}`,
           title: movie.Title,
           genre: movie.Genre,
           rating: movie.Rating.toString(),
@@ -41,11 +42,15 @@ function Home() {
         }));
 
         setMovies(formattedMovies);
-        filterMovies(0, formattedMovies);
-      })
-      .catch((error) => {
-        console.error("Error fetching movies:", error);
-      });
+        filterMovies(0, formattedMovies); // ใช้ฟังก์ชัน filterMovies แทน setFilteredMovies
+      } catch (error) {
+        console.error('Error fetching movies:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMovies();
   }, []);
 
   const filterMovies = (index, movieList = movies) => {
@@ -109,12 +114,14 @@ function Home() {
           </span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {filteredMovies.length > 0 ? (
+          {isLoading ? (
+            <p className="text-white text-xl col-span-full text-center">รอสักครู่...</p>
+          ) : filteredMovies.length > 0 ? (
             filteredMovies.map((movie) => (
               <MovieBox key={movie.id} movie={movie} />
             ))
           ) : (
-            <p className="text-white">ไม่พบภาพยนตร์</p>
+            <p className="text-white text-xl col-span-full text-center">ไม่พบภาพยนตร์</p>
           )}
         </div>
       </div>

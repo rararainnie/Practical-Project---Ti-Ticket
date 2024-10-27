@@ -12,6 +12,7 @@ function MovieReservation() {
   const { movie = null, cinema = null } = location.state || {};
   const [movies, setMovies] = useState([]);
   const [showTimes, setShowTimes] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     console.log("movie", movie, "cinema", cinema, "showTimes", showTimes);
@@ -42,6 +43,7 @@ function MovieReservation() {
   };
 
   const fetchMoviesForCinema = async (cinemaId) => {
+    setIsLoading(true);
     try {
       const response = await fetch(
         `http://localhost:3001/cinema/${cinemaId}/movies`
@@ -80,7 +82,10 @@ function MovieReservation() {
       setMovies(formattedMovies);
       console.log(formattedMovies);
     } catch (error) {
-      console.error("เกิดข้อผิดพลาดในการดึงข้อมูลภาพยนตร์:", error);
+      console.error("Error fetching movies:", error);
+      setMovies([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -112,7 +117,9 @@ function MovieReservation() {
             <h2 className="text-2xl font-bold mb-4">
               โรงภาพยนตร์: {cinema.name}
             </h2>
-            {movies.length > 0 ? (
+            {isLoading ? (
+              <p className="text-xl text-yellow-500">รอสักครู่...</p>
+            ) : movies.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {movies.map((movieItem) => (
                   <MovieBox

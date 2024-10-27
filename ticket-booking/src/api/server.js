@@ -12,7 +12,7 @@ app.use(cors());
 const db = createConnection({
   host: "localhost", // หรือ IP ของฐานข้อมูล MySQL
   user: "root", // ชื่อผู้ใช้งาน MySQL
-  password: "rainnie", // รหัสผ่าน MySQL (ให้ใส่รหัสของคุณ)
+  password: "pun1234", // รหัสผ่าน MySQL (ให้ใส่รหัสของคุณ)
   database: "movies_ticket_schema", // ชื่อฐานข้อมูล
 });
 
@@ -175,19 +175,19 @@ app.use(express.json());
 // API เพื่ออัปเดต Status ของที่นั่ง
 app.put("/seat/:SeatCode/status", (req, res) => {
   const seatCode = req.params.SeatCode;
-  const { Status } = req.body;
+  const { Status, UserID } = req.body;
 
-  if (!Status) {
-    return res.status(400).send("Status is required");
+  if (!Status || !UserID) {
+    return res.status(400).send("Status and UserID are required");
   }
 
   const query = `
     UPDATE Seats
-    SET Status = ?
+    SET Status = ?, User_UserID = ?
     WHERE SeatCode = ?
   `;
 
-  db.query(query, [Status, seatCode], (err, result) => {
+  db.query(query, [Status, UserID, seatCode], (err, result) => {
     if (err) {
       console.error("เกิดข้อผิดพลาดในการอัปเดตสถานะที่นั่ง:", err);
       res.status(500).send("เกิดข้อผิดพลาดในการอัปเดตสถานะที่นั่ง");
@@ -195,7 +195,7 @@ app.put("/seat/:SeatCode/status", (req, res) => {
       if (result.affectedRows === 0) {
         res.status(404).send("ไม่พบที่นั่งที่ระบุ");
       } else {
-        res.status(200).send("อัปเดตสถานะที่นั่งเรียบร้อยแล้ว");
+        res.status(200).send("อัปเดตสถานะที่นั่งและ UserID เรียบร้อยแล้ว");
       }
     }
   });
@@ -222,6 +222,106 @@ app.post('/login', (req, res) => {
         res.status(401).send('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
       }
     }
+  });
+});
+
+// API เพื่อดึงข้อมูลการจองของผู้ใช้
+app.get("/user/:UserID/bookings", (req, res) => {
+  const userId = req.params.UserID;
+
+  const query = `
+    SELECT 
+      m.Title AS MovieTitle,
+      m.Image AS MovieImage,
+      st.ShowDateTime,
+      st.TimeCode AS ShowTimeCode,
+      cl.Name AS CinemaLocationName,
+      cn.Name AS CinemaNoName,
+      GROUP_CONCAT(s.SeatName ORDER BY s.SeatName ASC SEPARATOR ', ') AS SeatNames,
+      SUM(s.Price) AS TotalPrice
+    FROM 
+      Seats s
+      JOIN ShowTime st ON s.ShowTime_TimeCode = st.TimeCode
+      JOIN Movies m ON st.Movies_MovieID = m.MovieID
+      JOIN CinemaNo cn ON st.CinemaNo_CinemaNoCode = cn.CinemaNoCode
+      JOIN CinemaLocation cl ON cn.CinemaLocation_CinemaLocationCode = cl.CinemaLocationCode
+    WHERE 
+      s.User_UserId = ?
+    GROUP BY 
+      st.TimeCode
+    ORDER BY 
+      st.ShowDateTime DESC
+  `;
+
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error("เกิดข้อผิดพลาดในการดึงข้อมูลการจอง:", err);
+      res.status(500).send("เกิดข้อผิดพลาดในการดึงข้อมูลการจอง");
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+// API สำหรับการลงทะเบียนผู้ใช้ใหม่
+app.post('/register', (req, res) => {
+  const { Email, Password, FName, LName } = req.body;
+  
+  // ตรวจสอบว่ามีข้อมูลครบถ้วนหรือไม่
+  if (!Email || !Password || !FName || !LName) {
+    return res.status(400).send('กรุณากรอกข้อมูลให้ครบถ้วน');
+  }
+
+  // ตรวจสอบว่าอีเมลซ้ำหรือไม่
+  const checkEmailQuery = 'SELECT * FROM User WHERE Email = ?';
+  db.query(checkEmailQuery, [Email], (err, results) => {
+    if (err) {
+      console.error('เกิดข้อผิดพลาดในการตรวจสอบอีเมล:', err);
+      return res.status(500).send('เกิดข้อผิดพลาดในการลงทะเบียน');
+    }
+
+    if (results.length > 0) {
+      return res.status(409).send('อีเมลนี้ถูกใช้งานแล้ว');
+    }
+
+    // เพิ่มผู้ใช้ใหม่ลงในฐานข้อมูล
+    const insertQuery = 'INSERT INTO User (Email, Password, FName, LName, Status) VALUES (?, ?, ?, ?, "active")';
+    db.query(insertQuery, [Email, Password, FName, LName], (err, result) => {
+      if (err) {
+        console.error('เกิดข้อผิดพลาดในการลงทะเบียน:', err);
+        return res.status(500).send('เกิดข้อผิดพลาดในการลงทะเบียน');
+      }
+
+      res.status(201).json({ message: 'ลงทะเบียนสำเร็จ', userId: result.insertId });
+    });
+  });
+});
+
+// API สำหรับการรีเซ็ตรหัสผ่าน
+app.put('/reset-password', (req, res) => {
+  const { email, newPassword } = req.body;
+  
+  if (!email || !newPassword) {
+    return res.status(400).send('กรุณากรอกอีเมลและรหัสผ่านใหม่');
+  }
+
+  const query = `
+    UPDATE User
+    SET Password = ?
+    WHERE Email = ?
+  `;
+
+  db.query(query, [newPassword, email], (err, result) => {
+    if (err) {
+      console.error('เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน:', err);
+      return res.status(500).send('เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน');
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send('ไม่พบอีเมลในระบบ');
+    }
+
+    res.status(200).json({ message: 'รีเซ็ตรหัสผ่านสำเร็จ' });
   });
 });
 

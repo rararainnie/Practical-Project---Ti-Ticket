@@ -5,6 +5,7 @@ import MovieReservation from "./pages/movieReservation";
 import ScrollToTop from "./components/scollToTop";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import { AuthProvider } from './context/AuthContext';
+import ProfilePage from './pages/profilePage';
 
 function App() {
   return (
@@ -15,7 +16,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/movie-details/:movieName" element={<MovieDetails />} />
           <Route path="/movie-reservation/:movieName" element={<MovieReservation />} />
-          <Route path="/booking-confirmation" element={<BookingConfirmation />} />
+          <Route path="/booking-confirmation/:movieName/:userFName" element={<BookingConfirmation />} />
+          <Route path="/profile/:userFName" element={<ProfilePage />} />
         </Routes>
       </Router>
     </AuthProvider>

@@ -31,6 +31,14 @@ function Navbar() {
     navigate('/');
   };
 
+  const handleProfileClick = () => {
+    if (currentUser) {
+      navigate(`/profile/${currentUser.FName}`);
+    } else {
+      openPopup("login");
+    }
+  };
+
   return (
     <div>
       <nav className="flex flex-col w-[60%] mx-auto">
@@ -44,10 +52,18 @@ function Navbar() {
           <span className="text-red-500 text-2xl cursor-pointer"
             onClick={handleLogoClick}
           > TI TICKET </span>
-          <img className="w-10 h-10 ml-auto mr-3" src={user} alt="User Icon" />
+          <img 
+            className="w-10 h-10 ml-auto mr-3 cursor-pointer" 
+            src={user} 
+            alt="User Icon" 
+            onClick={handleProfileClick}
+          />
           {currentUser ? (
             <div className="text-white">
-              <span>{`${currentUser.FName} ${currentUser.LName}`}</span>
+              <span 
+                className="cursor-pointer" 
+                onClick={handleProfileClick}
+              >{`${currentUser.FName} ${currentUser.LName}`}</span>
               <button
                 className="ml-4 bg-red-700 text-white px-3 py-1 rounded-xl hover:bg-red-900"
                 onClick={handleLogout}

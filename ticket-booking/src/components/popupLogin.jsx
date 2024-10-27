@@ -15,24 +15,11 @@ function LoginPopup({ onClose, onOpenRegister, onOpenResetPassword, onLoginSucce
     setError("");
 
     try {
-      const response = await fetch('http://localhost:3001/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
-      }
-
-      const userData = await response.json();
-      login(userData);
+      const userData = await login(email, password);
       onLoginSuccess(userData);
       onClose();
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
     }
   };
 
