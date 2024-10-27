@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import LoginPopup from "./popupLogin";
 
 function ShowSeats({ timeCode, showDateTime }) {
   const [seats, setSeats] = useState([]);
@@ -8,6 +10,8 @@ function ShowSeats({ timeCode, showDateTime }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { currentUser } = useContext(AuthContext);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
 
   useEffect(() => {
     const fetchSeats = async () => {
@@ -77,6 +81,10 @@ function ShowSeats({ timeCode, showDateTime }) {
   };
 
   const handleBooking = () => {
+    if (!currentUser) {
+      setShowLoginPopup(true);
+      return;
+    }
     if (selectedSeats.length === 0) {
       alert("กรุณาเลือกที่นั่งอย่างน้อย 1 ที่นั่ง");
       return;
@@ -90,6 +98,15 @@ function ShowSeats({ timeCode, showDateTime }) {
     };
     
     navigate("/booking-confirmation", { state: bookingData });
+  };
+
+  const closeLoginPopup = () => {
+    setShowLoginPopup(false);
+  };
+
+  const handleLoginSuccess = () => {
+    setShowLoginPopup(false);
+    // อาจจะเพิ่มการดำเนินการอื่นๆ หลังจากล็อกอินสำเร็จ
   };
 
   if (loading) return <p className="text-white text-center">กำลังโหลดข้อมูลที่นั่ง...</p>;
@@ -112,11 +129,19 @@ function ShowSeats({ timeCode, showDateTime }) {
       </div>
       <button
         onClick={handleBooking}
-        className="mt-4 bg-yellow-500 text-black px-4 py-2 rounded hover:bg-yellow-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-        disabled={selectedSeats.length === 0}
+        className="mt-4 bg-yellow-500 text-black px-4 py-2 rounded hover:bg-yellow-600"
       >
         จองที่นั่ง
       </button>
+
+      {showLoginPopup && (
+        <LoginPopup
+          onClose={closeLoginPopup}
+          onLoginSuccess={handleLoginSuccess}
+          onOpenRegister={() => {/* จัดการการเปิดหน้าลงทะเบียน */}}
+          onOpenResetPassword={() => {/* จัดการการเปิดหน้ารีเซ็ตรหัสผ่าน */}}
+        />
+      )}
     </div>
   );
 }

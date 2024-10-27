@@ -201,6 +201,30 @@ app.put('/seat/:SeatCode/status', (req, res) => {
   });
 });
 
+// เพิ่ม API สำหรับการเข้าสู่ระบบ
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+  
+  const query = `
+    SELECT UserID, FName, LName, Status
+    FROM User
+    WHERE Email = ? AND Password = ?
+  `;
+
+  db.query(query, [email, password], (err, results) => {
+    if (err) {
+      console.error('เกิดข้อผิดพลาดในการเข้าสู่ระบบ:', err);
+      res.status(500).send('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
+    } else {
+      if (results.length > 0) {
+        res.json(results[0]);
+      } else {
+        res.status(401).send('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+      }
+    }
+  });
+});
+
 // เริ่มต้นเซิร์ฟเวอร์
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
