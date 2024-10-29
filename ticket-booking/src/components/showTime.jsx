@@ -93,6 +93,11 @@ function ShowTime({ movie, cinema, showTimes }) {
     }
   }, [selectedTimeCode]);
 
+  // ถ้าไม่มี showTimes ให้ return null
+  if (!showTimes || showTimes.length === 0) {
+    return null;
+  }
+
   return (
     <>
       <div className="flex flex-col">
@@ -222,10 +227,10 @@ function ShowTime({ movie, cinema, showTimes }) {
                               const showTime = new Date(showDateTime);
                               const currentTime = new Date();
                               const timeDifference =
-                                showTime.getTime() - currentTime.getTime();
+                                currentTime.getTime() - showTime.getTime();
                               const minutesDifference =
                                 timeDifference / (1000 * 60);
-                              const isDisabled = minutesDifference <= 30;
+                              const isDisabled = minutesDifference >= 30;
 
                               // หา TimeCode ของเวลาที่ไม่ซ้ำกัน
                               const timeCode = cinema.ShowTimes.find(

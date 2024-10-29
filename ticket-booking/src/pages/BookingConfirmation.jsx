@@ -50,11 +50,8 @@ function BookingConfirmation() {
         console.log('Updating seat:', seat.SeatCode); // เพิ่ม log นี้
         return updateSeatStatus(seat.SeatCode, 'unavailable');
       }));
-
-      // ทำการบันทึกข้อมูลการจองลงในฐานข้อมูล (ถ้ามี)
-      // ...
-
       setIsBookingConfirmed(true);
+      
     } catch (err) {
       console.error("เกิดข้อผิดพลาดในการยืนยันการจอง:", err);
       setError("ไม่สามารถยืนยันการจองได้ กรุณาลองใหม่อีกครั้ง");

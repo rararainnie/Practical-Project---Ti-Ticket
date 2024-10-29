@@ -113,17 +113,27 @@ function Home() {
             โปรแกรมหน้า
           </span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {isLoading ? (
-            <p className="text-white text-xl col-span-full text-center">รอสักครู่...</p>
-          ) : filteredMovies.length > 0 ? (
-            filteredMovies.map((movie) => (
+        {isLoading ? (
+          // แยก loading spinner ออกมาจาก grid
+          <div className="flex items-center justify-center min-h-[40vh]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500 mx-auto mb-4"></div>
+              <p className="text-yellow-500 text-lg">กำลังโหลดข้อมูลภาพยนตร์...</p>
+            </div>
+          </div>
+        ) : filteredMovies.length > 0 ? (
+          // แสดง grid ของภาพยนตร์
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {filteredMovies.map((movie) => (
               <MovieBox key={movie.id} movie={movie} />
-            ))
-          ) : (
-            <p className="text-white text-xl col-span-full text-center">ไม่พบภาพยนตร์</p>
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          // แสดงข้อความไม่พบภาพยนตร์
+          <div className="flex items-center justify-center">
+            <p className="text-yellow-500 text-xl">ไม่พบภาพยนตร์</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -13,6 +13,7 @@ function MovieReservation() {
   const [movies, setMovies] = useState([]);
   const [showTimes, setShowTimes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingShowtimes, setIsLoadingShowtimes] = useState(false);
 
   useEffect(() => {
     console.log("movie", movie, "cinema", cinema, "showTimes", showTimes);
@@ -90,6 +91,8 @@ function MovieReservation() {
   };
 
   const fetchShowTimes = async (movieId, cinemaId) => {
+    setIsLoadingShowtimes(true);
+    console.log("start", isLoadingShowtimes);
     try {
       const response = await fetch(
         `http://localhost:3001/movie/${movieId}/cinema/${cinemaId}`
@@ -100,6 +103,9 @@ function MovieReservation() {
       console.log("showtimeData", showTimes);
     } catch (error) {
       console.error("Error fetching show times:", error);
+    } finally {
+      setIsLoadingShowtimes(false);
+      console.log("end", isLoadingShowtimes);
     }
   };
 
@@ -118,7 +124,12 @@ function MovieReservation() {
               โรงภาพยนตร์: {cinema.name}
             </h2>
             {isLoading ? (
-              <p className="text-xl text-yellow-500">รอสักครู่...</p>
+              <div className="flex items-center justify-center min-h-[60vh]">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500 mx-auto mb-4"></div>
+                  <p className="text-yellow-500 text-lg">กำลังโหลดข้อมูลภาพยนตร์...</p>
+                </div>
+              </div>
             ) : movies.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {movies.map((movieItem) => (
@@ -130,9 +141,11 @@ function MovieReservation() {
                 ))}
               </div>
             ) : (
-              <p className="text-xl text-yellow-500">
-                ไม่พบภาพยนตร์ในโรงภาพยนตร์นี้
-              </p>
+              <div className="flex items-center justify-center">
+                <p className="text-yellow-500 text-xl">
+                  ไม่พบภาพยนตร์ในโรงภาพยนตร์นี้
+                </p>
+              </div>
             )}
           </div>
         )}
@@ -177,7 +190,22 @@ function MovieReservation() {
       </div>
       <div className="w-[70%] flex flex-col mx-auto">
         {(movie.id || (movie.id && cinema.id)) && (
-          <ShowTime movie={movie} cinema={cinema} showTimes={showTimes} />
+          <>
+            {isLoadingShowtimes ? (
+              <div className="flex items-center justify-center">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500 mx-auto mb-4"></div>
+                  <p className="text-yellow-500 text-lg">กำลังโหลดข้อมูลรอบฉาย...</p>
+                </div>
+              </div>
+            ) : (
+              <ShowTime 
+                movie={movie} 
+                cinema={cinema} 
+                showTimes={showTimes}
+              />
+            )}
+          </>
         )}
       </div>
     </div>
