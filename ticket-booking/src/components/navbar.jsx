@@ -5,7 +5,7 @@ import RegisterPopup from "../components/popupRegister";
 import ResetPasswordPopup from "../components/popReset";
 import redImage from "../assets/red.png";
 import user from "../assets/user.png";
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
   const [activePopup, setActivePopup] = useState(null);
@@ -20,7 +20,7 @@ function Navbar() {
   };
 
   const handleLoginSuccess = (userData) => {
-    if (userData.Status === 'Admin') {
+    if (userData.Status === "Admin") {
       navigate(`/adminPage/${userData.FName}`);
     }
     closePopup();
@@ -28,14 +28,13 @@ function Navbar() {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   const handleProfileClick = () => {
-    if (currentUser.Status === 'Admin') {
+    if (currentUser.Status === "Admin") {
       navigate(`/adminPage/${currentUser.FName}`);
-    }
-    else if (currentUser.Status === 'User') {
+    } else if (currentUser.Status === "User") {
       navigate(`/profile/${currentUser.FName}`);
     } else {
       openPopup("login");
@@ -52,19 +51,23 @@ function Navbar() {
             alt="Logo"
             onClick={handleLogoClick}
           />
-          <span className="text-red-500 text-2xl cursor-pointer"
+          <span
+            className="text-red-500 text-2xl cursor-pointer"
             onClick={handleLogoClick}
-          > TI TICKET </span>
-          <img 
-            className="w-10 h-10 ml-auto mr-3 cursor-pointer" 
-            src={user} 
-            alt="User Icon" 
+          >
+            {" "}
+            TI TICKET{" "}
+          </span>
+          <img
+            className="w-10 h-10 ml-auto mr-3 cursor-pointer"
+            src={user}
+            alt="User Icon"
             onClick={handleProfileClick}
           />
           {currentUser ? (
-            <div className="text-white">
-              <span 
-                className="cursor-pointer" 
+            <div className="text-white ">
+              <span
+                className="cursor-pointer"
                 onClick={handleProfileClick}
               >{`${currentUser.FName} ${currentUser.LName}`}</span>
               <button
