@@ -69,7 +69,9 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
   };
 
   const renderSeats = () => {
-    const rows = [...new Set(seats.map((seat) => seat.SeatName[0]))].sort().reverse();
+    const rows = [...new Set(seats.map((seat) => seat.SeatName[0]))]
+      .sort()
+      .reverse();
     return rows.map((row) => (
       <div key={row} className="flex my-5 text-white text-lg">
         <span className="mr-auto opacity-30">{row}</span>
@@ -86,17 +88,17 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
                 seat.Status === "available" && handleSeatClick(seat)
               }
               disabled={seat.Status !== "available"}
-              className={`${row === 'A' ? 'mx-8' : ''}`}
+              className={`${row === "A" ? "mx-8" : ""}`}
             >
               <img
                 src={getSeatImage(seat)}
                 alt={seat.SeatCode}
                 className={`object-contain ${
-                  getSeatImage(seat) === userIcon 
-                    ? "w-7" 
-                    : row === 'A' 
-                      ? "w-14 mx-4" // เพิ่มขนาดสำหรับแถว A
-                      : "w-10 mx-1"
+                  getSeatImage(seat) === userIcon
+                    ? "w-7"
+                    : row === "A"
+                    ? "w-14 mx-4" // เพิ่มขนาดสำหรับแถว A
+                    : "w-10 mx-1"
                 }`}
               />
             </button>
@@ -114,7 +116,7 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
   };
 
   const handleBooking = () => {
-    if (!currentUser || currentUser.Status !== 'User') {
+    if (!currentUser) {
       setShowLoginPopup(true);
       return;
     }
@@ -132,7 +134,9 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
       cinema,
     };
 
-    navigate(`/booking-confirmation/${movie.Name}/${currentUser.FName}`, { state: bookingData });
+    navigate(`/booking-confirmation/${movie.Name}/${currentUser.FName}`, {
+      state: bookingData,
+    });
   };
 
   const closeLoginPopup = () => {
@@ -141,9 +145,11 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
 
   const handleLoginSuccess = () => {
     setShowLoginPopup(false);
+    // อาจจะเพิ่มการดำเนินการอื่นๆ หลังจากล็อกอินสำเร็จ
   };
 
-  if (loading) return <p className="text-white text-center">กำลังโหลดข้อมูลที่นั่ง...</p>;
+  if (loading)
+    return <p className="text-white text-center">กำลังโหลดข้อมูลที่นั่ง...</p>;
   if (error) return <p className="text-red-500 text-center">{error}</p>;
   if (seats.length === 0)
     return <p className="text-white text-center">ไม่พบข้อมูลที่นั่ง</p>;
@@ -222,8 +228,12 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
         <LoginPopup
           onClose={closeLoginPopup}
           onLoginSuccess={handleLoginSuccess}
-          onOpenRegister={() => {/* จัดการการเปิดหน้าลงทะเบียน */}}
-          onOpenResetPassword={() => {/* จัดการการเปิดหน้ารีเซ็ตรหัสผ่าน */}}
+          onOpenRegister={() => {
+            /* จัดการการเปิดหน้าลงทะเบียน */
+          }}
+          onOpenResetPassword={() => {
+            /* จัดการการเปิดหน้ารีเซ็ตรหัสผ่าน */
+          }}
         />
       )}
     </div>

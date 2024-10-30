@@ -35,12 +35,12 @@ function MovieReservation() {
       );
       const data = await response.json();
       // setCinemas(data);
-      console.log("fetchCinemasForMovie",data);
+      console.log("fetchCinemasForMovie", data);
       if (data.length > 0) {
         data.forEach((cinema) =>
           fetchShowTimes(movieId, cinema.CinemaLocationCode)
         );
-      } 
+      }
     } catch (error) {
       console.error("Error fetching cinemas:", error);
     } finally {
@@ -129,7 +129,9 @@ function MovieReservation() {
               <div className="flex items-center justify-center min-h-[60vh]">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500 mx-auto mb-4"></div>
-                  <p className="text-yellow-500 text-lg">กำลังโหลดข้อมูลภาพยนตร์...</p>
+                  <p className="text-yellow-500 text-lg">
+                    กำลังโหลดข้อมูลภาพยนตร์...
+                  </p>
                 </div>
               </div>
             ) : movies.length > 0 ? (
@@ -166,15 +168,19 @@ function MovieReservation() {
               <h1 className="movie-title text-4xl font-bold mb-2">
                 {movie.title}
               </h1>
+
+              <span className="flex items-center mb-4 space-x-2 text-gray-400">
+                <p>{movie.genre}</p>
+                <p>|</p>
+                <p>Rating: {movie.rating}</p>
+                <p>|</p>
+                <p>{movie.duration}</p>
+              </span>
+
               <p className="movie-description text-lg mb-4">
                 {movie.description}
               </p>
-              <div className="flex items-center mb-4">
-                <span className="rating bg-gray-800 text-yellow-500 px-2 py-1 rounded mr-2">
-                  Rating: {movie.rating}
-                </span>
-                <span className="duration text-gray-400">{movie.duration}</span>
-              </div>
+
               <button
                 onClick={handleDetails}
                 className="w-[15%] p-2 mt-5 bg-red-500 text-white rounded-full hover:bg-red-700"
@@ -197,17 +203,14 @@ function MovieReservation() {
               <div className="flex items-center justify-center">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500 mx-auto mb-4"></div>
-                  <p className="text-yellow-500 text-lg">กำลังโหลดข้อมูลรอบฉาย...</p>
+                  <p className="text-yellow-500 text-lg">
+                    กำลังโหลดข้อมูลรอบฉาย...
+                  </p>
                 </div>
               </div>
-            )  :  (
-              <ShowTime 
-                movie={movie} 
-                cinema={cinema} 
-                showTimes={showTimes}
-              />
-            ) 
-            }
+            ) : (
+              <ShowTime movie={movie} cinema={cinema} showTimes={showTimes} />
+            )}
           </>
         )}
       </div>
