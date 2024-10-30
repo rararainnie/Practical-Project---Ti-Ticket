@@ -13,9 +13,8 @@ function ShowSeats({
   timeCode,
   showDateTime,
   movie,
-  cinema,
-  locationName,
-  locationNo,
+  cinemaLocationName,
+  cinemaNoName,
 }) {
   const [seats, setSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
@@ -26,6 +25,7 @@ function ShowSeats({
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   useEffect(() => {
+    // console.log(cinema);
     const fetchSeats = async () => {
       setLoading(true);
       setError(null);
@@ -208,6 +208,8 @@ function ShowSeats({
               <p>โรงภาพยนตร์: {locationName}</p>
               <p>โรงภาพยนตร์ที่: {locationNo}</p>
               <p>รอบฉาย: {new Date(showDateTime).toLocaleString()}</p>
+              <p>โรงภาพยนตร์: {cinemaLocationName}</p>
+              <p>โรงที่: {cinemaNoName}</p>
               <p>
                 ที่นั่งที่เลือก:{" "}
                 {selectedSeats.map((seat) => seat.SeatName).join(", ")}
@@ -235,8 +237,8 @@ function ShowSeats({
             selectedSeats,
             totalPrice: calculateTotalPrice(),
             movie,
-            cinema,
-            locationName,
+            cinemaLocationName,
+            cinemaNoName,
           }}
           onClose={() => setShowConfirmation(false)}
           onConfirm={handleBookingSuccess}
@@ -258,9 +260,8 @@ ShowSeats.propTypes = {
   timeCode: PropTypes.number.isRequired,
   showDateTime: PropTypes.string.isRequired,
   movie: PropTypes.object.isRequired,
-  cinema: PropTypes.object.isRequired,
-  locationName: PropTypes.string,
-  locationNo: PropTypes.number.isRequired,
+  cinemaLocationName: PropTypes.string.isRequired,
+  cinemaNoName: PropTypes.string.isRequired,
 };
 
 export default ShowSeats;

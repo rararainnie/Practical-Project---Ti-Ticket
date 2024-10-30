@@ -66,6 +66,8 @@ function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
           </p>
           <p>โรงภาพยนตร์: {bookingData.locationName}</p>
           <p>ภาพยนตร์: {bookingData.movie.title}</p>
+          <p>โรงภาพยนตร์: {bookingData.cinemaLocationName}</p>
+          <p>โรงที่: {bookingData.cinemaNoName}</p>
           <p>รอบฉาย: {new Date(bookingData.showDateTime).toLocaleString()}</p>
           <p>
             ที่นั่งที่เลือก:{" "}
