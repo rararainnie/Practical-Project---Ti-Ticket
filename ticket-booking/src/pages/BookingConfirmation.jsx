@@ -17,17 +17,20 @@ function BookingConfirmation() {
 
   const updateSeatStatus = async (seatCode, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:3001/seat/${seatCode}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          Status: newStatus,
-          UserID: currentUser.UserID
-        }),
-      });
-      
+      const response = await fetch(
+        `http://localhost:3001/seat/${seatCode}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            Status: newStatus,
+            UserID: currentUser.UserID,
+          }),
+        }
+      );
+
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Failed to update seat status: ${errorText}`);
@@ -36,7 +39,7 @@ function BookingConfirmation() {
       const result = await response.text();
       console.log(result); // แสดงผลลัพธ์จาก server
     } catch (error) {
-      console.error('Error updating seat status:', error);
+      console.error("Error updating seat status:", error);
       throw error;
     }
   };
@@ -45,13 +48,14 @@ function BookingConfirmation() {
     setIsLoading(true);
     setError(null);
     try {
-      console.log('Selected seats:', bookingData.selectedSeats);
-      await Promise.all(bookingData.selectedSeats.map(seat => {
-        console.log('Updating seat:', seat.SeatCode);
-        return updateSeatStatus(seat.SeatCode, 'unavailable');
-      }));
+      console.log("Selected seats:", bookingData.selectedSeats);
+      await Promise.all(
+        bookingData.selectedSeats.map((seat) => {
+          console.log("Updating seat:", seat.SeatCode);
+          return updateSeatStatus(seat.SeatCode, "unavailable");
+        })
+      );
       setIsBookingConfirmed(true);
-      
     } catch (err) {
       console.error("เกิดข้อผิดพลาดในการยืนยันการจอง:", err);
       setError("ไม่สามารถยืนยันการจองได้ กรุณาลองใหม่อีกครั้ง");
@@ -71,7 +75,10 @@ function BookingConfirmation() {
       </h1>
       <div className="bg-white p-4 rounded shadow">
         <p>รอบฉาย: {new Date(bookingData.showDateTime).toLocaleString()}</p>
-        <p>ที่นั่งที่เลือก: {bookingData.selectedSeats.map(seat => seat.SeatName).join(', ')}</p>
+        <p>
+          ที่นั่งที่เลือก:{" "}
+          {bookingData.selectedSeats.map((seat) => seat.SeatName).join(", ")}
+        </p>
         <p>ราคารวม: {bookingData.totalPrice.toFixed(2)} บาท</p>
         {error && <p className="text-red-500 mt-2">{error}</p>}
         {isBookingConfirmed ? (
@@ -89,10 +96,10 @@ function BookingConfirmation() {
             onClick={handleConfirmBooking}
             disabled={isLoading}
             className={`mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 ${
-              isLoading ? 'opacity-50 cursor-not-allowed' : ''
+              isLoading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
-            {isLoading ? 'กำลังดำเนินการ...' : 'ยืนยันการจอง'}
+            {isLoading ? "กำลังดำเนินการ..." : "ยืนยันการจอง"}
           </button>
         )}
       </div>
