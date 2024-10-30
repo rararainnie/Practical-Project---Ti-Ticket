@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Navbar from "../components/navbar";
+import Footer from "../components/footer";
 import SelectTheaterAndMovieBar from "../components/showTheaterAndMovie";
 import MovieBox from "../components/movieBox";
 import { Buffer } from "buffer";
@@ -214,6 +215,7 @@ function MovieReservation() {
           </>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

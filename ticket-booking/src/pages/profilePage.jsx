@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Buffer } from "buffer";
 import Navbar from "../components/navbar";
+import Footer from "../components/footer";
 
 function ProfilePage() {
   const { currentUser, setCurrentUser } = useAuth();
@@ -40,6 +41,10 @@ function ProfilePage() {
     }
   };
 
+  const sortedBookings = bookings.sort((a, b) => {
+    return new Date(a.ShowDateTime) - new Date(b.ShowDateTime);
+  });
+
   return (
     <div className="bg-black min-h-screen">
       <Navbar />
@@ -52,15 +57,16 @@ function ProfilePage() {
         </div>
       ) : (
         <div className="container mx-auto mt-8 p-4">
-          <h1 className="text-2xl font-bold mb-4 text-white">โปรไฟล์ของฉัน</h1>
-          <div className="bg-white p-4 rounded shadow">
-            <h2 className="text-xl font-semibold mb-2">
-              {`${currentUser.FName} ${currentUser.LName}`}
-            </h2>
-            <h3 className="text-lg font-semibold mt-4 mb-2">การจองของฉัน</h3>
-            {bookings.length > 0 ? (
-              bookings.map((booking, index) => (
-                <div key={index} className="mb-4 p-4 border rounded flex">
+          <h1 className="text-2xl font-bold mb-4 text-yellow-500">
+            การจองของฉัน
+          </h1>
+          <div className="p-4 bg-gray-800 grid grid-cols-3 gap-5 text-white rounded-2xl">
+            {sortedBookings.length > 0 ? (
+              sortedBookings.map((booking, index) => (
+                <div
+                  key={index}
+                  className="mb-4 p-4 rounded-2xl flex w-full bg-gray-900 items-center"
+                >
                   {booking.MovieImage ? (
                     <img
                       src={`data:image/jpeg;base64,${Buffer.from(
@@ -103,6 +109,7 @@ function ProfilePage() {
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 }

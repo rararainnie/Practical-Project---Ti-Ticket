@@ -5,6 +5,7 @@ import RegisterPopup from "../components/popupRegister";
 import ResetPasswordPopup from "../components/popReset";
 import redImage from "../assets/red.png";
 import user from "../assets/user.png";
+import activeUser from "../assets/active-user.png";
 import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
@@ -32,10 +33,12 @@ function Navbar() {
   };
 
   const handleProfileClick = () => {
-    if (currentUser.Status === "Admin") {
-      navigate(`/adminPage/${currentUser.FName}`);
-    } else if (currentUser.Status === "User") {
-      navigate(`/profile/${currentUser.FName}`);
+    if (currentUser) {
+      if (currentUser.Status === "Admin") {
+        navigate(`/adminPage/${currentUser.FName}`);
+      } else if (currentUser.Status === "User") {
+        navigate(`/profile/${currentUser.FName}`);
+      }
     } else {
       openPopup("login");
     }
@@ -58,12 +61,14 @@ function Navbar() {
             {" "}
             TI TICKET{" "}
           </span>
-          <img
-            className="w-10 h-10 ml-auto mr-3 cursor-pointer"
-            src={user}
-            alt="User Icon"
-            onClick={handleProfileClick}
-          />
+          {
+            <img
+              className="w-10 h-10 ml-auto mr-3 cursor-pointer"
+              src={currentUser ? activeUser : user}
+              alt="User Icon"
+              onClick={handleProfileClick}
+            />
+          }
           {currentUser ? (
             <div className="text-white ">
               <span

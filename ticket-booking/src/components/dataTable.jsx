@@ -1,45 +1,56 @@
-import PropTypes from 'prop-types';
-import { useState } from 'react';
+import PropTypes from "prop-types";
+import { useState } from "react";
 
 function DataTable({ data, type, onRefresh }) {
   const [editingId, setEditingId] = useState(null);
 
   const getHeaders = () => {
     switch (type) {
-      case 'movies':
-        return ['ID', 'ชื่อเรื่อง', 'ประเภท', 'เรทติ้ง', 'ระยะเวลา', 'วันที่ฉาย', 'การจัดการ'];
-      case 'cinemas':
-        return ['รหัส', 'ชื่อโรงภาพยนตร์', 'โซน', 'การจัดการ'];
-      case 'showtimes':
-        return ['รหัส', 'ภาพยนตร์', 'โรงภาพยนตร์', 'วันและเวลา', 'การจัดการ'];
-      case 'users':
-        return ['ID', 'อีเมล', 'ชื่อ', 'นามสกุล', 'สถานะ', 'การจัดการ'];
+      case "movies":
+        return [
+          "ID",
+          "ชื่อเรื่อง",
+          "ประเภท",
+          "เรทติ้ง",
+          "ระยะเวลา",
+          "วันที่ฉาย",
+          "การจัดการ",
+        ];
+      case "cinemas":
+        return ["รหัส", "ชื่อโรงภาพยนตร์", "โซน", "การจัดการ"];
+      case "showtimes":
+        return ["รหัส", "ภาพยนตร์", "โรงภาพยนตร์", "วันและเวลา", "การจัดการ"];
+      case "users":
+        return ["ID", "อีเมล", "ชื่อ", "นามสกุล", "สถานะ", "การจัดการ"];
       default:
         return [];
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('คุณแน่ใจหรือไม่ที่จะลบรายการนี้?')) {
+    if (window.confirm("คุณแน่ใจหรือไม่ที่จะลบรายการนี้?")) {
       try {
-        const response = await fetch(`http://localhost:3001/admin/${type}/${id}`, {
-          method: 'DELETE',
-        });
+        const response = await fetch(
+          `http://localhost:3001/admin/${type}/${id}`,
+          {
+            method: "DELETE",
+          }
+        );
         if (response.ok) {
           onRefresh();
         } else {
-          alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+          alert("เกิดข้อผิดพลาดในการลบข้อมูล");
         }
       } catch (error) {
-        console.error('Error:', error);
-        alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+        console.error("Error:", error);
+        alert("เกิดข้อผิดพลาดในการลบข้อมูล");
       }
     }
   };
 
   const renderRow = (item) => {
     switch (type) {
-      case 'movies':
+      case "movies":
         return (
           <tr key={item.MovieID} className="border-b border-gray-700">
             <td className="px-4 py-2 text-white">{item.MovieID}</td>
@@ -48,7 +59,7 @@ function DataTable({ data, type, onRefresh }) {
             <td className="px-4 py-2 text-white">{item.Rating}</td>
             <td className="px-4 py-2 text-white">{item.Duration} นาที</td>
             <td className="px-4 py-2 text-white">
-              {new Date(item.ReleaseDate).toLocaleDateString('th-TH')}
+              {new Date(item.ReleaseDate).toLocaleDateString("th-TH")}
             </td>
             <td className="px-4 py-2">
               <div className="flex space-x-2">
@@ -68,9 +79,12 @@ function DataTable({ data, type, onRefresh }) {
             </td>
           </tr>
         );
-      case 'cinemas':
+      case "cinemas":
         return (
-          <tr key={item.CinemaLocationCode} className="border-b border-gray-700">
+          <tr
+            key={item.CinemaLocationCode}
+            className="border-b border-gray-700"
+          >
             <td className="px-4 py-2 text-white">{item.CinemaLocationCode}</td>
             <td className="px-4 py-2 text-white">{item.Name}</td>
             <td className="px-4 py-2 text-white">{item.ZoneName}</td>
@@ -92,14 +106,14 @@ function DataTable({ data, type, onRefresh }) {
             </td>
           </tr>
         );
-      case 'showtimes':
+      case "showtimes":
         return (
           <tr key={item.TimeCode} className="border-b border-gray-700">
             <td className="px-4 py-2 text-white">{item.TimeCode}</td>
             <td className="px-4 py-2 text-white">{item.MovieTitle}</td>
             <td className="px-4 py-2 text-white">{item.CinemaName}</td>
             <td className="px-4 py-2 text-white">
-              {new Date(item.ShowDateTime).toLocaleString('th-TH')}
+              {new Date(item.ShowDateTime).toLocaleString("th-TH")}
             </td>
             <td className="px-4 py-2">
               <div className="flex space-x-2">
@@ -119,7 +133,7 @@ function DataTable({ data, type, onRefresh }) {
             </td>
           </tr>
         );
-      case 'users':
+      case "users":
         return (
           <tr key={item.UserID} className="border-b border-gray-700">
             <td className="px-4 py-2 text-white">{item.UserID}</td>
@@ -154,14 +168,14 @@ function DataTable({ data, type, onRefresh }) {
     <div>
       <div className="mb-4">
         <button
-          onClick={() => setEditingId('new')}
+          onClick={() => setEditingId("new")}
           className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
         >
           เพิ่มข้อมูลใหม่
         </button>
       </div>
 
-      <div className="overflow-x-auto">
+      <div>
         <table className="min-w-full bg-gray-900 rounded-lg">
           <thead>
             <tr className="bg-gray-800">
@@ -172,25 +186,19 @@ function DataTable({ data, type, onRefresh }) {
               ))}
             </tr>
           </thead>
-          <tbody>
-            {data.map(renderRow)}
-          </tbody>
+          <tbody>{data.map(renderRow)}</tbody>
         </table>
       </div>
 
       {/* TODO: Add EditModal component for editing data */}
-      {editingId && (
-        <div>
-          {/* Add your edit modal/form component here */}
-        </div>
-      )}
+      {editingId && <div>{/* Add your edit modal/form component here */}</div>}
     </div>
   );
 }
 
 DataTable.propTypes = {
   data: PropTypes.array.isRequired,
-  type: PropTypes.oneOf(['movies', 'cinemas', 'showtimes', 'users']).isRequired,
+  type: PropTypes.oneOf(["movies", "cinemas", "showtimes", "users"]).isRequired,
   onRefresh: PropTypes.func.isRequired,
 };
 

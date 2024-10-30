@@ -196,9 +196,9 @@ function ShowSeats({
           {renderSeats()}
         </div>
 
-        <div className="w-[40%] text-white flex flex-col ml-auto mr-10">
+        <div className="w-[45%] text-white flex flex-col justify-center ml-auto">
           <div className=" bg-slate-800 rounded-md">
-            <img src={movie.poster} className="w-[90%] m-3" />
+            <img src={movie.poster} className="w-[90%] mx-auto mt-4" />
             <h1 className="text-2xl font-bold my-3 text-center">
               {movie.title}
             </h1>
@@ -209,9 +209,18 @@ function ShowSeats({
               <p>โรงที่: {cinemaNoName}</p>
               <p>
                 ที่นั่งที่เลือก:{" "}
-                {selectedSeats.map((seat) => seat.SeatName).join(", ")}
+                <span className="text-yellow-500">
+                  {" "}
+                  {selectedSeats.map((seat) => seat.SeatName).join(", ")}
+                </span>
               </p>
-              <p>ราคารวม: {calculateTotalPrice().toFixed(2)} บาท</p>
+              <p>
+                ราคารวม:
+                <span className="text-yellow-500">
+                  {" "}
+                  {calculateTotalPrice().toFixed(2)} บาท
+                </span>
+              </p>
             </div>
 
             <div className="flex justify-center">
