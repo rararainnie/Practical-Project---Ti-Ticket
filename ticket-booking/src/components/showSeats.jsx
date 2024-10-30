@@ -1,6 +1,5 @@
 import { useEffect, useState, useContext } from "react";
 import PropTypes from "prop-types";
-import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import LoginPopup from "./popupLogin";
 import standardSeat from "../assets/pic/standardSeat.png";
@@ -8,15 +7,16 @@ import premiumSeat from "../assets/pic/premiumSeat.png";
 import pairSeat from "../assets/pic/pairSeat.png";
 import checkMark from "../assets/pic/checkmark.png";
 import userIcon from "../assets/pic/iconUser.png";
+import BookingConfirmationPopup from "./popupBooking";
 
 function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
   const [seats, setSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
   const { currentUser } = useContext(AuthContext);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   useEffect(() => {
     const fetchSeats = async () => {
@@ -125,18 +125,12 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
       return;
     }
 
-    const bookingData = {
-      timeCode,
-      showDateTime,
-      selectedSeats,
-      totalPrice: calculateTotalPrice(),
-      movie,
-      cinema,
-    };
+    setShowConfirmation(true);
+  };
 
-    navigate(`/booking-confirmation/${movie.Name}/${currentUser.FName}`, {
-      state: bookingData,
-    });
+  const handleBookingSuccess = () => {
+    setShowConfirmation(false);
+    window.location.href = "/";
   };
 
   const closeLoginPopup = () => {
@@ -224,16 +218,26 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
           </div>
         </div>
       </div>
+      {showConfirmation && (
+        <BookingConfirmationPopup
+          bookingData={{
+            timeCode,
+            showDateTime,
+            selectedSeats,
+            totalPrice: calculateTotalPrice(),
+            movie,
+            cinema,
+          }}
+          onClose={() => setShowConfirmation(false)}
+          onConfirm={handleBookingSuccess}
+        />
+      )}
       {showLoginPopup && (
         <LoginPopup
           onClose={closeLoginPopup}
           onLoginSuccess={handleLoginSuccess}
-          onOpenRegister={() => {
-            /* จัดการการเปิดหน้าลงทะเบียน */
-          }}
-          onOpenResetPassword={() => {
-            /* จัดการการเปิดหน้ารีเซ็ตรหัสผ่าน */
-          }}
+          onOpenRegister={() => {}}
+          onOpenResetPassword={() => {}}
         />
       )}
     </div>
