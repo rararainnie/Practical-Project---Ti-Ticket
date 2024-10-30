@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // เพิ่มฟังก์ชันล็อกอินและล็อกเอาท์ตามต้องการ
+  // ฟังก์ชันล็อกอินและล็อกเอาท์
   const login = async (email, password) => {
     try {
       const response = await fetch('http://localhost:3001/login', {
