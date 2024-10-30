@@ -45,9 +45,9 @@ function BookingConfirmation() {
     setIsLoading(true);
     setError(null);
     try {
-      console.log('Selected seats:', bookingData.selectedSeats); // เพิ่ม log นี้
+      console.log('Selected seats:', bookingData.selectedSeats);
       await Promise.all(bookingData.selectedSeats.map(seat => {
-        console.log('Updating seat:', seat.SeatCode); // เพิ่ม log นี้
+        console.log('Updating seat:', seat.SeatCode);
         return updateSeatStatus(seat.SeatCode, 'unavailable');
       }));
       setIsBookingConfirmed(true);

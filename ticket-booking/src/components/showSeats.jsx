@@ -114,7 +114,7 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
   };
 
   const handleBooking = () => {
-    if (!currentUser) {
+    if (!currentUser || currentUser.Status !== 'User') {
       setShowLoginPopup(true);
       return;
     }
@@ -141,7 +141,6 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
 
   const handleLoginSuccess = () => {
     setShowLoginPopup(false);
-    // อาจจะเพิ่มการดำเนินการอื่นๆ หลังจากล็อกอินสำเร็จ
   };
 
   if (loading) return <p className="text-white text-center">กำลังโหลดข้อมูลที่นั่ง...</p>;

@@ -3,14 +3,12 @@ import PropTypes from "prop-types";
 import redImage from "../assets/red.png";
 import googleLogo from "../assets/pic/google_logo.webp";
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 
 function LoginPopup({ onClose, onOpenRegister, onOpenResetPassword, onLoginSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { login } = useAuth();
-  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -18,12 +16,8 @@ function LoginPopup({ onClose, onOpenRegister, onOpenResetPassword, onLoginSucce
 
     try {
       const userData = await login(email, password);
-      if (userData.status === 'Admin') {
-        navigate(`/adminPage/${userData.FName}`); // นำทางไปยังหน้า admin
-      } else {
-        onLoginSuccess(userData);
-        onClose();
-      }
+      onLoginSuccess(userData);
+      onClose();
     } catch (err) {
       setError(err.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
     }

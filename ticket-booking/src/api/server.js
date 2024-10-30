@@ -66,7 +66,7 @@ app.get("/zone", (req, res) => {
 
 // API เพื่อดึงหนังทุกเรื่องตาม CinemaLocation
 app.get("/cinema/:CinemaLocationCode/movies", (req, res) => {
-  const locationId = req.params.CinemaLocationCode; // แก้ไขจาก locationId เป็น CinemaLocationCode
+  const locationId = req.params.CinemaLocationCode;
 
   const query = `
     SELECT m.* 
@@ -225,7 +225,7 @@ app.post('/login', (req, res) => {
   });
 });
 
-// API เพื่อดึงข้อมูลการจองของผู้ใช้
+// API เพื่อดึงข้อมู���การจองของผู้ใช้
 app.get("/user/:UserID/bookings", (req, res) => {
   const userId = req.params.UserID;
 
@@ -325,7 +325,135 @@ app.put('/reset-password', (req, res) => {
   });
 });
 
+// Admin API Endpoints
+
+// ดึงข้อมูลทั้งหมดสำหรับ admin
+app.get('/admin/:type', (req, res) => {
+  const type = req.params.type;
+  let query = '';
+
+  switch (type) {
+    case 'movies':
+      query = 'SELECT * FROM Movies';
+      break;
+    case 'cinemas':
+      query = `
+        SELECT cl.*, z.Name as ZoneName 
+        FROM CinemaLocation cl 
+        JOIN Zone z ON cl.Zone_ZoneID = z.ZoneID
+      `;
+      break;
+    case 'showtimes':
+      query = `
+        SELECT st.*, m.Title as MovieTitle, cn.Name as CinemaName 
+        FROM ShowTime st
+        JOIN Movies m ON st.Movies_MovieID = m.MovieID
+        JOIN CinemaNo cn ON st.CinemaNo_CinemaNoCode = cn.CinemaNoCode
+      `;
+      break;
+    case 'users':
+      query = 'SELECT UserID, Email, FName, LName, Status FROM User';
+      break;
+    default:
+      return res.status(400).send('Invalid type');
+  }
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error(`Error fetching ${type}:`, err);
+      res.status(500).send(`Error fetching ${type}`);
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+// เพิ่มข้อมูลใหม่
+app.post('/admin/:type', (req, res) => {
+  const type = req.params.type;
+  const data = req.body;
+
+  let query = '';
+  let values = [];
+
+  switch (type) {
+    case 'movies':
+      query = 'INSERT INTO Movies (Title, Description, Image, Genre, Rating, Duration, ReleaseDate) VALUES (?, ?, ?, ?, ?, ?, ?)';
+      values = [data.Title, data.Description, data.Image, data.Genre, data.Rating, data.Duration, data.ReleaseDate];
+      break;
+    // เพิ่ม cases อื่นๆ ตามความต้องการ
+  }
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error(`Error adding ${type}:`, err);
+      res.status(500).send(`Error adding ${type}`);
+    } else {
+      res.status(201).json({ id: result.insertId });
+    }
+  });
+});
+
+// อัพเดทข้อมูล
+app.put('/admin/:type/:id', (req, res) => {
+  const type = req.params.type;
+  const id = req.params.id;
+  const data = req.body;
+
+  let query = '';
+  let values = [];
+
+  switch (type) {
+    case 'movies':
+      query = 'UPDATE Movies SET Title = ?, Description = ?, Genre = ?, Rating = ?, Duration = ?, ReleaseDate = ? WHERE MovieID = ?';
+      values = [data.Title, data.Description, data.Genre, data.Rating, data.Duration, data.ReleaseDate, id];
+      break;
+    // เพิ่ม cases อื่นๆ ตามความต้องการ
+  }
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error(`Error updating ${type}:`, err);
+      res.status(500).send(`Error updating ${type}`);
+    } else {
+      res.json({ message: 'Updated successfully' });
+    }
+  });
+});
+
+// ลบข้อมูล
+app.delete('/admin/:type/:id', (req, res) => {
+  const type = req.params.type;
+  const id = req.params.id;
+
+  let query = '';
+  switch (type) {
+    case 'movies':
+      query = 'DELETE FROM Movies WHERE MovieID = ?';
+      break;
+
+    case 'users':
+      query = 'DELETE FROM User WHERE UserID = ?';
+      break;
+
+    case 'showtimes':
+      query = 'DELETE FROM ShowTime WHERE TimeCode = ?';
+      break;
+  }
+
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      console.error(`Error deleting ${type}:`, err);
+      res.status(500).send(`Error deleting ${type}`);
+    } else {
+      res.json({ message: 'Deleted successfully' });
+    }
+  });
+});
+
 // เริ่มต้นเซิร์ฟเวอร์
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
+
+

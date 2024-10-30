@@ -18,6 +18,7 @@ function MovieReservation() {
   useEffect(() => {
     console.log("movie", movie, "cinema", cinema, "showTimes", showTimes);
     setShowTimes([]);
+    setIsLoadingShowtimes(true);
     if (movie?.id && !cinema?.id) {
       fetchCinemasForMovie(movie.id);
     } else if (cinema?.id && !movie?.id) {
@@ -34,12 +35,16 @@ function MovieReservation() {
       );
       const data = await response.json();
       // setCinemas(data);
-      console.log(data);
-      data.forEach((cinema) =>
-        fetchShowTimes(movieId, cinema.CinemaLocationCode)
-      );
+      console.log("fetchCinemasForMovie",data);
+      if (data.length > 0) {
+        data.forEach((cinema) =>
+          fetchShowTimes(movieId, cinema.CinemaLocationCode)
+        );
+      } 
     } catch (error) {
       console.error("Error fetching cinemas:", error);
+    } finally {
+      setIsLoadingShowtimes(false);
     }
   };
 
@@ -91,8 +96,6 @@ function MovieReservation() {
   };
 
   const fetchShowTimes = async (movieId, cinemaId) => {
-    setIsLoadingShowtimes(true);
-    console.log("start", isLoadingShowtimes);
     try {
       const response = await fetch(
         `http://localhost:3001/movie/${movieId}/cinema/${cinemaId}`
@@ -105,7 +108,6 @@ function MovieReservation() {
       console.error("Error fetching show times:", error);
     } finally {
       setIsLoadingShowtimes(false);
-      console.log("end", isLoadingShowtimes);
     }
   };
 
@@ -179,11 +181,11 @@ function MovieReservation() {
               >
                 รายละเอียด
               </button>
-              {cinema && (
+              {/* {cinema && (
                 <p className="selected-cinema tex t-lg mt-3">
                   โรงภาพยนตร์ที่เลือก: {cinema.name}
                 </p>
-              )}
+              )} */}
             </div>
           </div>
         )}
@@ -198,13 +200,14 @@ function MovieReservation() {
                   <p className="text-yellow-500 text-lg">กำลังโหลดข้อมูลรอบฉาย...</p>
                 </div>
               </div>
-            ) : (
+            )  :  (
               <ShowTime 
                 movie={movie} 
                 cinema={cinema} 
                 showTimes={showTimes}
               />
-            )}
+            ) 
+            }
           </>
         )}
       </div>

@@ -6,6 +6,7 @@ import ScrollToTop from "./components/scollToTop";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import { AuthProvider } from './context/AuthContext';
 import ProfilePage from './pages/profilePage';
+import AdminPage from './pages/adminPage';
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
           <Route path="/movie-reservation/:movieName" element={<MovieReservation />} />
           <Route path="/booking-confirmation/:movieName/:userFName" element={<BookingConfirmation />} />
           <Route path="/profile/:userFName" element={<ProfilePage />} />
-          <Route path="/adminPage/:adminFName"></Route>
+          <Route path="/adminPage/:adminFName" element={<AdminPage />} />
         </Routes>
       </Router>
     </AuthProvider>

@@ -14,12 +14,13 @@ function ShowTime({ movie, cinema, showTimes }) {
 
   useEffect(() => {
     // รีเซ็ตค่าเมื่อ showTimes เปลี่ยนแปลง
+    console.log(movie, cinema,"showtimes", showTimes);
     setSelectedTimeCode(null);
     setSelectedShowDateTime(null);
     setSelectedDate(new Date().toISOString().split("T")[0]);
     setCurrentIndex(0);
     generateDays();
-  }, [showTimes]);
+  }, [movie, cinema, showTimes]);
 
   const generateDays = () => {
     const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -94,9 +95,9 @@ function ShowTime({ movie, cinema, showTimes }) {
   }, [selectedTimeCode]);
 
   // ถ้าไม่มี showTimes ให้ return null
-  if (!showTimes || showTimes.length === 0) {
-    return null;
-  }
+  // if (!showTimes || showTimes.length === 0) {
+  //   return null;
+  // }
 
   return (
     <>
@@ -159,8 +160,15 @@ function ShowTime({ movie, cinema, showTimes }) {
           </button>
         </div>
       </div>
+      {console.log("showTimes before", showTimes)}
       <div className="mt-8">
-        {showTimes.length > 0 ? (
+        {(showTimes.length === 0) ? ( 
+          console.log("showtimes empty:", showTimes),
+          <div className="flex items-center justify-center">
+            <p className="text-xl text-yellow-500">ไม่พบรอบฉายสำหรับภาพยนตร์นี้</p>
+          </div>
+        ) : (
+          console.log("showtimes has data:", showTimes),
           (() => {
             const filteredShowTimes = filterShowTimesByDate(
               showTimes,
@@ -168,9 +176,11 @@ function ShowTime({ movie, cinema, showTimes }) {
             );
             if (filteredShowTimes.length === 0) {
               return (
-                <p className="text-xl text-yellow-500">
-                  ไม่พบรอบฉายสำหรับภาพยนตร์นี้ในวันที่เลือก
-                </p>
+                <div className="flex items-center justify-center">
+                  <p className="text-xl text-yellow-500">
+                    ไม่พบรอบฉายสำหรับภาพยนตร์นี้ในวันที่เลือก
+                  </p>
+                </div>
               );
             }
             const groupedShowTimes = filteredShowTimes.reduce(
@@ -267,8 +277,6 @@ function ShowTime({ movie, cinema, showTimes }) {
               )
             );
           })()
-        ) : (
-          <p className="text-xl text-yellow-500">ไม่พบรอบฉายสำหรับภาพนตร์นี้</p>
         )}
       </div>
       {selectedTimeCode && showTimes.length > 0 && (

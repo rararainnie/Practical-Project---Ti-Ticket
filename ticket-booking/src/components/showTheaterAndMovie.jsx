@@ -138,11 +138,6 @@ function ShowTheaterAndMovie() {
       navigate(`/movie-reservation/${cinema.name}`, {
         state: { movie, cinema },
       });
-      // } else if (!cinema?.name && movie?.title) {
-      //   console.log("show movie", movie)
-      //   navigate(`/movie-reservation/${movie.title}`, {
-      //     state: { movie },
-      //   });
     } else {
       navigate(`/movie-reservation/${movie.title}`, {
         state: { movie, cinema },
