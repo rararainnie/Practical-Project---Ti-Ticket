@@ -57,6 +57,8 @@ function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
         
         <div className="space-y-3 text-white">
           <p>ภาพยนตร์: {bookingData.movie.title}</p>
+          <p>โรงภาพยนตร์: {bookingData.cinemaLocationName}</p>
+          <p>โรงที่: {bookingData.cinemaNoName}</p>
           <p>รอบฉาย: {new Date(bookingData.showDateTime).toLocaleString()}</p>
           <p>ที่นั่งที่เลือก: {bookingData.selectedSeats.map(seat => seat.SeatName).join(', ')}</p>
           <p>ราคารวม: {bookingData.totalPrice.toFixed(2)} บาท</p>

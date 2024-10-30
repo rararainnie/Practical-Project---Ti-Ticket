@@ -9,7 +9,7 @@ import checkMark from "../assets/pic/checkmark.png";
 import userIcon from "../assets/pic/iconUser.png";
 import BookingConfirmationPopup from './popupBooking';
 
-function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
+function ShowSeats({ timeCode, showDateTime, movie, cinemaLocationName, cinemaNoName }) {
   const [seats, setSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,6 +19,7 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   useEffect(() => {
+    // console.log(cinema);
     const fetchSeats = async () => {
       setLoading(true);
       setError(null);
@@ -195,6 +196,8 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
 
             <div className="text-[14px] ml-5 space-y-1">
               <p>รอบฉาย: {new Date(showDateTime).toLocaleString()}</p>
+              <p>โรงภาพยนตร์: {cinemaLocationName}</p>
+              <p>โรงที่: {cinemaNoName}</p>
               <p>
                 ที่นั่งที่เลือก:{" "}
                 {selectedSeats.map((seat) => seat.SeatName).join(", ")}
@@ -222,7 +225,8 @@ function ShowSeats({ timeCode, showDateTime, movie, cinema }) {
             selectedSeats,
             totalPrice: calculateTotalPrice(),
             movie,
-            cinema,
+            cinemaLocationName,
+            cinemaNoName,
           }}
           onClose={() => setShowConfirmation(false)}
           onConfirm={handleBookingSuccess}
@@ -244,7 +248,8 @@ ShowSeats.propTypes = {
   timeCode: PropTypes.number.isRequired,
   showDateTime: PropTypes.string.isRequired,
   movie: PropTypes.object.isRequired,
-  cinema: PropTypes.object.isRequired,
+  cinemaLocationName: PropTypes.string.isRequired,
+  cinemaNoName: PropTypes.string.isRequired,
 };
 
 export default ShowSeats;

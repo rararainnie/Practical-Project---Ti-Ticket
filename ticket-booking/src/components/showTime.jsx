@@ -8,15 +8,13 @@ function ShowTime({ movie, cinema, showTimes }) {
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
-  const [selectedTimeCode, setSelectedTimeCode] = useState(null);
-  const [selectedShowDateTime, setSelectedShowDateTime] = useState(null);
   const seatsRef = useRef(null);
+  const [selectedInfo, setSelectedInfo] = useState(null);
 
   useEffect(() => {
     // รีเซ็ตค่าเมื่อ showTimes เปลี่ยนแปลง
     console.log(movie, cinema,"showtimes", showTimes);
-    setSelectedTimeCode(null);
-    setSelectedShowDateTime(null);
+    setSelectedInfo(null);
     setSelectedDate(new Date().toISOString().split("T")[0]);
     setCurrentIndex(0);
     generateDays();
@@ -57,8 +55,7 @@ function ShowTime({ movie, cinema, showTimes }) {
 
   const handleDateClick = (fullDate) => {
     setSelectedDate(fullDate);
-    setSelectedTimeCode(null);
-    setSelectedShowDateTime(null);
+    setSelectedInfo(null);
   };
 
   const handlePrevious = () => {
@@ -69,11 +66,14 @@ function ShowTime({ movie, cinema, showTimes }) {
     if (currentIndex < days.length - 11) setCurrentIndex(currentIndex + 1);
   };
 
-  const handleTimeClick = (timeCode, showDateTime) => {
-    setSelectedTimeCode(timeCode);
-    setSelectedShowDateTime(showDateTime);
+  const handleTimeClick = (timeCode, showDateTime, cinemaLocation, cinemaNo) => {
+    setSelectedInfo({
+      timeCode: timeCode,
+      showDateTime: showDateTime,
+      cinemaLocationName: cinemaLocation,
+      cinemaNoName: cinemaNo
+    });
     
-    // รอให้ state อัปเดตและ component render เสร็จก่อนเลื่อนหน้าจอ
     setTimeout(() => {
       if (seatsRef.current) {
         seatsRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -89,15 +89,10 @@ function ShowTime({ movie, cinema, showTimes }) {
   };
 
   useEffect(() => {
-    if (selectedTimeCode && seatsRef.current) {
+    if (selectedInfo?.timeCode && seatsRef.current) {
       seatsRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [selectedTimeCode]);
-
-  // ถ้าไม่มี showTimes ให้ return null
-  // if (!showTimes || showTimes.length === 0) {
-  //   return null;
-  // }
+  }, [selectedInfo?.timeCode]);
 
   return (
     <>
@@ -253,12 +248,17 @@ function ShowTime({ movie, cinema, showTimes }) {
                                   className={`px-3 py-1 rounded ${
                                     isDisabled
                                       ? "bg-gray-500 text-gray-300 cursor-not-allowed"
-                                      : selectedTimeCode === timeCode
+                                      : selectedInfo?.timeCode === timeCode
                                       ? "bg-blue-500 text-white"
                                       : "bg-red-500 text-white hover:bg-red-600"
                                   }`}
                                   onClick={() =>
-                                    handleTimeClick(timeCode, showDateTime)
+                                    handleTimeClick(
+                                      timeCode, 
+                                      showDateTime,
+                                      location.CinemaLocationName,
+                                      cinema.CinemaNoName
+                                    )
                                   }
                                   disabled={isDisabled}
                                 >
@@ -279,14 +279,15 @@ function ShowTime({ movie, cinema, showTimes }) {
           })()
         )}
       </div>
-      {selectedTimeCode && showTimes.length > 0 && (
+      {selectedInfo?.timeCode && showTimes.length > 0 && (
         <div ref={seatsRef}>
           <ShowSeats
-            key={selectedTimeCode}
-            timeCode={selectedTimeCode}
-            showDateTime={selectedShowDateTime}
+            key={selectedInfo?.timeCode}
+            timeCode={selectedInfo?.timeCode}
+            showDateTime={selectedInfo?.showDateTime}
             movie={movie}
-            cinema={cinema}
+            cinemaLocationName={selectedInfo?.cinemaLocationName}
+            cinemaNoName={selectedInfo?.cinemaNoName}
           />
         </div>
       )}
