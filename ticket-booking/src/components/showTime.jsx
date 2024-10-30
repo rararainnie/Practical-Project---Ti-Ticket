@@ -13,7 +13,7 @@ function ShowTime({ movie, cinema, showTimes }) {
 
   useEffect(() => {
     // รีเซ็ตค่าเมื่อ showTimes เปลี่ยนแปลง
-    console.log(movie, cinema,"showtimes", showTimes);
+    console.log(movie, cinema, "showtimes", showTimes);
     setSelectedInfo(null);
     setSelectedDate(new Date().toISOString().split("T")[0]);
     setCurrentIndex(0);
@@ -66,22 +66,24 @@ function ShowTime({ movie, cinema, showTimes }) {
     if (currentIndex < days.length - 11) setCurrentIndex(currentIndex + 1);
   };
 
-  const handleTimeClick = (timeCode, showDateTime, cinemaLocation, cinemaNo) => {
+  const handleTimeClick = (
+    timeCode,
+    showDateTime,
+    cinemaLocation,
+    cinemaNo
+  ) => {
     setSelectedInfo({
       timeCode: timeCode,
       showDateTime: showDateTime,
       cinemaLocationName: cinemaLocation,
-      cinemaNoName: cinemaNo
+      cinemaNoName: cinemaNo,
     });
-    
+
     setTimeout(() => {
       if (seatsRef.current) {
         seatsRef.current.scrollIntoView({ behavior: "smooth" });
       }
     }, 200);
-
-    setSelectedLocationName(cinemaLocationName);
-    setSelectedLocationNo(cinemaLocationNo);
   };
 
   const filterShowTimesByDate = (showTimes, selectedDate) => {
@@ -93,18 +95,18 @@ function ShowTime({ movie, cinema, showTimes }) {
 
   useEffect(() => {
     if (selectedInfo?.timeCode && seatsRef.current) {
-      seatsRef.current.scrollIntoView({ behavior: 'smooth' });
+      seatsRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [selectedInfo?.timeCode]);
 
   return (
     <>
       <div className="flex flex-col">
-        {/* <div className="flex border rounded-md p-2 bg-white w-full">
+        <div className="flex border rounded-md p-2 bg-white w-full">
           <h1 className="flex-1 text-center">เลือกรอบภาพยนตร์</h1>
           <h1 className="flex-1 text-center">เลือกที่นั่ง</h1>
           <h1 className="flex-1 text-center">ซื้อตั๋ว</h1>
-        </div> */}
+        </div>
 
         <div className="flex w-full items-center justify-between mt-5">
           <button
@@ -252,33 +254,34 @@ function ShowTime({ movie, cinema, showTimes }) {
                                   (time) => time.ShowDateTime === showDateTime
                                 ).TimeCode;
 
-                              return (
-                                <button
-                                  key={timeIndex}
-                                  className={`px-3 py-1 rounded ${
-                                    isDisabled
-                                      ? "bg-gray-500 text-gray-300 cursor-not-allowed"
-                                      : selectedInfo?.timeCode === timeCode
-                                      ? "bg-blue-500 text-white"
-                                      : "bg-red-500 text-white hover:bg-red-600"
-                                  }`}
-                                  onClick={() =>
-                                    handleTimeClick(
-                                      timeCode, 
-                                      showDateTime,
-                                      location.CinemaLocationName,
-                                      cinema.CinemaNoName
-                                    )
-                                  }
-                                  disabled={isDisabled}
-                                >
-                                  {showTime.toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}
-                                </button>
-                              );
-                            })}
+                                return (
+                                  <button
+                                    key={timeIndex}
+                                    className={`px-3 py-1 rounded ${
+                                      isDisabled
+                                        ? "bg-gray-500 text-gray-300 cursor-not-allowed"
+                                        : selectedInfo?.timeCode === timeCode
+                                        ? "bg-blue-500 text-white"
+                                        : "bg-red-500 text-white hover:bg-red-600"
+                                    }`}
+                                    onClick={() =>
+                                      handleTimeClick(
+                                        timeCode,
+                                        showDateTime,
+                                        location.CinemaLocationName,
+                                        cinema.CinemaNoName
+                                      )
+                                    }
+                                    disabled={isDisabled}
+                                  >
+                                    {showTime.toLocaleTimeString([], {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })}
+                                  </button>
+                                );
+                              })}
+                          </div>
                         </div>
                       )
                     )}
