@@ -123,7 +123,7 @@ function ShowSeats({
   };
 
   const handleBooking = () => {
-    if (!currentUser) {
+    if (!currentUser || currentUser.Status !== "User") {
       setShowLoginPopup(true);
       return;
     }
@@ -146,7 +146,6 @@ function ShowSeats({
 
   const handleLoginSuccess = () => {
     setShowLoginPopup(false);
-    // อาจจะเพิ่มการดำเนินการอื่นๆ หลังจากล็อกอินสำเร็จ
   };
 
   if (loading)
@@ -205,8 +204,6 @@ function ShowSeats({
             </h1>
 
             <div className="text-[14px] ml-5 space-y-1">
-              <p>โรงภาพยนตร์: {locationName}</p>
-              <p>โรงภาพยนตร์ที่: {locationNo}</p>
               <p>รอบฉาย: {new Date(showDateTime).toLocaleString()}</p>
               <p>โรงภาพยนตร์: {cinemaLocationName}</p>
               <p>โรงที่: {cinemaNoName}</p>
