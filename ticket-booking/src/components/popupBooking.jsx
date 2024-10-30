@@ -64,7 +64,6 @@ function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
           <p>
             ผู้ใช้: {currentUser.FName} {currentUser.LName}
           </p>
-          <p>โรงภาพยนตร์: {bookingData.locationName}</p>
           <p>ภาพยนตร์: {bookingData.movie.title}</p>
           <p>โรงภาพยนตร์: {bookingData.cinemaLocationName}</p>
           <p>โรงที่: {bookingData.cinemaNoName}</p>

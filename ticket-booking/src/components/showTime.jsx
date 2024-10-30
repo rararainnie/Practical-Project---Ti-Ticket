@@ -102,12 +102,6 @@ function ShowTime({ movie, cinema, showTimes }) {
   return (
     <>
       <div className="flex flex-col">
-        <div className="flex border rounded-md p-2 bg-white w-full">
-          <h1 className="flex-1 text-center">เลือกรอบภาพยนตร์</h1>
-          <h1 className="flex-1 text-center">เลือกที่นั่ง</h1>
-          <h1 className="flex-1 text-center">ซื้อตั๋ว</h1>
-        </div>
-
         <div className="flex w-full items-center justify-between mt-5">
           <button
             onClick={handlePrevious}
