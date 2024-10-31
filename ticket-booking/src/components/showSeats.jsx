@@ -7,9 +7,15 @@ import premiumSeat from "../assets/pic/premiumSeat.png";
 import pairSeat from "../assets/pic/pairSeat.png";
 import checkMark from "../assets/pic/checkmark.png";
 import userIcon from "../assets/pic/iconUser.png";
-import BookingConfirmationPopup from './popupBooking';
+import BookingConfirmationPopup from "./popupBooking";
 
-function ShowSeats({ timeCode, showDateTime, movie, cinemaLocationName, cinemaNoName }) {
+function ShowSeats({
+  timeCode,
+  showDateTime,
+  movie,
+  cinemaLocationName,
+  cinemaNoName,
+}) {
   const [seats, setSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -70,7 +76,9 @@ function ShowSeats({ timeCode, showDateTime, movie, cinemaLocationName, cinemaNo
   };
 
   const renderSeats = () => {
-    const rows = [...new Set(seats.map((seat) => seat.SeatName[0]))].sort().reverse();
+    const rows = [...new Set(seats.map((seat) => seat.SeatName[0]))]
+      .sort()
+      .reverse();
     return rows.map((row) => (
       <div key={row} className="flex my-5 text-white text-lg">
         <span className="mr-auto opacity-30">{row}</span>
@@ -87,17 +95,17 @@ function ShowSeats({ timeCode, showDateTime, movie, cinemaLocationName, cinemaNo
                 seat.Status === "available" && handleSeatClick(seat)
               }
               disabled={seat.Status !== "available"}
-              className={`${row === 'A' ? 'mx-8' : ''}`}
+              className={`${row === "A" ? "mx-8" : ""}`}
             >
               <img
                 src={getSeatImage(seat)}
                 alt={seat.SeatCode}
                 className={`object-contain ${
-                  getSeatImage(seat) === userIcon 
-                    ? "w-7" 
-                    : row === 'A' 
-                      ? "w-14 mx-4" // เพิ่มขนาดสำหรับแถว A
-                      : "w-10 mx-1"
+                  getSeatImage(seat) === userIcon
+                    ? "w-7"
+                    : row === "A"
+                    ? "w-14 mx-4" // เพิ่มขนาดสำหรับแถว A
+                    : "w-10 mx-1"
                 }`}
               />
             </button>
@@ -115,7 +123,7 @@ function ShowSeats({ timeCode, showDateTime, movie, cinemaLocationName, cinemaNo
   };
 
   const handleBooking = () => {
-    if (!currentUser || currentUser.Status !== 'User') {
+    if (!currentUser || currentUser.Status !== "User") {
       setShowLoginPopup(true);
       return;
     }
@@ -129,7 +137,7 @@ function ShowSeats({ timeCode, showDateTime, movie, cinemaLocationName, cinemaNo
 
   const handleBookingSuccess = () => {
     setShowConfirmation(false);
-    window.location.href = '/';
+    window.location.href = "/";
   };
 
   const closeLoginPopup = () => {
@@ -140,7 +148,8 @@ function ShowSeats({ timeCode, showDateTime, movie, cinemaLocationName, cinemaNo
     setShowLoginPopup(false);
   };
 
-  if (loading) return <p className="text-white text-center">กำลังโหลดข้อมูลที่นั่ง...</p>;
+  if (loading)
+    return <p className="text-white text-center">กำลังโหลดข้อมูลที่นั่ง...</p>;
   if (error) return <p className="text-red-500 text-center">{error}</p>;
   if (seats.length === 0)
     return <p className="text-white text-center">ไม่พบข้อมูลที่นั่ง</p>;
@@ -187,9 +196,9 @@ function ShowSeats({ timeCode, showDateTime, movie, cinemaLocationName, cinemaNo
           {renderSeats()}
         </div>
 
-        <div className="w-[45%] text-white flex flex-col ml-auto justify-center">
+        <div className="w-[45%] text-white flex flex-col justify-center ml-auto">
           <div className=" bg-slate-800 rounded-md">
-            <img src={movie.poster} className="w-[90%] mx-auto mt-3" />
+            <img src={movie.poster} className="w-[90%] mx-auto mt-4" />
             <h1 className="text-2xl font-bold my-3 text-center">
               {movie.title}
             </h1>
@@ -200,9 +209,18 @@ function ShowSeats({ timeCode, showDateTime, movie, cinemaLocationName, cinemaNo
               <p>โรงที่: {cinemaNoName}</p>
               <p>
                 ที่นั่งที่เลือก:{" "}
-                {selectedSeats.map((seat) => seat.SeatName).join(", ")}
+                <span className="text-yellow-500">
+                  {" "}
+                  {selectedSeats.map((seat) => seat.SeatName).join(", ")}
+                </span>
               </p>
-              <p>ราคารวม: {calculateTotalPrice().toFixed(2)} บาท</p>
+              <p>
+                ราคารวม:
+                <span className="text-yellow-500">
+                  {" "}
+                  {calculateTotalPrice().toFixed(2)} บาท
+                </span>
+              </p>
             </div>
 
             <div className="flex justify-center">

@@ -10,22 +10,25 @@ function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
 
   const updateSeatStatus = async (seatCode, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:3001/seat/${seatCode}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          Status: newStatus,
-          UserID: currentUser.UserID
-        }),
-      });
-      
+      const response = await fetch(
+        `http://localhost:3001/seat/${seatCode}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            Status: newStatus,
+            UserID: currentUser.UserID,
+          }),
+        }
+      );
+
       if (!response.ok) {
-        throw new Error('Failed to update seat status');
+        throw new Error("Failed to update seat status");
       }
     } catch (error) {
-      console.error('Error updating seat status:', error);
+      console.error("Error updating seat status:", error);
       throw error;
     }
   };
@@ -34,9 +37,11 @@ function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
     setIsLoading(true);
     setError(null);
     try {
-      await Promise.all(bookingData.selectedSeats.map(seat => 
-        updateSeatStatus(seat.SeatCode, 'unavailable')
-      ));
+      await Promise.all(
+        bookingData.selectedSeats.map((seat) =>
+          updateSeatStatus(seat.SeatCode, "unavailable")
+        )
+      );
       setIsSuccess(true);
       setTimeout(() => {
         onConfirm();
@@ -54,19 +59,20 @@ function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
         <h2 className="text-2xl font-bold mb-4 text-yellow-500">
           {isSuccess ? "การจองสำเร็จ" : "ยืนยันการจองที่นั่ง"}
         </h2>
-        
+
         <div className="space-y-3 text-white">
           <p>ภาพยนตร์: {bookingData.movie.title}</p>
           <p>โรงภาพยนตร์: {bookingData.cinemaLocationName}</p>
           <p>โรงที่: {bookingData.cinemaNoName}</p>
           <p>รอบฉาย: {new Date(bookingData.showDateTime).toLocaleString()}</p>
-          <p>ที่นั่งที่เลือก: {bookingData.selectedSeats.map(seat => seat.SeatName).join(', ')}</p>
+          <p>
+            ที่นั่งที่เลือก:{" "}
+            {bookingData.selectedSeats.map((seat) => seat.SeatName).join(", ")}
+          </p>
           <p>ราคารวม: {bookingData.totalPrice.toFixed(2)} บาท</p>
         </div>
 
-        {error && (
-          <p className="text-red-500 mt-4">{error}</p>
-        )}
+        {error && <p className="text-red-500 mt-4">{error}</p>}
 
         {isSuccess && (
           <p className="text-green-500 mt-4 text-center">การจองสำเร็จ!</p>
@@ -94,7 +100,7 @@ function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
                 disabled={isLoading}
                 className="px-4 py-2 bg-yellow-500 text-black rounded hover:bg-yellow-600 disabled:bg-gray-400"
               >
-                {isLoading ? 'กำลังดำเนินการ...' : 'ยืนยันการจอง'}
+                {isLoading ? "กำลังดำเนินการ..." : "ยืนยันการจอง"}
               </button>
             </>
           )}

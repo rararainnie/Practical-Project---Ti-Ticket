@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/navbar";
+import Footer from "../components/footer";
 
 function MovieDetails() {
   const location = useLocation();
@@ -43,7 +44,10 @@ function MovieDetails() {
         {/* Gray background box */}
         <div className="bg-zinc-800 p-5 rounded-2xl w-[50%] h-70 flex justify-center items-center relative">
           {/* Left section - Movie poster */}
-          <div className="w-1/3 flex justify-start mr-10 relative" style={{ left: '-90px' }}>
+          <div
+            className="w-1/3 flex justify-start mr-10 relative"
+            style={{ left: "-90px" }}
+          >
             <img
               src={movie.poster}
               alt={movie.title}
@@ -52,7 +56,10 @@ function MovieDetails() {
           </div>
 
           {/* Right section - Movie details */}
-          <div className="w-2/3 ml-10 text-white relative" style={{ left: '-80px' }}>
+          <div
+            className="w-2/3 ml-10 text-white relative"
+            style={{ left: "-80px" }}
+          >
             {/* Movie Title */}
             <h1 className="text-4xl font-bold mb-3">{movie.title}</h1>
             {/* Release Date, Genre, Rating, and Duration */}
@@ -76,6 +83,7 @@ function MovieDetails() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

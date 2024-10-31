@@ -2,6 +2,7 @@ import Navbar from "../components/navbar";
 import RecommendMovie from "../components/recommendMovie";
 import ShowTheaterAndMovie from "../components/showTheaterAndMovie";
 import MovieBox from "../components/movieBox";
+import Footer from "../components/footer";
 import { useEffect, useState } from "react";
 import { Buffer } from "buffer";
 
@@ -20,14 +21,16 @@ function Home() {
     const fetchMovies = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('http://localhost:3001/movies');
+        const response = await fetch("http://localhost:3001/movies");
         const data = await response.json();
         console.log("ข้อมูลที่ได้รับจาก API:", data);
 
         // จัดรูปแบบข้อมูล
         const formattedMovies = data.map((movie) => ({
           id: movie.MovieID,
-          poster: `data:image/jpeg;base64,${Buffer.from(movie.Image).toString("base64")}`,
+          poster: `data:image/jpeg;base64,${Buffer.from(movie.Image).toString(
+            "base64"
+          )}`,
           title: movie.Title,
           genre: movie.Genre,
           rating: movie.Rating.toString(),
@@ -44,7 +47,7 @@ function Home() {
         setMovies(formattedMovies);
         filterMovies(0, formattedMovies); // ใช้ฟังก์ชัน filterMovies แทน setFilteredMovies
       } catch (error) {
-        console.error('Error fetching movies:', error);
+        console.error("Error fetching movies:", error);
       } finally {
         setIsLoading(false);
       }
@@ -118,7 +121,9 @@ function Home() {
           <div className="flex items-center justify-center min-h-[40vh]">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500 mx-auto mb-4"></div>
-              <p className="text-yellow-500 text-lg">กำลังโหลดข้อมูลภาพยนตร์...</p>
+              <p className="text-yellow-500 text-lg">
+                กำลังโหลดข้อมูลภาพยนตร์...
+              </p>
             </div>
           </div>
         ) : filteredMovies.length > 0 ? (
@@ -135,6 +140,7 @@ function Home() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

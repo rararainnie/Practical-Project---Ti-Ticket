@@ -1,45 +1,67 @@
-import PropTypes from 'prop-types';
-import { useState } from 'react';
+import PropTypes from "prop-types";
+import { useState } from "react";
 
 function DataTable({ data, type, onRefresh }) {
   const [editingId, setEditingId] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
+  const [formData, setFormData] = useState({
+    MovieID: "",
+    Title: "",
+    Description: "",
+    Image: null,
+    Genre: "",
+    Rating: "",
+    Duration: "",
+    ReleaseDate: "",
+  });
 
   const getHeaders = () => {
     switch (type) {
-      case 'movies':
-        return ['ID', 'ชื่อเรื่อง', 'ประเภท', 'เรทติ้ง', 'ระยะเวลา', 'วันที่ฉาย', 'การจัดการ'];
-      case 'cinemas':
-        return ['รหัส', 'ชื่อโรงภาพยนตร์', 'โซน', 'การจัดการ'];
-      case 'showtimes':
-        return ['รหัส', 'ภาพยนตร์', 'โรงภาพยนตร์', 'วันและเวลา', 'การจัดการ'];
-      case 'users':
-        return ['ID', 'อีเมล', 'ชื่อ', 'นามสกุล', 'สถานะ', 'การจัดการ'];
+      case "movies":
+        return [
+          "ID",
+          "ชื่อเรื่อง",
+          "ประเภท",
+          "เรทติ้ง",
+          "ระยะเวลา",
+          "วันที่ฉาย",
+          "การจัดการ",
+        ];
+      case "cinemas":
+        return ["รหัส", "ชื่อโรงภาพยนตร์", "โซน", "การจัดการ"];
+      case "showtimes":
+        return ["รหัส", "ภาพยนตร์", "โรงภาพยนตร์", "วันและเวลา", "การจัดการ"];
+      case "users":
+        return ["ID", "อีเมล", "ชื่อ", "นามสกุล", "สถานะ", "การจัดการ"];
       default:
         return [];
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('คุณแน่ใจหรือไม่ที่จะลบรายการนี้?')) {
+    if (window.confirm("คุณแน่ใจหรือไม่ที่จะลบรายการนี้?")) {
       try {
-        const response = await fetch(`http://localhost:3001/admin/${type}/${id}`, {
-          method: 'DELETE',
-        });
+        const response = await fetch(
+          `http://localhost:3001/admin/${type}/${id}`,
+          {
+            method: "DELETE",
+          }
+        );
         if (response.ok) {
           onRefresh();
         } else {
-          alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+          alert("เกิดข้อผิดพลาดในการลบข้อมูล");
         }
       } catch (error) {
-        console.error('Error:', error);
-        alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+        console.error("Error:", error);
+        alert("เกิดข้อผิดพลาดในการลบข้อมูล");
       }
     }
   };
 
   const renderRow = (item) => {
     switch (type) {
-      case 'movies':
+      case "movies":
         return (
           <tr key={item.MovieID} className="border-b border-gray-700">
             <td className="px-4 py-2 text-white">{item.MovieID}</td>
@@ -48,7 +70,7 @@ function DataTable({ data, type, onRefresh }) {
             <td className="px-4 py-2 text-white">{item.Rating}</td>
             <td className="px-4 py-2 text-white">{item.Duration} นาที</td>
             <td className="px-4 py-2 text-white">
-              {new Date(item.ReleaseDate).toLocaleDateString('th-TH')}
+              {new Date(item.ReleaseDate).toLocaleDateString("th-TH")}
             </td>
             <td className="px-4 py-2">
               <div className="flex space-x-2">
@@ -68,9 +90,12 @@ function DataTable({ data, type, onRefresh }) {
             </td>
           </tr>
         );
-      case 'cinemas':
+      case "cinemas":
         return (
-          <tr key={item.CinemaLocationCode} className="border-b border-gray-700">
+          <tr
+            key={item.CinemaLocationCode}
+            className="border-b border-gray-700"
+          >
             <td className="px-4 py-2 text-white">{item.CinemaLocationCode}</td>
             <td className="px-4 py-2 text-white">{item.Name}</td>
             <td className="px-4 py-2 text-white">{item.ZoneName}</td>
@@ -92,14 +117,14 @@ function DataTable({ data, type, onRefresh }) {
             </td>
           </tr>
         );
-      case 'showtimes':
+      case "showtimes":
         return (
           <tr key={item.TimeCode} className="border-b border-gray-700">
             <td className="px-4 py-2 text-white">{item.TimeCode}</td>
             <td className="px-4 py-2 text-white">{item.MovieTitle}</td>
             <td className="px-4 py-2 text-white">{item.CinemaName}</td>
             <td className="px-4 py-2 text-white">
-              {new Date(item.ShowDateTime).toLocaleString('th-TH')}
+              {new Date(item.ShowDateTime).toLocaleString("th-TH")}
             </td>
             <td className="px-4 py-2">
               <div className="flex space-x-2">
@@ -119,7 +144,7 @@ function DataTable({ data, type, onRefresh }) {
             </td>
           </tr>
         );
-      case 'users':
+      case "users":
         return (
           <tr key={item.UserID} className="border-b border-gray-700">
             <td className="px-4 py-2 text-white">{item.UserID}</td>
@@ -150,18 +175,70 @@ function DataTable({ data, type, onRefresh }) {
     }
   };
 
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({ ...formData, Image: file });
+    }
+  };
+
+  const handleFormSubmit = async () => {
+    const formDataObj = new FormData();
+
+    compareData(formDataObj);
+
+    formDataObj.append("Title", formData.Title || "");
+    formDataObj.append("Description", formData.Description || "");
+    formDataObj.append("Image", formData.Image || "");
+    formDataObj.append("Genre", formData.Genre || "");
+    formDataObj.append("Rating", formData.Rating || "");
+    formDataObj.append("Duration", formData.Duration || "");
+    formDataObj.append("ReleaseDate", formData.ReleaseDate || "");
+
+    try {
+      const response = await fetch(`http://localhost:3001/admin/${type}`, {
+        method: "POST",
+        body: formDataObj,
+      });
+      if (response.ok) {
+        onRefresh();
+        setShowPopup(false);
+      } else {
+        alert("Error adding new data");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error adding new data");
+    }
+  };
+
+  const compareData = (formDataObj) => {
+    const lastMovieID = data.reduce(
+      (maxId, movie) => Math.max(maxId, movie.MovieID || 0),
+      0
+    );
+    const newMovieID = lastMovieID + 1;
+
+    formDataObj.append("MovieID", newMovieID);
+  };
+
   return (
     <div>
       <div className="mb-4">
         <button
-          onClick={() => setEditingId('new')}
+          onClick={() => setShowPopup(true)}
           className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
         >
           เพิ่มข้อมูลใหม่
         </button>
       </div>
 
-      <div className="overflow-x-auto">
+      <div>
         <table className="min-w-full bg-gray-900 rounded-lg">
           <thead>
             <tr className="bg-gray-800">
@@ -172,25 +249,95 @@ function DataTable({ data, type, onRefresh }) {
               ))}
             </tr>
           </thead>
-          <tbody>
-            {data.map(renderRow)}
-          </tbody>
+          <tbody>{data.map(renderRow)}</tbody>
         </table>
       </div>
 
-      {/* TODO: Add EditModal component for editing data */}
-      {editingId && (
-        <div>
-          {/* Add your edit modal/form component here */}
+      {showPopup && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center">
+          <div className="bg-white p-8 rounded shadow-lg">
+            <h2 className="text-2xl mb-4">เพิ่มข้อมูลใหม่</h2>
+            <form>
+              <input
+                type="text"
+                name="Title"
+                placeholder="ชื่อเรื่อง"
+                value={formData.Title}
+                onChange={handleFormChange}
+                className="mb-2 block w-full"
+              />
+              <input
+                type="text"
+                name="Description"
+                placeholder="คำอธิบาย"
+                value={formData.Description}
+                onChange={handleFormChange}
+                className="mb-2 block w-full"
+              />
+              <input
+                type="file"
+                name="Image"
+                onChange={handleImageUpload}
+                className="mb-2 block w-full"
+              />
+              <input
+                type="text"
+                name="Genre"
+                placeholder="ประเภท"
+                value={formData.Genre}
+                onChange={handleFormChange}
+                className="mb-2 block w-full"
+              />
+              <input
+                type="text"
+                name="Rating"
+                placeholder="เรทติ้ง"
+                value={formData.Rating}
+                onChange={handleFormChange}
+                className="mb-2 block w-full"
+              />
+              <input
+                type="number"
+                name="Duration"
+                placeholder="ระยะเวลา (นาที)"
+                value={formData.Duration}
+                onChange={handleFormChange}
+                className="mb-2 block w-full"
+              />
+              <input
+                type="date"
+                name="ReleaseDate"
+                value={formData.ReleaseDate}
+                onChange={handleFormChange}
+                className="mb-2 block w-full"
+              />
+              <button
+                type="button"
+                onClick={handleFormSubmit}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                บันทึก
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowPopup(false)}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 ml-2"
+              >
+                ยกเลิก
+              </button>
+            </form>
+          </div>
         </div>
       )}
+      {/* TODO: Add EditModal component for editing data */}
+      {editingId && <div>{/* Add your edit modal/form component here */}</div>}
     </div>
   );
 }
 
 DataTable.propTypes = {
   data: PropTypes.array.isRequired,
-  type: PropTypes.oneOf(['movies', 'cinemas', 'showtimes', 'users']).isRequired,
+  type: PropTypes.oneOf(["movies", "cinemas", "showtimes", "users"]).isRequired,
   onRefresh: PropTypes.func.isRequired,
 };
 

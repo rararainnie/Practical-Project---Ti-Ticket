@@ -12,7 +12,7 @@ app.use(cors());
 const db = createConnection({
   host: "localhost", // หรือ IP ของฐานข้อมูล MySQL
   user: "root", // ชื่อผู้ใช้งาน MySQL
-  password: "pun1234", // รหัสผ่าน MySQL (ให้ใส่รหัสของคุณ)
+  password: "rainnie", // รหัสผ่าน MySQL (ให้ใส่รหัสของคุณ)
   database: "movies_ticket_schema", // ชื่อฐานข้อมูล
 });
 
@@ -202,9 +202,9 @@ app.put("/seat/:SeatCode/status", (req, res) => {
 });
 
 // เพิ่ม API สำหรับการเข้าสู่ระบบ
-app.post('/login', (req, res) => {
+app.post("/login", (req, res) => {
   const { email, password } = req.body;
-  
+
   const query = `
     SELECT UserID, FName, LName, Status
     FROM User
@@ -213,13 +213,13 @@ app.post('/login', (req, res) => {
 
   db.query(query, [email, password], (err, results) => {
     if (err) {
-      console.error('เกิดข้อผิดพลาดในการเข้าสู่ระบบ:', err);
-      res.status(500).send('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
+      console.error("เกิดข้อผิดพลาดในการเข้าสู่ระบบ:", err);
+      res.status(500).send("เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
     } else {
       if (results.length > 0) {
         res.json(results[0]);
       } else {
-        res.status(401).send('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+        res.status(401).send("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
       }
     }
   });
@@ -264,45 +264,48 @@ app.get("/user/:UserID/bookings", (req, res) => {
 });
 
 // API สำหรับการลงทะเบียนผู้ใช้ใหม่
-app.post('/register', (req, res) => {
+app.post("/register", (req, res) => {
   const { Email, Password, FName, LName } = req.body;
-  
+
   // ตรวจสอบว่ามีข้อมูลครบถ้วนหรือไม่
   if (!Email || !Password || !FName || !LName) {
-    return res.status(400).send('กรุณากรอกข้อมูลให้ครบถ้วน');
+    return res.status(400).send("กรุณากรอกข้อมูลให้ครบถ้วน");
   }
 
   // ตรวจสอบว่าอีเมลซ้ำหรือไม่
-  const checkEmailQuery = 'SELECT * FROM User WHERE Email = ?';
+  const checkEmailQuery = "SELECT * FROM User WHERE Email = ?";
   db.query(checkEmailQuery, [Email], (err, results) => {
     if (err) {
-      console.error('เกิดข้อผิดพลาดในการตรวจสอบอีเมล:', err);
-      return res.status(500).send('เกิดข้อผิดพลาดในการลงทะเบียน');
+      console.error("เกิดข้อผิดพลาดในการตรวจสอบอีเมล:", err);
+      return res.status(500).send("เกิดข้อผิดพลาดในการลงทะเบียน");
     }
 
     if (results.length > 0) {
-      return res.status(409).send('อีเมลนี้ถูกใช้งานแล้ว');
+      return res.status(409).send("อีเมลนี้ถูกใช้งานแล้ว");
     }
 
     // เพิ่มผู้ใช้ใหม่ลงในฐานข้อมูล
-    const insertQuery = 'INSERT INTO User (Email, Password, FName, LName, Status) VALUES (?, ?, ?, ?, "User")';
+    const insertQuery =
+      'INSERT INTO User (Email, Password, FName, LName, Status) VALUES (?, ?, ?, ?, "User")';
     db.query(insertQuery, [Email, Password, FName, LName], (err, result) => {
       if (err) {
-        console.error('เกิดข้อผิดพลาดในการลงทะเบียน:', err);
-        return res.status(500).send('เกิดข้อผิดพลาดในการลงทะเบียน');
+        console.error("เกิดข้อผิดพลาดในการลงทะเบียน:", err);
+        return res.status(500).send("เกิดข้อผิดพลาดในการลงทะเบียน");
       }
 
-      res.status(201).json({ message: 'ลงทะเบียนสำเร็จ', userId: result.insertId });
+      res
+        .status(201)
+        .json({ message: "ลงทะเบียนสำเร็จ", userId: result.insertId });
     });
   });
 });
 
 // API สำหรับการรีเซ็ตรหัสผ่าน
-app.put('/reset-password', (req, res) => {
+app.put("/reset-password", (req, res) => {
   const { email, newPassword } = req.body;
-  
+
   if (!email || !newPassword) {
-    return res.status(400).send('กรุณากรอกอีเมลและรหัสผ่านใหม่');
+    return res.status(400).send("กรุณากรอกอีเมลและรหัสผ่านใหม่");
   }
 
   const query = `
@@ -313,37 +316,37 @@ app.put('/reset-password', (req, res) => {
 
   db.query(query, [newPassword, email], (err, result) => {
     if (err) {
-      console.error('เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน:', err);
-      return res.status(500).send('เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน');
+      console.error("เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน:", err);
+      return res.status(500).send("เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน");
     }
 
     if (result.affectedRows === 0) {
-      return res.status(404).send('ไม่พบอีเมลในระบบ');
+      return res.status(404).send("ไม่พบอีเมลในระบบ");
     }
 
-    res.status(200).json({ message: 'รีเซ็ตรหัสผ่านสำเร็จ' });
+    res.status(200).json({ message: "รีเซ็ตรหัสผ่านสำเร็จ" });
   });
 });
 
 // Admin API Endpoints
 
 // ดึงข้อมูลทั้งหมดสำหรับ admin
-app.get('/admin/:type', (req, res) => {
+app.get("/admin/:type", (req, res) => {
   const type = req.params.type;
-  let query = '';
+  let query = "";
 
   switch (type) {
-    case 'movies':
-      query = 'SELECT * FROM Movies';
+    case "movies":
+      query = "SELECT * FROM Movies";
       break;
-    case 'cinemas':
+    case "cinemas":
       query = `
         SELECT cl.*, z.Name as ZoneName 
         FROM CinemaLocation cl 
         JOIN Zone z ON cl.Zone_ZoneID = z.ZoneID
       `;
       break;
-    case 'showtimes':
+    case "showtimes":
       query = `
         SELECT st.*, m.Title as MovieTitle, cn.Name as CinemaName 
         FROM ShowTime st
@@ -351,11 +354,11 @@ app.get('/admin/:type', (req, res) => {
         JOIN CinemaNo cn ON st.CinemaNo_CinemaNoCode = cn.CinemaNoCode
       `;
       break;
-    case 'users':
-      query = 'SELECT UserID, Email, FName, LName, Status FROM User';
+    case "users":
+      query = "SELECT UserID, Email, FName, LName, Status FROM User";
       break;
     default:
-      return res.status(400).send('Invalid type');
+      return res.status(400).send("Invalid type");
   }
 
   db.query(query, (err, results) => {
@@ -369,44 +372,59 @@ app.get('/admin/:type', (req, res) => {
 });
 
 // เพิ่มข้อมูลใหม่
-app.post('/admin/:type', (req, res) => {
-  const type = req.params.type;
-  const data = req.body;
+import multer from "multer";
 
-  let query = '';
-  let values = [];
+const upload = multer({ storage: multer.memoryStorage() });
+app.post("/admin/:type", upload.single("Image"), (req, res) => {
+  const { MovieID, Title, Description, Genre, Rating, Duration, ReleaseDate } =
+    req.body;
+  const imageBuffer = req.file?.buffer;
 
-  switch (type) {
-    case 'movies':
-      query = 'INSERT INTO Movies (Title, Description, Image, Genre, Rating, Duration, ReleaseDate) VALUES (?, ?, ?, ?, ?, ?, ?)';
-      values = [data.Title, data.Description, data.Image, data.Genre, data.Rating, data.Duration, data.ReleaseDate];
-      break;
-    // เพิ่ม cases อื่นๆ ตามความต้องการ
-  }
+  const query = `
+    INSERT INTO Movies ( MovieID, Title, Description, Image, Genre, Rating, Duration, ReleaseDate) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+  const values = [
+    MovieID,
+    Title,
+    Description,
+    imageBuffer,
+    Genre,
+    Rating,
+    Duration,
+    ReleaseDate,
+  ];
 
   db.query(query, values, (err, result) => {
     if (err) {
-      console.error(`Error adding ${type}:`, err);
-      res.status(500).send(`Error adding ${type}`);
-    } else {
-      res.status(201).json({ id: result.insertId });
+      console.error(`Error adding movie:`, err);
+      return res.status(500).send(`Error adding movie`);
     }
+    res.status(201).json({ id: result.insertId });
   });
 });
 
 // อัพเดทข้อมูล
-app.put('/admin/:type/:id', (req, res) => {
+app.put("/admin/:type/:id", (req, res) => {
   const type = req.params.type;
   const id = req.params.id;
   const data = req.body;
 
-  let query = '';
+  let query = "";
   let values = [];
 
   switch (type) {
-    case 'movies':
-      query = 'UPDATE Movies SET Title = ?, Description = ?, Genre = ?, Rating = ?, Duration = ?, ReleaseDate = ? WHERE MovieID = ?';
-      values = [data.Title, data.Description, data.Genre, data.Rating, data.Duration, data.ReleaseDate, id];
+    case "movies":
+      query =
+        "UPDATE Movies SET Title = ?, Description = ?, Genre = ?, Rating = ?, Duration = ?, ReleaseDate = ? WHERE MovieID = ?";
+      values = [
+        data.Title,
+        data.Description,
+        data.Genre,
+        data.Rating,
+        data.Duration,
+        data.ReleaseDate,
+        id,
+      ];
       break;
     // เพิ่ม cases อื่นๆ ตามความต้องการ
   }
@@ -416,28 +434,28 @@ app.put('/admin/:type/:id', (req, res) => {
       console.error(`Error updating ${type}:`, err);
       res.status(500).send(`Error updating ${type}`);
     } else {
-      res.json({ message: 'Updated successfully' });
+      res.json({ message: "Updated successfully" });
     }
   });
 });
 
 // ลบข้อมูล
-app.delete('/admin/:type/:id', (req, res) => {
+app.delete("/admin/:type/:id", (req, res) => {
   const type = req.params.type;
   const id = req.params.id;
 
-  let query = '';
+  let query = "";
   switch (type) {
-    case 'movies':
-      query = 'DELETE FROM Movies WHERE MovieID = ?';
+    case "movies":
+      query = "DELETE FROM Movies WHERE MovieID = ?";
       break;
 
-    case 'users':
-      query = 'DELETE FROM User WHERE UserID = ?';
+    case "users":
+      query = "DELETE FROM User WHERE UserID = ?";
       break;
 
-    case 'showtimes':
-      query = 'DELETE FROM ShowTime WHERE TimeCode = ?';
+    case "showtimes":
+      query = "DELETE FROM ShowTime WHERE TimeCode = ?";
       break;
   }
 
@@ -446,7 +464,7 @@ app.delete('/admin/:type/:id', (req, res) => {
       console.error(`Error deleting ${type}:`, err);
       res.status(500).send(`Error deleting ${type}`);
     } else {
-      res.json({ message: 'Deleted successfully' });
+      res.json({ message: "Deleted successfully" });
     }
   });
 });
@@ -455,5 +473,3 @@ app.delete('/admin/:type/:id', (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
-
-

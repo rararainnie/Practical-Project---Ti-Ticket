@@ -13,7 +13,7 @@ function ShowTime({ movie, cinema, showTimes }) {
 
   useEffect(() => {
     // รีเซ็ตค่าเมื่อ showTimes เปลี่ยนแปลง
-    console.log(movie, cinema,"showtimes", showTimes);
+    console.log(movie, cinema, "showtimes", showTimes);
     setSelectedInfo(null);
     setSelectedDate(new Date().toISOString().split("T")[0]);
     setCurrentIndex(0);
@@ -66,17 +66,22 @@ function ShowTime({ movie, cinema, showTimes }) {
     if (currentIndex < days.length - 11) setCurrentIndex(currentIndex + 1);
   };
 
-  const handleTimeClick = (timeCode, showDateTime, cinemaLocation, cinemaNo) => {
+  const handleTimeClick = (
+    timeCode,
+    showDateTime,
+    cinemaLocation,
+    cinemaNo
+  ) => {
     setSelectedInfo({
       timeCode: timeCode,
       showDateTime: showDateTime,
       cinemaLocationName: cinemaLocation,
-      cinemaNoName: cinemaNo
+      cinemaNoName: cinemaNo,
     });
-    
+
     setTimeout(() => {
       if (seatsRef.current) {
-        seatsRef.current.scrollIntoView({ behavior: 'smooth' });
+        seatsRef.current.scrollIntoView({ behavior: "smooth" });
       }
     }, 200);
   };
@@ -90,19 +95,13 @@ function ShowTime({ movie, cinema, showTimes }) {
 
   useEffect(() => {
     if (selectedInfo?.timeCode && seatsRef.current) {
-      seatsRef.current.scrollIntoView({ behavior: 'smooth' });
+      seatsRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [selectedInfo?.timeCode]);
 
   return (
     <>
       <div className="flex flex-col">
-        <div className="flex border rounded-md p-2 bg-white w-full">
-          <h1 className="flex-1 text-center">เลือกรอบภาพยนตร์</h1>
-          <h1 className="flex-1 text-center">เลือกที่นั่ง</h1>
-          <h1 className="flex-1 text-center">ซื้อตั๋ว</h1>
-        </div>
-
         <div className="flex w-full items-center justify-between mt-5">
           <button
             onClick={handlePrevious}
@@ -157,127 +156,133 @@ function ShowTime({ movie, cinema, showTimes }) {
       </div>
       {console.log("showTimes before", showTimes)}
       <div className="mt-8">
-        {(showTimes.length === 0) ? ( 
-          console.log("showtimes empty:", showTimes),
-          <div className="flex items-center justify-center">
-            <p className="text-xl text-yellow-500">ไม่พบรอบฉายสำหรับภาพยนตร์นี้</p>
-          </div>
-        ) : (
-          console.log("showtimes has data:", showTimes),
-          (() => {
-            const filteredShowTimes = filterShowTimesByDate(
-              showTimes,
-              selectedDate
-            );
-            if (filteredShowTimes.length === 0) {
-              return (
-                <div className="flex items-center justify-center">
-                  <p className="text-xl text-yellow-500">
-                    ไม่พบรอบฉายสำหรับภาพยนตร์นี้ในวันที่เลือก
-                  </p>
-                </div>
+        {showTimes.length === 0
+          ? (console.log("showtimes empty:", showTimes),
+            (
+              <div className="flex items-center justify-center">
+                <p className="text-xl text-yellow-500">
+                  ไม่พบรอบฉายสำหรับภาพยนตร์นี้
+                </p>
+              </div>
+            ))
+          : (console.log("showtimes has data:", showTimes),
+            (() => {
+              const filteredShowTimes = filterShowTimesByDate(
+                showTimes,
+                selectedDate
               );
-            }
-            const groupedShowTimes = filteredShowTimes.reduce(
-              (acc, showTime) => {
-                if (!acc[showTime.CinemaLocationName]) {
-                  acc[showTime.CinemaLocationName] = {
-                    CinemaLocationId: showTime.CinemaLocationId,
-                    CinemaLocationName: showTime.CinemaLocationName,
-                    Cinemas: {},
-                  };
-                }
-                if (
-                  !acc[showTime.CinemaLocationName].Cinemas[
-                    showTime.CinemaNoName
-                  ]
-                ) {
+              if (filteredShowTimes.length === 0) {
+                return (
+                  <div className="flex items-center justify-center">
+                    <p className="text-xl text-yellow-500">
+                      ไม่พบรอบฉายสำหรับภาพยนตร์นี้ในวันที่เลือก
+                    </p>
+                  </div>
+                );
+              }
+              const groupedShowTimes = filteredShowTimes.reduce(
+                (acc, showTime) => {
+                  if (!acc[showTime.CinemaLocationName]) {
+                    acc[showTime.CinemaLocationName] = {
+                      CinemaLocationId: showTime.CinemaLocationId,
+                      CinemaLocationName: showTime.CinemaLocationName,
+                      Cinemas: {},
+                    };
+                  }
+                  if (
+                    !acc[showTime.CinemaLocationName].Cinemas[
+                      showTime.CinemaNoName
+                    ]
+                  ) {
+                    acc[showTime.CinemaLocationName].Cinemas[
+                      showTime.CinemaNoName
+                    ] = {
+                      CinemaNo: showTime.CinemaNo,
+                      CinemaNoName: showTime.CinemaNoName,
+                      ShowTimes: [],
+                    };
+                  }
                   acc[showTime.CinemaLocationName].Cinemas[
                     showTime.CinemaNoName
-                  ] = {
-                    CinemaNo: showTime.CinemaNo,
-                    CinemaNoName: showTime.CinemaNoName,
-                    ShowTimes: [],
-                  };
-                }
-                acc[showTime.CinemaLocationName].Cinemas[
-                  showTime.CinemaNoName
-                ].ShowTimes.push(showTime);
-                return acc;
-              },
-              {}
-            );
+                  ].ShowTimes.push(showTime);
+                  return acc;
+                },
+                {}
+              );
 
-            return Object.values(groupedShowTimes).map(
-              (location, locationIndex) => (
-                <div
-                  key={locationIndex}
-                  className="bg-gray-800 rounded-lg p-4 mb-4"
-                >
-                  <h3 className="text-yellow-500 text-xl mb-2">
-                    {location.CinemaLocationName}
-                  </h3>
-                  {Object.values(location.Cinemas).map(
-                    (cinema, cinemaIndex) => (
-                      <div key={cinemaIndex} className="mb-3">
-                        <p className="text-white mb-2">{cinema.CinemaNoName}</p>
-                        <div className="flex flex-wrap gap-2">
-                          {[
-                            ...new Set(
-                              cinema.ShowTimes.map((time) => time.ShowDateTime)
-                            ),
-                          ]
-                            .sort((a, b) => new Date(a) - new Date(b))
-                            .map((showDateTime, timeIndex) => {
-                              const showTime = new Date(showDateTime);
-                              const currentTime = new Date();
-                              const timeDifference =
-                                currentTime.getTime() - showTime.getTime();
-                              const minutesDifference =
-                                timeDifference / (1000 * 60);
-                              const isDisabled = minutesDifference >= 30;
+              return Object.values(groupedShowTimes).map(
+                (location, locationIndex) => (
+                  <div
+                    key={locationIndex}
+                    className="bg-gray-800 rounded-lg p-4 mb-4"
+                  >
+                    <h3 className="text-yellow-500 text-xl mb-2">
+                      {location.CinemaLocationName}
+                    </h3>
+                    {Object.values(location.Cinemas).map(
+                      (cinema, cinemaIndex) => (
+                        <div key={cinemaIndex} className="mb-3">
+                          <p className="text-white mb-2">
+                            {cinema.CinemaNoName}
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {[
+                              ...new Set(
+                                cinema.ShowTimes.map(
+                                  (time) => time.ShowDateTime
+                                )
+                              ),
+                            ]
+                              .sort((a, b) => new Date(a) - new Date(b))
+                              .map((showDateTime, timeIndex) => {
+                                const showTime = new Date(showDateTime);
+                                const currentTime = new Date();
+                                const timeDifference =
+                                  currentTime.getTime() - showTime.getTime();
+                                const minutesDifference =
+                                  timeDifference / (1000 * 60);
+                                const isDisabled = minutesDifference >= 30;
 
-                              // หา TimeCode ของเวลาที่ไม่ซ้ำกัน
-                              const timeCode = cinema.ShowTimes.find(
-                                (time) => time.ShowDateTime === showDateTime
-                              ).TimeCode;
+                                // หา TimeCode ของเวลาที่ไม่ซ้ำกัน
+                                const timeCode = cinema.ShowTimes.find(
+                                  (time) => time.ShowDateTime === showDateTime
+                                ).TimeCode;
 
-                              return (
-                                <button
-                                  key={timeIndex}
-                                  className={`px-3 py-1 rounded ${
-                                    isDisabled
-                                      ? "bg-gray-500 text-gray-300 cursor-not-allowed"
-                                      : selectedInfo?.timeCode === timeCode
-                                      ? "bg-red-500 text-white"
-                                      : "bg-yellow-500 text-black hover:bg-red-600 hover:text-white"
-                                  }`}
-                                  onClick={() =>
-                                    handleTimeClick(
-                                      timeCode, 
-                                      showDateTime,
-                                      location.CinemaLocationName,
-                                      cinema.CinemaNoName
-                                    )
-                                  }
-                                  disabled={isDisabled}
-                                >
-                                  {showTime.toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}
-                                </button>
-                              );
-                            })}
+                                return (
+                                  <button
+                                    key={timeIndex}
+                                    className={`px-3 py-1 rounded ${
+                                      isDisabled
+                                        ? "bg-gray-500 text-gray-300 cursor-not-allowed"
+                                        : selectedInfo?.timeCode === timeCode
+                                        ? "bg-red-500 text-white"
+                                        : "bg-yellow-500 text-black hover:bg-red-600 hover:text-white"
+                                    }`}
+                                    onClick={() =>
+                                      handleTimeClick(
+                                        timeCode,
+                                        showDateTime,
+                                        location.CinemaLocationName,
+                                        cinema.CinemaNoName
+                                      )
+                                    }
+                                    disabled={isDisabled}
+                                  >
+                                    {showTime.toLocaleTimeString([], {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })}
+                                  </button>
+                                );
+                              })}
+                          </div>
                         </div>
-                      </div>
-                    )
-                  )}
-                </div>
-              )
-            );
-          })()
-        )}
+                      )
+                    )}
+                  </div>
+                )
+              );
+            })())}
       </div>
       {selectedInfo?.timeCode && showTimes.length > 0 && (
         <div ref={seatsRef}>

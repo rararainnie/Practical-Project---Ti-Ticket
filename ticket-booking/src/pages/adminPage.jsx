@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
-import Navbar from '../components/navbar';
-import DataTable from '../components/DataTable';
+import { useState, useEffect } from "react";
+import Navbar from "../components/navbar";
+import Footer from "../components/footer";
+import DataTable from "../components/dataTable";
 
 function AdminPage() {
-  const [activeTab, setActiveTab] = useState('movies');
+  const [activeTab, setActiveTab] = useState("movies");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -19,7 +20,7 @@ function AdminPage() {
       const result = await response.json();
       setData(result);
     } catch (err) {
-      setError('เกิดข้อผิดพลาดในการโหลดข้อมูล', err);
+      setError("เกิดข้อผิดพลาดในการโหลดข้อมูล", err);
     } finally {
       setLoading(false);
     }
@@ -30,45 +31,45 @@ function AdminPage() {
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-yellow-500 mb-8">จัดการระบบ</h1>
-        
+
         {/* Tab Navigation */}
         <div className="flex space-x-4 mb-6">
           <button
-            onClick={() => setActiveTab('movies')}
+            onClick={() => setActiveTab("movies")}
             className={`px-4 py-2 rounded ${
-              activeTab === 'movies' 
-                ? 'bg-yellow-500 text-black' 
-                : 'bg-gray-800 text-yellow-500'
+              activeTab === "movies"
+                ? "bg-yellow-500 text-black"
+                : "bg-gray-800 text-yellow-500"
             }`}
           >
             ภาพยนตร์
           </button>
           <button
-            onClick={() => setActiveTab('cinemas')}
+            onClick={() => setActiveTab("cinemas")}
             className={`px-4 py-2 rounded ${
-              activeTab === 'cinemas' 
-                ? 'bg-yellow-500 text-black' 
-                : 'bg-gray-800 text-yellow-500'
+              activeTab === "cinemas"
+                ? "bg-yellow-500 text-black"
+                : "bg-gray-800 text-yellow-500"
             }`}
           >
             โรงภาพยนตร์
           </button>
           <button
-            onClick={() => setActiveTab('showtimes')}
+            onClick={() => setActiveTab("showtimes")}
             className={`px-4 py-2 rounded ${
-              activeTab === 'showtimes' 
-                ? 'bg-yellow-500 text-black' 
-                : 'bg-gray-800 text-yellow-500'
+              activeTab === "showtimes"
+                ? "bg-yellow-500 text-black"
+                : "bg-gray-800 text-yellow-500"
             }`}
           >
             รอบฉาย
           </button>
           <button
-            onClick={() => setActiveTab('users')}
+            onClick={() => setActiveTab("users")}
             className={`px-4 py-2 rounded ${
-              activeTab === 'users' 
-                ? 'bg-yellow-500 text-black' 
-                : 'bg-gray-800 text-yellow-500'
+              activeTab === "users"
+                ? "bg-yellow-500 text-black"
+                : "bg-gray-800 text-yellow-500"
             }`}
           >
             ผู้ใช้งาน
@@ -84,10 +85,15 @@ function AdminPage() {
           ) : error ? (
             <div className="text-red-500 text-center">{error}</div>
           ) : (
-            <DataTable data={data} type={activeTab} onRefresh={() => fetchData(activeTab)} />
+            <DataTable
+              data={data}
+              type={activeTab}
+              onRefresh={() => fetchData(activeTab)}
+            />
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

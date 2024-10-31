@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Navbar from "../components/navbar";
+import Footer from "../components/footer";
 import SelectTheaterAndMovieBar from "../components/showTheaterAndMovie";
 import MovieBox from "../components/movieBox";
 import { Buffer } from "buffer";
@@ -35,12 +36,12 @@ function MovieReservation() {
       );
       const data = await response.json();
       // setCinemas(data);
-      console.log("fetchCinemasForMovie",data);
+      console.log("fetchCinemasForMovie", data);
       if (data.length > 0) {
         data.forEach((cinema) =>
           fetchShowTimes(movieId, cinema.CinemaLocationCode)
         );
-      } 
+      }
     } catch (error) {
       console.error("Error fetching cinemas:", error);
     } finally {
@@ -129,7 +130,9 @@ function MovieReservation() {
               <div className="flex items-center justify-center min-h-[60vh]">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500 mx-auto mb-4"></div>
-                  <p className="text-yellow-500 text-lg">กำลังโหลดข้อมูลภาพยนตร์...</p>
+                  <p className="text-yellow-500 text-lg">
+                    กำลังโหลดข้อมูลภาพยนตร์...
+                  </p>
                 </div>
               </div>
             ) : movies.length > 0 ? (
@@ -166,6 +169,15 @@ function MovieReservation() {
               <h1 className="movie-title text-4xl font-bold mb-2">
                 {movie.title}
               </h1>
+
+              <span className="flex items-center mb-4 space-x-2 text-gray-400">
+                <p>{movie.genre}</p>
+                <p>|</p>
+                <p>Rating: {movie.rating}</p>
+                <p>|</p>
+                <p>{movie.duration}</p>
+              </span>
+
               <p className="movie-description text-lg mb-4">
                 {movie.description}
               </p>
@@ -197,20 +209,18 @@ function MovieReservation() {
               <div className="flex items-center justify-center">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500 mx-auto mb-4"></div>
-                  <p className="text-yellow-500 text-lg">กำลังโหลดข้อมูลรอบฉาย...</p>
+                  <p className="text-yellow-500 text-lg">
+                    กำลังโหลดข้อมูลรอบฉาย...
+                  </p>
                 </div>
               </div>
-            )  :  (
-              <ShowTime 
-                movie={movie} 
-                cinema={cinema} 
-                showTimes={showTimes}
-              />
-            ) 
-            }
+            ) : (
+              <ShowTime movie={movie} cinema={cinema} showTimes={showTimes} />
+            )}
           </>
         )}
       </div>
+      <Footer />
     </div>
   );
 }
