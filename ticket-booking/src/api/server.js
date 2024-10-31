@@ -372,37 +372,34 @@ app.get("/admin/:type", (req, res) => {
 });
 
 // เพิ่มข้อมูลใหม่
-app.post("/admin/:type", (req, res) => {
-  const type = req.params.type;
-  const data = req.body;
+import multer from "multer";
 
-  let query = "";
-  let values = [];
+const upload = multer({ storage: multer.memoryStorage() });
+app.post("/admin/:type", upload.single("Image"), (req, res) => {
+  const { MovieID, Title, Description, Genre, Rating, Duration, ReleaseDate } =
+    req.body;
+  const imageBuffer = req.file?.buffer;
 
-  switch (type) {
-    case "movies":
-      query =
-        "INSERT INTO Movies (Title, Description, Image, Genre, Rating, Duration, ReleaseDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
-      values = [
-        data.Title,
-        data.Description,
-        data.Image,
-        data.Genre,
-        data.Rating,
-        data.Duration,
-        data.ReleaseDate,
-      ];
-      break;
-    // เพิ่ม cases อื่นๆ ตามความต้องการ
-  }
+  const query = `
+    INSERT INTO Movies ( MovieID, Title, Description, Image, Genre, Rating, Duration, ReleaseDate) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+  const values = [
+    MovieID,
+    Title,
+    Description,
+    imageBuffer,
+    Genre,
+    Rating,
+    Duration,
+    ReleaseDate,
+  ];
 
   db.query(query, values, (err, result) => {
     if (err) {
-      console.error(`Error adding ${type}:`, err);
-      res.status(500).send(`Error adding ${type}`);
-    } else {
-      res.status(201).json({ id: result.insertId });
+      console.error(`Error adding movie:`, err);
+      return res.status(500).send(`Error adding movie`);
     }
+    res.status(201).json({ id: result.insertId });
   });
 });
 

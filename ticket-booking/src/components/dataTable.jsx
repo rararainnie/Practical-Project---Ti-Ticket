@@ -3,6 +3,17 @@ import { useState } from "react";
 
 function DataTable({ data, type, onRefresh }) {
   const [editingId, setEditingId] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
+  const [formData, setFormData] = useState({
+    MovieID: "",
+    Title: "",
+    Description: "",
+    Image: null,
+    Genre: "",
+    Rating: "",
+    Duration: "",
+    ReleaseDate: "",
+  });
 
   const getHeaders = () => {
     switch (type) {
@@ -164,11 +175,63 @@ function DataTable({ data, type, onRefresh }) {
     }
   };
 
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({ ...formData, Image: file });
+    }
+  };
+
+  const handleFormSubmit = async () => {
+    const formDataObj = new FormData();
+
+    compareData(formDataObj);
+
+    formDataObj.append("Title", formData.Title || "");
+    formDataObj.append("Description", formData.Description || "");
+    formDataObj.append("Image", formData.Image || "");
+    formDataObj.append("Genre", formData.Genre || "");
+    formDataObj.append("Rating", formData.Rating || "");
+    formDataObj.append("Duration", formData.Duration || "");
+    formDataObj.append("ReleaseDate", formData.ReleaseDate || "");
+
+    try {
+      const response = await fetch(`http://localhost:3001/admin/${type}`, {
+        method: "POST",
+        body: formDataObj,
+      });
+      if (response.ok) {
+        onRefresh();
+        setShowPopup(false);
+      } else {
+        alert("Error adding new data");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error adding new data");
+    }
+  };
+
+  const compareData = (formDataObj) => {
+    const lastMovieID = data.reduce(
+      (maxId, movie) => Math.max(maxId, movie.MovieID || 0),
+      0
+    );
+    const newMovieID = lastMovieID + 1;
+
+    formDataObj.append("MovieID", newMovieID);
+  };
+
   return (
     <div>
       <div className="mb-4">
         <button
-          onClick={() => setEditingId("new")}
+          onClick={() => setShowPopup(true)}
           className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
         >
           เพิ่มข้อมูลใหม่
@@ -190,6 +253,82 @@ function DataTable({ data, type, onRefresh }) {
         </table>
       </div>
 
+      {showPopup && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center">
+          <div className="bg-white p-8 rounded shadow-lg">
+            <h2 className="text-2xl mb-4">เพิ่มข้อมูลใหม่</h2>
+            <form>
+              <input
+                type="text"
+                name="Title"
+                placeholder="ชื่อเรื่อง"
+                value={formData.Title}
+                onChange={handleFormChange}
+                className="mb-2 block w-full"
+              />
+              <input
+                type="text"
+                name="Description"
+                placeholder="คำอธิบาย"
+                value={formData.Description}
+                onChange={handleFormChange}
+                className="mb-2 block w-full"
+              />
+              <input
+                type="file"
+                name="Image"
+                onChange={handleImageUpload}
+                className="mb-2 block w-full"
+              />
+              <input
+                type="text"
+                name="Genre"
+                placeholder="ประเภท"
+                value={formData.Genre}
+                onChange={handleFormChange}
+                className="mb-2 block w-full"
+              />
+              <input
+                type="text"
+                name="Rating"
+                placeholder="เรทติ้ง"
+                value={formData.Rating}
+                onChange={handleFormChange}
+                className="mb-2 block w-full"
+              />
+              <input
+                type="number"
+                name="Duration"
+                placeholder="ระยะเวลา (นาที)"
+                value={formData.Duration}
+                onChange={handleFormChange}
+                className="mb-2 block w-full"
+              />
+              <input
+                type="date"
+                name="ReleaseDate"
+                value={formData.ReleaseDate}
+                onChange={handleFormChange}
+                className="mb-2 block w-full"
+              />
+              <button
+                type="button"
+                onClick={handleFormSubmit}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                บันทึก
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowPopup(false)}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 ml-2"
+              >
+                ยกเลิก
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
       {/* TODO: Add EditModal component for editing data */}
       {editingId && <div>{/* Add your edit modal/form component here */}</div>}
     </div>

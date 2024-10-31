@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
-import DataTable from "../components/DataTable";
+import DataTable from "../components/dataTable";
 
 function AdminPage() {
   const [activeTab, setActiveTab] = useState("movies");
