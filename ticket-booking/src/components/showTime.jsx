@@ -249,8 +249,8 @@ function ShowTime({ movie, cinema, showTimes }) {
                                     isDisabled
                                       ? "bg-gray-500 text-gray-300 cursor-not-allowed"
                                       : selectedInfo?.timeCode === timeCode
-                                      ? "bg-blue-500 text-white"
-                                      : "bg-red-500 text-white hover:bg-red-600"
+                                      ? "bg-red-500 text-white"
+                                      : "bg-yellow-500 text-black hover:bg-red-600 hover:text-white"
                                   }`}
                                   onClick={() =>
                                     handleTimeClick(

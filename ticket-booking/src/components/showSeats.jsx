@@ -187,9 +187,9 @@ function ShowSeats({ timeCode, showDateTime, movie, cinemaLocationName, cinemaNo
           {renderSeats()}
         </div>
 
-        <div className="w-[40%] text-white flex flex-col ml-auto mr-10">
+        <div className="w-[45%] text-white flex flex-col ml-auto justify-center">
           <div className=" bg-slate-800 rounded-md">
-            <img src={movie.poster} className="w-[90%] m-3" />
+            <img src={movie.poster} className="w-[90%] mx-auto mt-3" />
             <h1 className="text-2xl font-bold my-3 text-center">
               {movie.title}
             </h1>

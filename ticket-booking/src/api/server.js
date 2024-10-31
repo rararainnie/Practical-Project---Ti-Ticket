@@ -225,7 +225,7 @@ app.post('/login', (req, res) => {
   });
 });
 
-// API เพื่อดึงข้อมู���การจองของผู้ใช้
+// API เพื่อดึงข้อมูลการจองของผู้ใช้
 app.get("/user/:UserID/bookings", (req, res) => {
   const userId = req.params.UserID;
 

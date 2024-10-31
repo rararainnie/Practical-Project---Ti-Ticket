@@ -32,12 +32,14 @@ function Navbar() {
   };
 
   const handleProfileClick = () => {
-    if (currentUser.Status === 'Admin') {
-      navigate(`/adminPage/${currentUser.FName}`);
-    }
-    else if (currentUser.Status === 'User') {
-      navigate(`/profile/${currentUser.FName}`);
-    } else {
+    if (currentUser) {
+      if (currentUser.Status === 'Admin') {
+        navigate(`/adminPage/${currentUser.FName}`);
+      }
+      else if (currentUser.Status === 'User') {
+        navigate(`/profile/${currentUser.FName}`);
+      } 
+    }else {
       openPopup("login");
     }
   };

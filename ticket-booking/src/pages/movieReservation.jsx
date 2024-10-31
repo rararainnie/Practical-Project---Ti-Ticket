@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Navbar from "../components/navbar";
 import SelectTheaterAndMovieBar from "../components/showTheaterAndMovie";
@@ -7,7 +7,7 @@ import { Buffer } from "buffer";
 import ShowTime from "../components/showTime";
 
 function MovieReservation() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const location = useLocation();
   const { movie = null, cinema = null } = location.state || {};
   const [movies, setMovies] = useState([]);
@@ -111,9 +111,9 @@ function MovieReservation() {
     }
   };
 
-  const handleDetails = () => {
-    navigate(`/movie-details/${movie.title}`, { state: { movie } });
-  };
+  // const handleDetails = () => {
+  //   navigate(`/movie-details/${movie.title}`, { state: { movie } });
+  // };
 
   return (
     <div className="bg-black min-h-screen overflow-hidden">
@@ -175,12 +175,12 @@ function MovieReservation() {
                 </span>
                 <span className="duration text-gray-400">{movie.duration}</span>
               </div>
-              <button
+              {/* <button
                 onClick={handleDetails}
                 className="w-[15%] p-2 mt-5 bg-red-500 text-white rounded-full hover:bg-red-700"
               >
                 รายละเอียด
-              </button>
+              </button> */}
               {/* {cinema && (
                 <p className="selected-cinema tex t-lg mt-3">
                   โรงภาพยนตร์ที่เลือก: {cinema.name}
