@@ -13,6 +13,10 @@ function DataTable({ data, type, onRefresh }) {
     Rating: "",
     Duration: "",
     ReleaseDate: "",
+
+    CinemaLocationCode: "",
+    Name: "",
+    Zone_ZoneID: "",
   });
 
   const getHeaders = () => {
@@ -187,10 +191,16 @@ function DataTable({ data, type, onRefresh }) {
     }
   };
 
-  const handleFormSubmit = async () => {
+  const handleFormSubmit_Movie = async () => {
     const formDataObj = new FormData();
 
-    compareData(formDataObj);
+    const lastMovieID = data.reduce(
+      (maxId, movie) => Math.max(maxId, movie.MovieID || 0),
+      0
+    );
+    const newMovieID = lastMovieID + 1;
+
+    formDataObj.append("MovieID", newMovieID);
 
     formDataObj.append("Title", formData.Title || "");
     formDataObj.append("Description", formData.Description || "");
@@ -217,14 +227,35 @@ function DataTable({ data, type, onRefresh }) {
     }
   };
 
-  const compareData = (formDataObj) => {
-    const lastMovieID = data.reduce(
-      (maxId, movie) => Math.max(maxId, movie.MovieID || 0),
+  const handleFormSubmit_Cinema = async () => {
+    const formDataObj = new FormData();
+
+    const lastCinemaLocationCode = data.reduce(
+      (maxId, cinemas) => Math.max(maxId, cinemas.CinemaLocationCode || 0),
       0
     );
-    const newMovieID = lastMovieID + 1;
+    const newCinemaLocationCode = lastCinemaLocationCode + 1;
 
-    formDataObj.append("MovieID", newMovieID);
+    formDataObj.append("CinemaLocationCode", newCinemaLocationCode);
+
+    formDataObj.append("Name", formData.Name || "");
+    formDataObj.append("Zone_ZoneID", formData.Zone_ZoneID || "");
+
+    try {
+      const response = await fetch(`http://localhost:3001/admin/${type}`, {
+        method: "POST",
+        body: formDataObj,
+      });
+      if (response.ok) {
+        onRefresh();
+        setShowPopup(false);
+      } else {
+        alert("Error adding new data");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error adding new data");
+    }
   };
 
   return (
@@ -258,62 +289,97 @@ function DataTable({ data, type, onRefresh }) {
           <div className="bg-white p-8 rounded shadow-lg">
             <h2 className="text-2xl mb-4">เพิ่มข้อมูลใหม่</h2>
             <form>
-              <input
-                type="text"
-                name="Title"
-                placeholder="ชื่อเรื่อง"
-                value={formData.Title}
-                onChange={handleFormChange}
-                className="mb-2 block w-full"
-              />
-              <input
-                type="text"
-                name="Description"
-                placeholder="คำอธิบาย"
-                value={formData.Description}
-                onChange={handleFormChange}
-                className="mb-2 block w-full"
-              />
-              <input
-                type="file"
-                name="Image"
-                onChange={handleImageUpload}
-                className="mb-2 block w-full"
-              />
-              <input
-                type="text"
-                name="Genre"
-                placeholder="ประเภท"
-                value={formData.Genre}
-                onChange={handleFormChange}
-                className="mb-2 block w-full"
-              />
-              <input
-                type="text"
-                name="Rating"
-                placeholder="เรทติ้ง"
-                value={formData.Rating}
-                onChange={handleFormChange}
-                className="mb-2 block w-full"
-              />
-              <input
-                type="number"
-                name="Duration"
-                placeholder="ระยะเวลา (นาที)"
-                value={formData.Duration}
-                onChange={handleFormChange}
-                className="mb-2 block w-full"
-              />
-              <input
-                type="date"
-                name="ReleaseDate"
-                value={formData.ReleaseDate}
-                onChange={handleFormChange}
-                className="mb-2 block w-full"
-              />
+              {type === "movies" && (
+                <>
+                  <input
+                    type="text"
+                    name="Title"
+                    placeholder="ชื่อเรื่อง"
+                    value={formData.Title}
+                    onChange={handleFormChange}
+                    className="mb-2 block w-full"
+                  />
+                  <input
+                    type="text"
+                    name="Description"
+                    placeholder="คำอธิบาย"
+                    value={formData.Description}
+                    onChange={handleFormChange}
+                    className="mb-2 block w-full"
+                  />
+                  <input
+                    type="file"
+                    name="Image"
+                    onChange={handleImageUpload}
+                    className="mb-2 block w-full"
+                  />
+                  <input
+                    type="text"
+                    name="Genre"
+                    placeholder="ประเภท"
+                    value={formData.Genre}
+                    onChange={handleFormChange}
+                    className="mb-2 block w-full"
+                  />
+                  <input
+                    type="text"
+                    name="Rating"
+                    placeholder="เรทติ้ง"
+                    value={formData.Rating}
+                    onChange={handleFormChange}
+                    className="mb-2 block w-full"
+                  />
+                  <input
+                    type="number"
+                    name="Duration"
+                    placeholder="ระยะเวลา (นาที)"
+                    value={formData.Duration}
+                    onChange={handleFormChange}
+                    className="mb-2 block w-full"
+                  />
+                  <input
+                    type="date"
+                    name="ReleaseDate"
+                    value={formData.ReleaseDate}
+                    onChange={handleFormChange}
+                    className="mb-2 block w-full"
+                  />
+                </>
+              )}
+
+              {type === "cinemas" && (
+                <>
+                  <input
+                    type="text"
+                    name="Name"
+                    placeholder="ชื่อสถานที่โรงภาพยนตร์"
+                    value={formData.Name}
+                    onChange={handleFormChange}
+                    className="mb-2 block w-full"
+                  />
+                  <select
+                    name="Zone_ZoneID"
+                    value={formData.Zone_ZoneID}
+                    onChange={handleFormChange}
+                    className="mb-2 block w-full"
+                  >
+                    <option value="">เลือกภาค</option>
+                    <option value="1">ภาคเหนือ</option>
+                    <option value="2">ภาคใต้</option>
+                    <option value="3">ภาคตะวันออก</option>
+                    <option value="4">ภาคตะวันตก</option>
+                    <option value="5">ภาคกลาง</option>
+                  </select>
+                </>
+              )}
+
               <button
                 type="button"
-                onClick={handleFormSubmit}
+                onClick={() => {
+                  type === "movies"
+                    ? handleFormSubmit_Movie()
+                    : handleFormSubmit_Cinema();
+                }}
                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
               >
                 บันทึก

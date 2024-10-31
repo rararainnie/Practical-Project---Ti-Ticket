@@ -329,7 +329,6 @@ app.put("/reset-password", (req, res) => {
 });
 
 // Admin API Endpoints
-
 // ดึงข้อมูลทั้งหมดสำหรับ admin
 app.get("/admin/:type", (req, res) => {
   const type = req.params.type;
@@ -375,29 +374,51 @@ app.get("/admin/:type", (req, res) => {
 import multer from "multer";
 
 const upload = multer({ storage: multer.memoryStorage() });
+
 app.post("/admin/:type", upload.single("Image"), (req, res) => {
-  const { MovieID, Title, Description, Genre, Rating, Duration, ReleaseDate } =
-    req.body;
+  const { type } = req.params; // Get the type from the request parameters
   const imageBuffer = req.file?.buffer;
 
-  const query = `
-    INSERT INTO Movies ( MovieID, Title, Description, Image, Genre, Rating, Duration, ReleaseDate) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-  const values = [
-    MovieID,
-    Title,
-    Description,
-    imageBuffer,
-    Genre,
-    Rating,
-    Duration,
-    ReleaseDate,
-  ];
+  let query;
+  let values;
+
+  if (type === "movies") {
+    const {
+      MovieID,
+      Title,
+      Description,
+      Genre,
+      Rating,
+      Duration,
+      ReleaseDate,
+    } = req.body;
+
+    query = `INSERT INTO Movies (MovieID, Title, Description, Image, Genre, Rating, Duration, ReleaseDate) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    values = [
+      MovieID,
+      Title,
+      Description,
+      imageBuffer,
+      Genre,
+      Rating,
+      Duration,
+      ReleaseDate,
+    ];
+  } else if (type === "cinemas") {
+    const { CinemaLocationCode, Name, Zone_ZoneID } = req.body;
+
+    query = `INSERT INTO Cinemalocation (CinemaLocationCode, Name, Zone_ZoneID) 
+             VALUES (?, ?, ?)`;
+    values = [CinemaLocationCode, Name, Zone_ZoneID];
+  } else {
+    return res.status(400).send("Invalid type");
+  }
 
   db.query(query, values, (err, result) => {
     if (err) {
-      console.error(`Error adding movie:`, err);
-      return res.status(500).send(`Error adding movie`);
+      console.error(`Error adding ${type}:`, err);
+      return res.status(500).send(`Error adding ${type}`);
     }
     res.status(201).json({ id: result.insertId });
   });
@@ -448,6 +469,10 @@ app.delete("/admin/:type/:id", (req, res) => {
   switch (type) {
     case "movies":
       query = "DELETE FROM Movies WHERE MovieID = ?";
+      break;
+
+    case "cinemas":
+      query = "DELETE FROM Cinemalocation  WHERE CinemaLocationCode = ?";
       break;
 
     case "users":
