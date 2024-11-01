@@ -1,9 +1,13 @@
 import PropTypes from "prop-types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function DataTable({ data, type, onRefresh }) {
   const [editingId, setEditingId] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
+
+  const [movies, setMovies] = useState([]);
+  const [cinemas, setCinemas] = useState([]);
+
   const [formData, setFormData] = useState({
     MovieID: "",
     Title: "",
@@ -17,6 +21,9 @@ function DataTable({ data, type, onRefresh }) {
     CinemaLocationCode: "",
     Name: "",
     Zone_ZoneID: "",
+
+    TimeCode: "",
+    ShowDateTime: "",
   });
 
   const getHeaders = () => {
@@ -258,6 +265,62 @@ function DataTable({ data, type, onRefresh }) {
     }
   };
 
+  useEffect(() => {
+    if (showPopup && type === "showtimes") {
+      fetchMoviesAndCinemas();
+    }
+  }, [showPopup, type]);
+
+  const fetchMoviesAndCinemas = async () => {
+    try {
+      const moviesResponse = await fetch("http://localhost:3001/admin/movies");
+      const cinemasResponse = await fetch(
+        "http://localhost:3001/admin/cinemas"
+      );
+
+      const moviesData = await moviesResponse.json();
+      const cinemasData = await cinemasResponse.json();
+
+      setMovies(moviesData);
+      setCinemas(cinemasData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const handleFormSubmit_Showtime = async () => {
+    const formDataObj = new FormData();
+
+    const lastTimeCode = data.reduce(
+      (maxId, showtimes) => Math.max(maxId, showtimes.TimeCode || 0),
+      0
+    );
+    const newTimeCode = lastTimeCode + 1;
+
+    formDataObj.append("TimeCode", newTimeCode);
+
+    formDataObj.append("ShowDateTime", formData.ShowDateTime || "");
+    formDataObj.append("MovieID", formData.MovieID || "");
+    formDataObj.append("CinemaLocationCode", formData.CinemaLocationCode);
+    formDataObj.append("Zone_ZoneID", formData.Zone_ZoneID || "");
+
+    try {
+      const response = await fetch(`http://localhost:3001/admin/showtimes`, {
+        method: "POST",
+        body: formDataObj,
+      });
+      if (response.ok) {
+        onRefresh();
+        setShowPopup(false);
+      } else {
+        alert("Error adding new showtime");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error adding new showtime");
+    }
+  };
+
   return (
     <div>
       <div className="mb-4">
@@ -373,17 +436,63 @@ function DataTable({ data, type, onRefresh }) {
                 </>
               )}
 
+              {type === "showtimes" && (
+                <>
+                  <select
+                    name="CinemaLocationCode"
+                    value={formData.CinemaLocationCode}
+                    onChange={handleFormChange}
+                    className="mb-2 block w-full"
+                  >
+                    <option value="">เลือกโรงภาพยนตร์</option>
+                    {cinemas.map((cinema) => (
+                      <option
+                        key={cinema.CinemaLocationCode}
+                        value={cinema.CinemaLocationCode}
+                      >
+                        {cinema.Name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <select
+                    name="MovieID"
+                    value={formData.MovieID}
+                    onChange={handleFormChange}
+                    className="mb-2 block w-full"
+                  >
+                    <option value="">เลือกภาพยนตร์</option>
+                    {movies.map((movie) => (
+                      <option key={movie.MovieID} value={movie.MovieID}>
+                        {movie.Title}
+                      </option>
+                    ))}
+                  </select>
+
+                  <input
+                    type="datetime-local"
+                    name="ShowDateTime"
+                    value={formData.ShowDateTime}
+                    onChange={handleFormChange}
+                    className="mb-2 block w-full"
+                  />
+                </>
+              )}
+
               <button
                 type="button"
                 onClick={() => {
                   type === "movies"
                     ? handleFormSubmit_Movie()
-                    : handleFormSubmit_Cinema();
+                    : type === "cinemas"
+                    ? handleFormSubmit_Cinema()
+                    : handleFormSubmit_Showtime();
                 }}
                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
               >
                 บันทึก
               </button>
+
               <button
                 type="button"
                 onClick={() => setShowPopup(false)}

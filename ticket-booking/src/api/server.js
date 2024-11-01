@@ -382,37 +382,72 @@ app.post("/admin/:type", upload.single("Image"), (req, res) => {
   let query;
   let values;
 
-  if (type === "movies") {
-    const {
-      MovieID,
-      Title,
-      Description,
-      Genre,
-      Rating,
-      Duration,
-      ReleaseDate,
-    } = req.body;
+  switch (type) {
+    case "movies": {
+      const {
+        MovieID,
+        Title,
+        Description,
+        Genre,
+        Rating,
+        Duration,
+        ReleaseDate,
+      } = req.body;
 
-    query = `INSERT INTO Movies (MovieID, Title, Description, Image, Genre, Rating, Duration, ReleaseDate) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-    values = [
-      MovieID,
-      Title,
-      Description,
-      imageBuffer,
-      Genre,
-      Rating,
-      Duration,
-      ReleaseDate,
-    ];
-  } else if (type === "cinemas") {
-    const { CinemaLocationCode, Name, Zone_ZoneID } = req.body;
+      query = `INSERT INTO Movies (MovieID, Title, Description, Image, Genre, Rating, Duration, ReleaseDate) 
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+      values = [
+        MovieID,
+        Title,
+        Description,
+        imageBuffer,
+        Genre,
+        Rating,
+        Duration,
+        ReleaseDate,
+      ];
+      break;
+    }
+    case "cinemas": {
+      const { CinemaLocationCode, Name, Zone_ZoneID } = req.body;
 
-    query = `INSERT INTO Cinemalocation (CinemaLocationCode, Name, Zone_ZoneID) 
-             VALUES (?, ?, ?)`;
-    values = [CinemaLocationCode, Name, Zone_ZoneID];
-  } else {
-    return res.status(400).send("Invalid type");
+      query = `INSERT INTO CinemaLocation (CinemaLocationCode, Name, Zone_ZoneID) 
+               VALUES (?, ?, ?)`;
+      values = [CinemaLocationCode, Name, Zone_ZoneID];
+      break;
+    }
+    case "showtimes": {
+      const {
+        TimeCode,
+        ShowDateTime,
+        MovieID,
+        CinemaLocationCode,
+        Zone_ZoneID,
+      } = req.body;
+      const CinemaLocation_CinemaLocationCode = 1;
+
+      console.log("Showtime data:", {
+        TimeCode,
+        ShowDateTime,
+        MovieID,
+        CinemaLocationCode,
+        CinemaLocation_CinemaLocationCode,
+        Zone_ZoneID,
+      });
+      query = `INSERT INTO ShowTime (TimeCode, ShowDateTime, Movies_MovieID, CinemaNo_CinemaNoCode, CinemaLocation_CinemaLocationCode, Zone_ZoneID) 
+               VALUES (?, ?, ?, ?, ?, ?)`;
+      values = [
+        TimeCode,
+        ShowDateTime,
+        MovieID,
+        CinemaLocationCode,
+        CinemaLocation_CinemaLocationCode,
+        Zone_ZoneID,
+      ];
+      break;
+    }
+    default:
+      return res.status(400).send("Invalid type");
   }
 
   db.query(query, values, (err, result) => {
