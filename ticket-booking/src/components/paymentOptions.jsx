@@ -21,7 +21,7 @@ function PaymentOptions({ totalAmount, onPaymentComplete }) {
     
     // จำลองการตรวจสอบบัตรเครดิต
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       onPaymentComplete(true);
     } catch (error) {
       console.error('Payment failed:', error);
@@ -33,7 +33,7 @@ function PaymentOptions({ totalAmount, onPaymentComplete }) {
   const handlePromptPayConfirm = async () => {
     setIsProcessing(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       onPaymentComplete(true);
     } catch (error) {
       console.error('Payment confirmation failed:', error);
@@ -52,7 +52,7 @@ function PaymentOptions({ totalAmount, onPaymentComplete }) {
     }
     
     // จำกัดความยาวสูงสุด
-    if (value.length <= 19) { // รวมขีด
+    if (value.length <= 19) {
       setCardNumber(value);
     }
   };

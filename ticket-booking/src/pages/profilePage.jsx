@@ -1,30 +1,28 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Buffer } from "buffer";
+import { QRCodeSVG } from 'qrcode.react';
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
+import './profilePage.css';
 
 function ProfilePage() {
-  const { currentUser, setCurrentUser } = useAuth();
+  const { currentUser } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [flippedCard, setFlippedCard] = useState(null);
 
   useEffect(() => {
-    const loadUserAndBookings = async () => {
+    const loadBookings = async () => {
       setLoading(true);
-      const storedUser = localStorage.getItem("currentUser");
-      if (storedUser && !currentUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setCurrentUser(parsedUser);
-        await fetchBookings(parsedUser.UserID);
-      } else if (currentUser) {
+      if (currentUser) {
         await fetchBookings(currentUser.UserID);
       }
       setLoading(false);
     };
 
-    loadUserAndBookings();
-  }, [currentUser, setCurrentUser]);
+    loadBookings();
+  }, [currentUser]);
 
   const fetchBookings = async (userId) => {
     try {
@@ -44,6 +42,19 @@ function ProfilePage() {
   const sortedBookings = bookings.sort((a, b) => {
     return new Date(a.ShowDateTime) - new Date(b.ShowDateTime);
   });
+
+  const generateQRData = (booking) => {
+    const bookingInfo = {
+      movieTitle: booking.MovieTitle,
+      cinema: booking.CinemaLocationName,
+      cinemaNo: booking.CinemaNoName,
+      showTime: new Date(booking.ShowDateTime).toLocaleString(),
+      seats: booking.SeatNames,
+      totalPrice: booking.TotalPrice,
+      customerName: `${currentUser.FName} ${currentUser.LName}`,
+    };
+    return JSON.stringify(bookingInfo);
+  };
 
   return (
     <div className="bg-black min-h-screen">
@@ -65,41 +76,54 @@ function ProfilePage() {
               sortedBookings.map((booking, index) => (
                 <div
                   key={index}
-                  className="mb-4 p-4 rounded-2xl flex w-full bg-gray-900 items-center"
+                  className="flip-card mb-4 h-[300px] cursor-pointer"
+                  onClick={() => setFlippedCard(flippedCard === index ? null : index)}
                 >
-                  {booking.MovieImage ? (
-                    <img
-                      src={`data:image/jpeg;base64,${Buffer.from(
-                        booking.MovieImage
-                      ).toString("base64")}`}
-                      alt={booking.MovieTitle}
-                      className="w-32 h-48 object-cover mr-4"
-                    />
-                  ) : (
-                    <div className="w-32 h-48 bg-gray-200 mr-4 flex items-center justify-center">
-                      <span>ไม่มีรูปภาพ</span>
+                  <div className={`flip-card-inner relative w-full h-full ${flippedCard === index ? 'flipped' : ''}`}>
+                    {/* ด้านหน้า */}
+                    <div className="flip-card-front p-4 rounded-2xl flex w-full h-full bg-gray-900 items-center">
+                      {booking.MovieImage ? (
+                        <img
+                          src={`data:image/jpeg;base64,${Buffer.from(booking.MovieImage).toString("base64")}`}
+                          alt={booking.MovieTitle}
+                          className="w-32 h-48 object-cover mr-4"
+                        />
+                      ) : (
+                        <div className="w-32 h-48 bg-gray-200 mr-4 flex items-center justify-center">
+                          <span>ไม่มีรูปภาพ</span>
+                        </div>
+                      )}
+                      <div>
+                        <p><strong>ชื่อภาพยนตร์:</strong> {booking.MovieTitle}</p>
+                        <p><strong>วันที่และเวลาฉาย:</strong> {new Date(booking.ShowDateTime).toLocaleString()}</p>
+                        <p><strong>โรงภาพยนตร์:</strong> {booking.CinemaLocationName}</p>
+                        <p><strong>โรง:</strong> {booking.CinemaNoName}</p>
+                        <p><strong>ที่นั่ง:</strong> {booking.SeatNames}</p>
+                        <p><strong>ราคา:</strong> {booking.TotalPrice} บาท</p>
+                      </div>
                     </div>
-                  )}
-                  <div>
-                    <p>
-                      <strong>ชื่อภาพยนตร์:</strong> {booking.MovieTitle}
-                    </p>
-                    <p>
-                      <strong>วันที่และเวลาฉาย:</strong>{" "}
-                      {new Date(booking.ShowDateTime).toLocaleString()}
-                    </p>
-                    <p>
-                      <strong>โรงภาพยนตร์:</strong> {booking.CinemaLocationName}
-                    </p>
-                    <p>
-                      <strong>โรง:</strong> {booking.CinemaNoName}
-                    </p>
-                    <p>
-                      <strong>ที่นั่ง:</strong> {booking.SeatNames}
-                    </p>
-                    <p>
-                      <strong>ราคา:</strong> {booking.TotalPrice} บาท
-                    </p>
+
+                    {/* ด้านหลัง */}
+                    <div className="flip-card-back p-4 rounded-2xl w-full h-full bg-gray-900 flex flex-col items-center justify-center">
+                      <div className="bg-white p-4 rounded-lg">
+                        <QRCodeSVG
+                          value={generateQRData(booking)}
+                          size={200}
+                          level="H"
+                          imageSettings={{
+                            src: `data:image/jpeg;base64,${Buffer.from(booking.MovieImage).toString("base64")}`,
+                            x: undefined,
+                            y: undefined,
+                            height: 40,
+                            width: 40,
+                            excavate: true,
+                          }}
+                        />
+                      </div>
+                      {/* <p className="text-yellow-500 mt-4 text-center">
+                        แสกน QR Code เพื่อดูรายละเอียดการจอง
+                      </p> */}
+                    </div>
                   </div>
                 </div>
               ))

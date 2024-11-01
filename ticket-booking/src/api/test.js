@@ -2,6 +2,21 @@ import express from "express";
 import { createConnection } from "mysql2";
 import cors from "cors";
 
+// import mysql from 'mysql2';
+
+// สร้างการเชื่อมต่อกับ TiDB Cloud
+// const db = mysql.createConnection({
+//   host: 'gateway01.ap-southeast-1.prod.aws.tidbcloud.com',
+//   port: 4000,
+//   user: '4Ld6i7SH1CaZNag.root',
+//   password: '7Q6tc9dHw8wgiu2t',
+//   database: 'test',
+//   ssl: {
+//     minVersion: 'TLSv1.2',
+//     rejectUnauthorized: true
+//   }
+// });
+
 const app = express();
 const port = 3001;
 

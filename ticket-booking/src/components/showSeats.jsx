@@ -7,22 +7,16 @@ import premiumSeat from "../assets/pic/premiumSeat.png";
 import pairSeat from "../assets/pic/pairSeat.png";
 import checkMark from "../assets/pic/checkmark.png";
 import userIcon from "../assets/pic/iconUser.png";
-import BookingConfirmationPopup from "./popupBooking";
+import BookingPopup from "./popupBooking";
 
-function ShowSeats({
-  timeCode,
-  showDateTime,
-  movie,
-  cinemaLocationName,
-  cinemaNoName,
-}) {
+function ShowSeats({ timeCode, showDateTime, movie, cinemaLocationName, cinemaNoName }) {
   const [seats, setSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { currentUser } = useContext(AuthContext);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showBookingPopup, setShowBookingPopup] = useState(false);
 
   useEffect(() => {
     // console.log(cinema);
@@ -132,11 +126,7 @@ function ShowSeats({
       return;
     }
 
-    setShowConfirmation(true);
-  };
-
-  const handleBookingSuccess = () => {
-    window.location.href = "/";
+    setShowBookingPopup(true);
   };
 
   const closeLoginPopup = () => {
@@ -145,6 +135,11 @@ function ShowSeats({
 
   const handleLoginSuccess = () => {
     setShowLoginPopup(false);
+  };
+
+  const handleCloseBookingPopup = () => {
+    setSelectedSeats([]);
+    setShowBookingPopup(false);
   };
 
   if (loading)
@@ -234,8 +229,8 @@ function ShowSeats({
           </div>
         </div>
       </div>
-      {showConfirmation && (
-        <BookingConfirmationPopup
+      {showBookingPopup && (
+        <BookingPopup
           bookingData={{
             timeCode,
             showDateTime,
@@ -245,8 +240,7 @@ function ShowSeats({
             cinemaLocationName,
             cinemaNoName,
           }}
-          onClose={() => setShowConfirmation(false)}
-          onConfirm={handleBookingSuccess}
+          onClose={handleCloseBookingPopup}
         />
       )}
       {showLoginPopup && (

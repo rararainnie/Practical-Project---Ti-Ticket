@@ -1,14 +1,42 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 import { AuthContext } from "../context/AuthContext";
 import { QRCodeSVG } from 'qrcode.react';
 import PaymentOptions from './PaymentOptions';
 
-function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
+function BookingConfirmationPopup({ bookingData, onClose }) {
   const [error, setError] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [isPaid, setIsPaid] = useState(false);
+  // const [isPaid, setIsPaid] = useState(false);
   const { currentUser } = useContext(AuthContext);
+  const [timeRemaining, setTimeRemaining] = useState(5 * 60);
+
+  useEffect(() => {
+    // ถ้า isSuccess เป็น true ไม่ต้องเริ่มตัวจับเวลา
+    if (isSuccess) {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          onClose();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    // cleanup function
+    return () => clearInterval(timer);
+  }, [onClose, isSuccess]);
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
   const updateSeatStatus = async (seatCode, newStatus) => {
     try {
@@ -49,6 +77,10 @@ function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
     }
   };
 
+  const handleBookingSuccess = () => {
+    window.location.href = "/";
+  };
+
   // สร้างข้อมูลสำหรับ QR Code
   const generateQRData = () => {
     const bookingInfo = {
@@ -69,7 +101,7 @@ function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
 
   const handlePaymentComplete = (success) => {
     if (success) {
-      setIsPaid(true);
+      // setIsPaid(true);
       handleConfirmBooking();
     }
   };
@@ -90,7 +122,7 @@ function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
           <p>ราคารวม: {bookingData.totalPrice.toFixed(2)} บาท</p>
         </div>
 
-        {!isSuccess && !isPaid && (
+        {!isSuccess && (
           <PaymentOptions
             totalAmount={bookingData.totalPrice}
             onPaymentComplete={handlePaymentComplete}
@@ -115,9 +147,9 @@ function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
                 }}
               />
             </div>
-            <p className="text-yellow-500 mt-2 text-sm text-center">
+            {/* <p className="text-yellow-500 mt-2 text-sm text-center">
               แสกน QR Code เพื่อดูรายละเอียดการจอง
-            </p>
+            </p> */}
           </div>
         )}
 
@@ -126,7 +158,7 @@ function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
         <div className="flex justify-end space-x-4 mt-6">
           {isSuccess ? (
             <button
-              onClick={onConfirm}
+              onClick={handleBookingSuccess}
               className="w-full px-4 py-2 bg-yellow-500 text-black rounded hover:bg-yellow-600"
             >
               กลับหน้าหลัก
@@ -140,6 +172,12 @@ function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
             </button>
           )}
         </div>
+
+        {!isSuccess && (
+          <div className="text-yellow-500 text-center mb-4">
+            เวลาที่เหลือในการชำระเงิน: {formatTime(timeRemaining)}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -149,6 +187,7 @@ BookingConfirmationPopup.propTypes = {
   bookingData: PropTypes.object.isRequired,
   onClose: PropTypes.func.isRequired,
   onConfirm: PropTypes.func.isRequired,
+  timeLimit: PropTypes.number.isRequired,
 };
 
 export default BookingConfirmationPopup;
