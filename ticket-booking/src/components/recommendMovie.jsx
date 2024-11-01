@@ -1,36 +1,55 @@
-import { useState, useEffect, useCallback, useRef,  } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Buffer } from 'buffer';
+import { Buffer } from "buffer";
 
 function RecommendMovie() {
-  const [MoviesData, setMovies] = useState([]);
-  useEffect(() => {
-    // ดึงข้อมูลจาก backend
-    fetch('http://localhost:3001/movies')
-      .then(response => response.json())
-      .then(data => {
-        // แปลงข้อมูลที่ได้รับให้เป็นรูปแบบที่ต้องการ
-        const formattedMovies = data.map(movie => ({
-          id: movie.MovieId,
-          poster: `data:image/jpeg;base64,${Buffer.from(movie.Image).toString('base64')}`, // แปลง Buffer เป็น Base64
-          title: movie.Title,
-          genre: movie.Genre,
-          rating: movie.Rating.toString(),
-          duration: `${movie.Duration} นาที`,
-          releaseDate: new Date(movie.ReleaseDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }),
-          description: movie.Description,
-        }));
-        setMovies(formattedMovies);
-      })
-      .catch(error => {
-        console.error('Error fetching movies:', error);
-      });
-    }, []);
-
+  const [MoviesData, setMoviesData] = useState([]);
   const [currentPosterIndex, setCurrentPosterIndex] = useState(0);
   const movie = MoviesData[currentPosterIndex];
   const intervalRef = useRef(null);
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    // ดึงข้อมูลจาก backend
+    fetch("http://localhost:3001/movies")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+
+        // แปลงข้อมูลที่ได้รับให้เป็นรูปแบบที่ต้องการ
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0); // เซ็ตเวลาเป็น 00:00:00 เพื่อเปรียบเทียบเฉพาะวัน
+
+        const formattedMovies = data
+          .map((movie) => {
+            const releaseDate = new Date(movie.ReleaseDate);
+            releaseDate.setHours(0, 0, 0, 0);
+
+            return {
+              id: movie.MovieID,
+              poster: `data:image/jpeg;base64,${Buffer.from(movie.Image).toString(
+                "base64"
+              )}`,
+              title: movie.Title,
+              genre: movie.Genre,
+              rating: movie.Rating.toString(),
+              duration: `${movie.Duration} นาที`,
+              releaseDate: releaseDate.toLocaleDateString("th-TH", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }),
+              rawReleaseDate: releaseDate, // เก็บ Date object ไว้สำหรับการเปรียบเทียบ
+              description: movie.Description,
+            };
+          })
+          .filter((movie) => movie.rawReleaseDate <= currentDate);
+        setMoviesData(formattedMovies);
+      })
+      .catch((error) => {
+        console.error("Error fetching movies:", error);
+      });
+  }, []);
 
   const handleNext = useCallback(() => {
     setCurrentPosterIndex((prevIndex) => (prevIndex + 1) % MoviesData.length);
@@ -56,7 +75,7 @@ function RecommendMovie() {
   };
 
   const handleBooking = () => {
-    navigate(`/movie-details/${movie.title}`, { state: { movie } });
+    navigate(`/movie-reservation/${movie.title}`, { state: { movie } });
   };
 
   useEffect(() => {
@@ -68,8 +87,8 @@ function RecommendMovie() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [MoviesData.length]);
 
-  if (!movie) {
-    return <div>Loading...</div>; // แสดง loading หรือข้อความอื่น ๆ ขณะรอข้อมูล
+  if (MoviesData.length === 0) {
+    return <div>กำลังโหลดข้อมูล...</div>;
   }
 
   return (

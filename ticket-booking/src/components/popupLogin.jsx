@@ -1,8 +1,28 @@
+import { useState } from "react";
 import PropTypes from "prop-types";
 import redImage from "../assets/red.png";
 import googleLogo from "../assets/pic/google_logo.webp";
+import { useAuth } from '../context/AuthContext';
 
-function LoginPopup({ onClose, onOpenRegister, onOpenResetPassword }) {
+function LoginPopup({ onClose, onOpenRegister, onOpenResetPassword, onLoginSuccess }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const { login } = useAuth();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const userData = await login(email, password);
+      onLoginSuccess(userData);
+      onClose();
+    } catch (err) {
+      setError(err.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+    }
+  };
+
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
@@ -21,14 +41,19 @@ function LoginPopup({ onClose, onOpenRegister, onOpenResetPassword }) {
         <img className="w-15 h-15 mx-auto mt-3" src={redImage} alt="Logo" />
         <h1 className="text-2xl text-center text-red-500 mt-3">TI TICKET</h1>
 
-        <div className="flex flex-col space-y-4 mt-3 bg-zinc-800 p-5 rounded-2xl">
+        <form onSubmit={handleLogin} className="flex flex-col space-y-4 mt-3 bg-zinc-800 p-5 rounded-2xl">
+          {error && <p className="text-red-500 text-center">{error}</p>}
+          
           {/* Email Input */}
           <div>
             <label className="text-white">อีเมล</label>
             <input
-              type="email"
+              // type="email"
               placeholder="อีเมล"
               className="mt-2 p-2 w-full border rounded-full"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
 
@@ -39,10 +64,14 @@ function LoginPopup({ onClose, onOpenRegister, onOpenResetPassword }) {
               type="password"
               placeholder="รหัสผ่าน"
               className="mt-2 p-2 w-full border rounded-full"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
 
           <button
+            type="button"
             className="text-sm text-red-500 underline self-end"
             onClick={onOpenResetPassword}
           >
@@ -50,7 +79,10 @@ function LoginPopup({ onClose, onOpenRegister, onOpenResetPassword }) {
           </button>
 
           {/* ปุ่มเข้าสู่ระบบ */}
-          <button className="w-[50%] mx-auto bg-red-600 text-white py-2 rounded-full hover:bg-red-800">
+          <button 
+            type="submit"
+            className="w-[50%] mx-auto bg-red-600 text-white py-2 rounded-full hover:bg-red-800"
+          >
             เข้าสู่ระบบ
           </button>
 
@@ -72,7 +104,7 @@ function LoginPopup({ onClose, onOpenRegister, onOpenResetPassword }) {
               สมัครสมาชิก
             </span>
           </p>
-        </div>
+        </form>
       </div>
     </div>
   );
@@ -82,6 +114,7 @@ LoginPopup.propTypes = {
   onClose: PropTypes.func.isRequired,
   onOpenRegister: PropTypes.func.isRequired,
   onOpenResetPassword: PropTypes.func.isRequired,
+  onLoginSuccess: PropTypes.func.isRequired,
 };
 
 export default LoginPopup;

@@ -1,12 +1,11 @@
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 
-function MovieBox({ movie }) {
+function MovieBox({ movie, cinema }) {
   const navigate = useNavigate();
 
   const handleBoxClick = () => {
-    // Navigate to movie details and pass the movie object via state
-    navigate(`/movie-details/${movie.title}`, { state: { movie } });
+    navigate(`/movie-reservation/${movie.title}`, { state: { movie, cinema } });
   };
   return (
     <div
@@ -30,15 +29,6 @@ function MovieBox({ movie }) {
               <strong>Time:</strong> {movie.duration}
             </p>
           </div>
-
-          {/* <div className="boarder border-[1px] border-red-500 opacity-20 mt-3"></div> */}
-
-          {/* <button
-            onClick={onBuyTickets}
-            className="mt-3 w-20 h-9 bg-red-500 text-white font-semibold rounded-3xl hover:bg-black text-sm"
-          >
-            ซื้อบัตร
-          </button> */}
         </div>
       </div>
     </div>
@@ -47,6 +37,7 @@ function MovieBox({ movie }) {
 
 MovieBox.propTypes = {
   movie: PropTypes.object.isRequired,
+  cinema: PropTypes.object.isRequired,
 };
 
 export default MovieBox;
