@@ -2,7 +2,6 @@ import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 
 function DataTable({ data, type, onRefresh }) {
-  const [editingId, setEditingId] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
 
   const [movies, setMovies] = useState([]);
@@ -20,11 +19,20 @@ function DataTable({ data, type, onRefresh }) {
 
     CinemaLocationCode: "",
     Name: "",
-    Zone_ZoneID: "",
+    ZoneID: "",
+
+    CinemaNoCode: "",
+    NumberOfCinemas: "",
+    
 
     TimeCode: "",
     ShowDateTime: "",
   });
+
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingMovie, setEditingMovie] = useState(null);
+  const [newRating, setNewRating] = useState("");
+  const [cinemaNoOptions, setCinemaNoOptions] = useState([]);
 
   const getHeaders = () => {
     switch (type) {
@@ -39,11 +47,11 @@ function DataTable({ data, type, onRefresh }) {
           "การจัดการ",
         ];
       case "cinemas":
-        return ["รหัส", "ชื่อโรงภาพยนตร์", "โซน", "การจัดการ"];
+        return ["ชื่อสถานที่โรงภาพยนตร์", "โซน", "การจัดการ"];
       case "showtimes":
-        return ["รหัส", "ภาพยนตร์", "โรงภาพยนตร์", "วันและเวลา", "การจัดการ"];
+        return ["รหัส", "ภาพยนตร์", "สถานที่", "โรงภาพยนตร์", "วันและเวลา", "การจัดการ"];
       case "users":
-        return ["ID", "อีเมล", "ชื่อ", "นามสกุล", "สถานะ", "การจัดการ"];
+        return ["ID", "อีเมล", "ชื่อ", "นามสกุล", "สถานะ"];
       default:
         return [];
     }
@@ -86,10 +94,14 @@ function DataTable({ data, type, onRefresh }) {
             <td className="px-4 py-2">
               <div className="flex space-x-2">
                 <button
-                  onClick={() => setEditingId(item.MovieID)}
+                  onClick={() => {
+                    setEditingMovie(item);
+                    setNewRating(item.Rating);
+                    setEditModalOpen(true);
+                  }}
                   className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
                 >
-                  แก้ไข
+                  แก้ไขเรตติ้ง
                 </button>
                 <button
                   onClick={() => handleDelete(item.MovieID)}
@@ -107,17 +119,10 @@ function DataTable({ data, type, onRefresh }) {
             key={item.CinemaLocationCode}
             className="border-b border-gray-700"
           >
-            <td className="px-4 py-2 text-white">{item.CinemaLocationCode}</td>
             <td className="px-4 py-2 text-white">{item.Name}</td>
             <td className="px-4 py-2 text-white">{item.ZoneName}</td>
             <td className="px-4 py-2">
               <div className="flex space-x-2">
-                <button
-                  onClick={() => setEditingId(item.CinemaLocationCode)}
-                  className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                >
-                  แก้ไข
-                </button>
                 <button
                   onClick={() => handleDelete(item.CinemaLocationCode)}
                   className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
@@ -133,18 +138,13 @@ function DataTable({ data, type, onRefresh }) {
           <tr key={item.TimeCode} className="border-b border-gray-700">
             <td className="px-4 py-2 text-white">{item.TimeCode}</td>
             <td className="px-4 py-2 text-white">{item.MovieTitle}</td>
+            <td className="px-4 py-2 text-white">{item.CinemaLocationName}</td>
             <td className="px-4 py-2 text-white">{item.CinemaName}</td>
             <td className="px-4 py-2 text-white">
               {new Date(item.ShowDateTime).toLocaleString("th-TH")}
             </td>
             <td className="px-4 py-2">
               <div className="flex space-x-2">
-                <button
-                  onClick={() => setEditingId(item.TimeCode)}
-                  className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                >
-                  แก้ไข
-                </button>
                 <button
                   onClick={() => handleDelete(item.TimeCode)}
                   className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
@@ -163,22 +163,6 @@ function DataTable({ data, type, onRefresh }) {
             <td className="px-4 py-2 text-white">{item.FName}</td>
             <td className="px-4 py-2 text-white">{item.LName}</td>
             <td className="px-4 py-2 text-white">{item.Status}</td>
-            <td className="px-4 py-2">
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => setEditingId(item.UserID)}
-                  className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                >
-                  แก้ไข
-                </button>
-                <button
-                  onClick={() => handleDelete(item.UserID)}
-                  className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                >
-                  ลบ
-                </button>
-              </div>
-            </td>
           </tr>
         );
       default:
@@ -244,9 +228,10 @@ function DataTable({ data, type, onRefresh }) {
     const newCinemaLocationCode = lastCinemaLocationCode + 1;
 
     formDataObj.append("CinemaLocationCode", newCinemaLocationCode);
-
     formDataObj.append("Name", formData.Name || "");
-    formDataObj.append("Zone_ZoneID", formData.Zone_ZoneID || "");
+    formDataObj.append("ZoneID", formData.ZoneID || "");
+    formDataObj.append("NumberOfCinemas", formData.NumberOfCinemas || "1");
+    
 
     try {
       const response = await fetch(`http://localhost:3001/admin/${type}`, {
@@ -266,6 +251,7 @@ function DataTable({ data, type, onRefresh }) {
   };
 
   useEffect(() => {
+    fetchCinemaNo();
     if (showPopup && type === "showtimes") {
       fetchMoviesAndCinemas();
     }
@@ -297,12 +283,16 @@ function DataTable({ data, type, onRefresh }) {
     );
     const newTimeCode = lastTimeCode + 1;
 
-    formDataObj.append("TimeCode", newTimeCode);
+    const selectedCinema = cinemas.find(
+      cinema => cinema.CinemaLocationCode === parseInt(formData.CinemaLocationCode)
+    );
 
+    formDataObj.append("TimeCode", newTimeCode);
     formDataObj.append("ShowDateTime", formData.ShowDateTime || "");
     formDataObj.append("MovieID", formData.MovieID || "");
     formDataObj.append("CinemaLocationCode", formData.CinemaLocationCode);
-    formDataObj.append("Zone_ZoneID", formData.Zone_ZoneID || "");
+    formDataObj.append("ZoneID", selectedCinema?.Zone_ZoneID || "");
+    formDataObj.append("CinemaNoCode", formData.CinemaNoCode || "");
 
     try {
       const response = await fetch(`http://localhost:3001/admin/showtimes`, {
@@ -321,15 +311,56 @@ function DataTable({ data, type, onRefresh }) {
     }
   };
 
+  const handleUpdateRating = async () => {
+    try {
+      const response = await fetch(`http://localhost:3001/admin/movieRating/${editingMovie.MovieID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          Rating: newRating,
+          MovieID: editingMovie.MovieID,
+          type: "movieRating"
+        })
+      });
+
+      if (response.ok) {
+        onRefresh(); // รีเฟรชข้อมูล
+        setEditModalOpen(false);
+        setEditingMovie(null);
+        setNewRating("");
+      } else {
+        alert("เกิดข้อผิดพลาดในการอัพเดตเรตติ้ง");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("เกิดข้อผิดพลาดในการอัพเดตเรตติ้ง");
+    }
+  };
+
+  const fetchCinemaNo = async () => {
+    try {
+      const response = await fetch(`http://localhost:3001/admin/cinemaNo`);
+      const data = await response.json();
+      setCinemaNoOptions(data);
+      console.log(data);
+    } catch (error) {
+      console.error("Error fetching cinema numbers:", error);
+    }
+  };
+
   return (
     <div>
       <div className="mb-4">
-        <button
-          onClick={() => setShowPopup(true)}
+        {type != "users" && (
+          <button
+            onClick={() => setShowPopup(true)}
           className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
         >
           เพิ่มข้อมูลใหม่
-        </button>
+          </button>
+        )}
       </div>
 
       <div>
@@ -343,7 +374,30 @@ function DataTable({ data, type, onRefresh }) {
               ))}
             </tr>
           </thead>
-          <tbody>{data.map(renderRow)}</tbody>
+          <tbody>
+            {type === "cinemas" 
+              ? [...data]
+                  .sort((a, b) => {
+                    // ตรวจสอบค่า null/undefined
+                    if (!a || !b) return 0;
+                    
+                    // เรียงตาม ZoneID
+                    const zoneA = a.Zone_ZoneID || 0;
+                    const zoneB = b.Zone_ZoneID || 0;
+                    const zoneCompare = zoneA - zoneB;
+                    
+                    // ถ้า ZoneID เท่ากัน เรียงตามชื่อ
+                    if (zoneCompare === 0) {
+                      const nameA = a.Name || '';
+                      const nameB = b.Name || '';
+                      return nameA.localeCompare(nameB);
+                    }
+                    
+                    return zoneCompare;
+                  })
+                  .map(renderRow)
+              : data.map(renderRow)}
+          </tbody>
         </table>
       </div>
 
@@ -421,8 +475,8 @@ function DataTable({ data, type, onRefresh }) {
                     className="mb-2 block w-full"
                   />
                   <select
-                    name="Zone_ZoneID"
-                    value={formData.Zone_ZoneID}
+                    name="ZoneID"
+                    value={formData.ZoneID}
                     onChange={handleFormChange}
                     className="mb-2 block w-full"
                   >
@@ -433,6 +487,15 @@ function DataTable({ data, type, onRefresh }) {
                     <option value="4">ภาคตะวันตก</option>
                     <option value="5">ภาคกลาง</option>
                   </select>
+                  <input
+                    type="number"
+                    name="NumberOfCinemas"
+                    placeholder="จำนวนโรงภาพยนตร์"
+                    value={formData.NumberOfCinemas}
+                    onChange={handleFormChange}
+                    className="mb-2 block w-full"
+                    min="1"
+                  />
                 </>
               )}
 
@@ -441,10 +504,12 @@ function DataTable({ data, type, onRefresh }) {
                   <select
                     name="CinemaLocationCode"
                     value={formData.CinemaLocationCode}
-                    onChange={handleFormChange}
+                    onChange={(e) => {
+                      handleFormChange(e);
+                    }}
                     className="mb-2 block w-full"
                   >
-                    <option value="">เลือกโรงภาพยนตร์</option>
+                    <option value="">เลือกสถานที่โรงภาพยนตร์</option>
                     {cinemas.map((cinema) => (
                       <option
                         key={cinema.CinemaLocationCode}
@@ -454,6 +519,29 @@ function DataTable({ data, type, onRefresh }) {
                       </option>
                     ))}
                   </select>
+                  
+                  {formData.CinemaLocationCode && (
+                    <select
+                      name="CinemaNoCode"
+                      value={formData.CinemaNoCode}
+                      onChange={handleFormChange}
+                      className="mb-2 block w-full"
+                    >
+                      <option value="">เลือกโรงภาพยนตร์</option>
+                      {cinemaNoOptions
+                        .filter(cinemaNo => 
+                          cinemaNo.CinemaLocation_CinemaLocationCode === parseInt(formData.CinemaLocationCode)
+                        )
+                        .map((cinemaNo) => (
+                          <option
+                            key={cinemaNo.CinemaNoCode}
+                            value={cinemaNo.CinemaNoCode}
+                          >
+                            {cinemaNo.Name}
+                          </option>
+                      ))}
+                    </select>
+                  )}
 
                   <select
                     name="MovieID"
@@ -504,8 +592,46 @@ function DataTable({ data, type, onRefresh }) {
           </div>
         </div>
       )}
-      {/* TODO: Add EditModal component for editing data */}
-      {editingId && <div>{/* Add your edit modal/form component here */}</div>}
+
+      {editModalOpen && editingMovie && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center">
+          <div className="bg-white p-8 rounded shadow-lg">
+            <h2 className="text-2xl mb-4">แกไขเรตติ้ง: {editingMovie.Title}</h2>
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                เรตติ้งปัจจุบัน: {editingMovie.Rating}
+              </label>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                max="10"
+                value={newRating}
+                onChange={(e) => setNewRating(e.target.value)}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={handleUpdateRating}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                บันทึก
+              </button>
+              <button
+                onClick={() => {
+                  setEditModalOpen(false);
+                  setEditingMovie(null);
+                  setNewRating("");
+                }}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+              >
+                ยกเลิก
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

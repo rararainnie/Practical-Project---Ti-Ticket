@@ -29,15 +29,6 @@ function MovieBox({ movie, cinema }) {
               <strong>Time:</strong> {movie.duration}
             </p>
           </div>
-
-          {/* <div className="boarder border-[1px] border-red-500 opacity-20 mt-3"></div> */}
-
-          {/* <button
-            onClick={onBuyTickets}
-            className="mt-3 w-20 h-9 bg-red-500 text-white font-semibold rounded-3xl hover:bg-black text-sm"
-          >
-            ซื้อบัตร
-          </button> */}
         </div>
       </div>
     </div>

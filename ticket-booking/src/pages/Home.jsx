@@ -129,9 +129,11 @@ function Home() {
         ) : filteredMovies.length > 0 ? (
           // แสดง grid ของภาพยนตร์
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {filteredMovies.map((movie) => (
-              <MovieBox key={movie.id} movie={movie} />
-            ))}
+            {filteredMovies
+              .sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating)) // เรียงจากเรตติ้งมากไปน้อย
+              .map((movie) => (
+                <MovieBox key={movie.id} movie={movie} />
+              ))}
           </div>
         ) : (
           // แสดงข้อความไม่พบภาพยนตร์

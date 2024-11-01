@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
-import DataTable from "../components/dataTable";
+import DataTable from "../components/DataTable";
 
 function AdminPage() {
   const [activeTab, setActiveTab] = useState("movies");
@@ -52,7 +52,7 @@ function AdminPage() {
                 : "bg-gray-800 text-yellow-500"
             }`}
           >
-            โรงภาพยนตร์
+            สถานที่โรงภาพยนตร์
           </button>
           <button
             onClick={() => setActiveTab("showtimes")}

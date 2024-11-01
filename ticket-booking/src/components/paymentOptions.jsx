@@ -42,7 +42,7 @@ function PaymentOptions({ totalAmount, onPaymentComplete }) {
     }
   };
 
-  // เพิ่มฟังก์ชันจัดการ card number
+  // ฟังก์ชันจัดการ card number
   const handleCardNumberChange = (e) => {
     let value = e.target.value.replace(/\D/g, ''); // ลบทุกตัวที่ไม่ใช่ตัวเลข
     
@@ -51,20 +51,15 @@ function PaymentOptions({ totalAmount, onPaymentComplete }) {
       value = value.match(new RegExp('.{1,4}', 'g')).join('-');
     }
     
-    // จำกัดความยาวสูงสุด
     if (value.length <= 19) {
       setCardNumber(value);
     }
   };
 
-  // เพิ่มฟังก์ชันจัดการวันหมดอายุ
+  // ฟังก์ชันจัดการวันหมดอายุ
   const handleExpiryDateChange = (e) => {
-    let value = e.target.value.replace(/\D/g, ''); // ลบทุกตัวที่ไม่ใช่ตัวเลข
-    
-    // เพิ่ม / อัตโนมัติหลังเดือน
-    // if (value.length >= 2) {
-    //   value = value.slice(0, 2) + '/' + value.slice(2);
-    // }
+    let value = e.target.value.replace(/\D/g, '');
+
     if (value.length > 0) {
         value = value.match(new RegExp('.{1,2}', 'g')).join('/');
       }

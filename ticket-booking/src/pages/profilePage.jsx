@@ -4,7 +4,6 @@ import { Buffer } from "buffer";
 import { QRCodeSVG } from 'qrcode.react';
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
-import './profilePage.css';
 
 function ProfilePage() {
   const { currentUser } = useAuth();
@@ -68,20 +67,22 @@ function ProfilePage() {
         </div>
       ) : (
         <div className="container mx-auto mt-8 p-4">
-          <h1 className="text-2xl font-bold mb-4 text-yellow-500">
-            การจองของฉัน
-          </h1>
+          <h1 className="text-2xl font-bold mb-4 text-yellow-500">การจองของฉัน</h1>
           <div className="p-4 bg-gray-800 grid grid-cols-3 gap-5 text-white rounded-2xl">
             {sortedBookings.length > 0 ? (
               sortedBookings.map((booking, index) => (
                 <div
                   key={index}
-                  className="flip-card mb-4 h-[300px] cursor-pointer"
+                  className="relative h-[300px] w-full cursor-pointer perspective-[1000px]"
                   onClick={() => setFlippedCard(flippedCard === index ? null : index)}
                 >
-                  <div className={`flip-card-inner relative w-full h-full ${flippedCard === index ? 'flipped' : ''}`}>
+                  <div 
+                    className={`relative w-full h-full transition-transform duration-600 transform-style-3d ${
+                      flippedCard === index ? 'rotate-y-180' : ''
+                    }`}
+                  >
                     {/* ด้านหน้า */}
-                    <div className="flip-card-front p-4 rounded-2xl flex w-full h-full bg-gray-900 items-center">
+                    <div className="absolute w-full h-full backface-hidden bg-gray-900 p-4 rounded-2xl flex items-center">
                       {booking.MovieImage ? (
                         <img
                           src={`data:image/jpeg;base64,${Buffer.from(booking.MovieImage).toString("base64")}`}
@@ -104,7 +105,7 @@ function ProfilePage() {
                     </div>
 
                     {/* ด้านหลัง */}
-                    <div className="flip-card-back p-4 rounded-2xl w-full h-full bg-gray-900 flex flex-col items-center justify-center">
+                    <div className="absolute w-full h-full backface-hidden bg-gray-900 p-4 rounded-2xl flex flex-col items-center justify-center rotate-y-180">
                       <div className="bg-white p-4 rounded-lg">
                         <QRCodeSVG
                           value={generateQRData(booking)}
@@ -120,9 +121,6 @@ function ProfilePage() {
                           }}
                         />
                       </div>
-                      {/* <p className="text-yellow-500 mt-4 text-center">
-                        แสกน QR Code เพื่อดูรายละเอียดการจอง
-                      </p> */}
                     </div>
                   </div>
                 </div>

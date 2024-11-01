@@ -112,10 +112,6 @@ function MovieReservation() {
     }
   };
 
-  // const handleDetails = () => {
-  //   navigate(`/movie-details/${movie.title}`, { state: { movie } });
-  // };
-
   return (
     <div className="bg-black min-h-screen overflow-hidden">
       <Navbar />
@@ -187,17 +183,6 @@ function MovieReservation() {
                 </span>
                 <span className="duration text-gray-400">{movie.duration}</span>
               </div>
-              {/* <button
-                onClick={handleDetails}
-                className="w-[15%] p-2 mt-5 bg-red-500 text-white rounded-full hover:bg-red-700"
-              >
-                รายละเอียด
-              </button> */}
-              {/* {cinema && (
-                <p className="selected-cinema tex t-lg mt-3">
-                  โรงภาพยนตร์ที่เลือก: {cinema.name}
-                </p>
-              )} */}
             </div>
           </div>
         )}

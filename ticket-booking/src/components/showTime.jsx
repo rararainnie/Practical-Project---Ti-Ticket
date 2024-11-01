@@ -12,10 +12,15 @@ function ShowTime({ movie, cinema, showTimes }) {
   const [selectedInfo, setSelectedInfo] = useState(null);
 
   useEffect(() => {
-    // รีเซ็ตค่าเมื่อ showTimes เปลี่ยนแปลง
-    console.log(movie, cinema, "showtimes", showTimes);
+    console.log("Updated:", {
+      movie, 
+      cinema, 
+      showTimes,
+      selectedDate
+    });
+    
     setSelectedInfo(null);
-    setSelectedDate(new Date().toISOString().split("T")[0]);
+    
     setCurrentIndex(0);
     generateDays();
   }, [movie, cinema, showTimes]);
@@ -23,30 +28,21 @@ function ShowTime({ movie, cinema, showTimes }) {
   const generateDays = () => {
     const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const monthNames = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     ];
 
     const today = new Date();
     const upcomingDays = Array.from({ length: 32 }).map((_, index) => {
       const date = new Date(today);
       date.setDate(today.getDate() + index);
+      const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
       return {
         day: dayNames[date.getDay()],
         date: date.getDate(),
         month: monthNames[date.getMonth()],
         year: date.getFullYear(),
-        fullDate: date.toISOString().split("T")[0],
+        fullDate: localDate.toISOString().split('T')[0],
       };
     });
 
@@ -87,17 +83,54 @@ function ShowTime({ movie, cinema, showTimes }) {
   };
 
   const filterShowTimesByDate = (showTimes, selectedDate) => {
+    const [year, month, day] = selectedDate.split('-').map(Number);
+    const selectedDateObj = new Date(year, month - 1, day);
+    selectedDateObj.setHours(0, 0, 0, 0);
+    
     return showTimes.filter((showTime) => {
       const showTimeDate = new Date(showTime.ShowDateTime);
-      return showTimeDate.toISOString().split("T")[0] === selectedDate;
+      showTimeDate.setHours(0, 0, 0, 0);
+      
+      const isSameDate = 
+        selectedDateObj.getFullYear() === showTimeDate.getFullYear() &&
+        selectedDateObj.getMonth() === showTimeDate.getMonth() &&
+        selectedDateObj.getDate() === showTimeDate.getDate();
+      
+      console.log('Comparing:', {
+        selectedDate: selectedDateObj.toISOString(),
+        showTimeDate: showTimeDate.toISOString(),
+        isSameDate
+      });
+      
+      return isSameDate;
     });
   };
+
+  useEffect(() => {
+    console.log("Selected Date Changed:", selectedDate);
+    console.log("Available ShowTimes:", showTimes);
+    const filtered = filterShowTimesByDate(showTimes, selectedDate);
+    console.log("Filtered ShowTimes:", filtered);
+  }, [selectedDate, showTimes]);
 
   useEffect(() => {
     if (selectedInfo?.timeCode && seatsRef.current) {
       seatsRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [selectedInfo?.timeCode]);
+
+  // เพิ่มฟังก์ชันสำหรับรับวันที่ปัจจุบัน
+  const getCurrentDate = () => {
+    const today = new Date();
+    const offset = today.getTimezoneOffset() * 60000;
+    const localDate = new Date(today.getTime() - offset);
+    return localDate.toISOString().split('T')[0];
+  };
+
+  // เพิ่ม useEffect เพื่อเลือกวันที่ปัจจุบันเมื่อเข้าหน้า
+  useEffect(() => {
+    setSelectedDate(getCurrentDate());
+  }, []); // เรียกครั้งเดียวเมื่อ component mount
 
   return (
     <>
@@ -113,8 +146,6 @@ function ShowTime({ movie, cinema, showTimes }) {
 
           <div className="flex gap-x-2">
             {days.slice(currentIndex, currentIndex + 11).map((day, index) => {
-              const isToday =
-                day.fullDate === new Date().toISOString().split("T")[0];
               return (
                 <button
                   key={index}
@@ -126,7 +157,7 @@ function ShowTime({ movie, cinema, showTimes }) {
                   style={{ width: "70px", height: "70px", flex: "0 0 auto" }}
                   onClick={() => handleDateClick(day.fullDate)}
                 >
-                  {isToday ? (
+                  {day.fullDate === getCurrentDate() ? (
                     <>
                       <span className="text-sm font-bold">วันนี้</span>
                       <span className="text-lg font-bold">{day.date}</span>
@@ -202,8 +233,9 @@ function ShowTime({ movie, cinema, showTimes }) {
               {}
             );
 
-            return Object.values(groupedShowTimes).map(
-              (location, locationIndex) => (
+            return Object.values(groupedShowTimes)
+              .sort((a, b) => a.ZoneID - b.ZoneID)
+              .map((location, locationIndex) => (
                 <div
                   key={locationIndex}
                   className="bg-gray-800 rounded-lg p-4 mb-4"
@@ -211,8 +243,9 @@ function ShowTime({ movie, cinema, showTimes }) {
                   <h3 className="text-yellow-500 text-xl mb-2">
                     {location.CinemaLocationName}
                   </h3>
-                  {Object.values(location.Cinemas).map(
-                    (cinema, cinemaIndex) => (
+                  {Object.values(location.Cinemas)
+                    .sort((a, b) => a.CinemaNo - b.CinemaNo)
+                    .map((cinema, cinemaIndex) => (
                       <div key={cinemaIndex} className="mb-3">
                         <p className="text-white mb-2">
                           {cinema.CinemaNoName}
@@ -235,7 +268,6 @@ function ShowTime({ movie, cinema, showTimes }) {
                                 timeDifference / (1000 * 60);
                               const isDisabled = minutesDifference >= 30;
 
-                              // หา TimeCode ของเวลาที่ไม่ซ้ำกัน
                               const timeCode = cinema.ShowTimes.find(
                                 (time) => time.ShowDateTime === showDateTime
                               ).TimeCode;

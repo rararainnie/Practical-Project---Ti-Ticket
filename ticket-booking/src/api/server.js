@@ -1,5 +1,6 @@
 import express from "express";
-import { createConnection } from "mysql2";
+// import { createConnection } from "mysql2";
+import mysql from 'mysql2';
 import cors from "cors";
 
 const app = express();
@@ -9,12 +10,25 @@ const port = 3001;
 app.use(cors());
 
 // สร้างการเชื่อมต่อกับฐานข้อมูล MySQL
-const db = createConnection({
+const db = mysql.createConnection({
   host: "localhost", // หรือ IP ของฐานข้อมูล MySQL
   user: "root", // ชื่อผู้ใช้งาน MySQL
   password: "pun1234", // รหัสผ่าน MySQL
   database: "movies_ticket_schema", // ชื่อฐานข้อมูล
 });
+
+// สร้างการเชื่อมต่อกับ TiDB Cloud
+// const db = mysql.createConnection({
+//   host: 'gateway01.ap-southeast-1.prod.aws.tidbcloud.com',
+//   port: 4000,
+//   user: '4Ld6i7SH1CaZNag.root',
+//   password: '7Q6tc9dHw8wgiu2t',
+//   database: 'test',
+//   ssl: {
+//     minVersion: 'TLSv1.2',
+//     rejectUnauthorized: true
+//   }
+// });
 
 // ตรวจสอบการเชื่อมต่อ
 db.connect((err) => {
@@ -286,7 +300,7 @@ app.post("/register", (req, res) => {
     return res.status(400).send("กรุณากรอกข้อมูลให้ครบถ้วน");
   }
 
-  // ตรวจสอบว่าอีเมลซ้ำหรือไม่
+  // ตรวจส���บว่าอีเมลซ้ำหรือไม่
   const checkEmailQuery = "SELECT * FROM User WHERE Email = ?";
   db.query(checkEmailQuery, [Email], (err, results) => {
     if (err) {
@@ -359,12 +373,20 @@ app.get("/admin/:type", (req, res) => {
         JOIN Zone z ON cl.Zone_ZoneID = z.ZoneID
       `;
       break;
+    case "cinemaNo":
+      query = `
+        SELECT cn.*, cl.Name as CinemaLocationName
+        FROM CinemaNo cn
+        JOIN CinemaLocation cl ON cn.CinemaLocation_CinemaLocationCode = cl.CinemaLocationCode
+      `;
+      break;
     case "showtimes":
       query = `
-        SELECT st.*, m.Title as MovieTitle, cn.Name as CinemaName 
+        SELECT st.*, m.Title as MovieTitle, cn.Name as CinemaName, cl.Name as CinemaLocationName
         FROM ShowTime st
         JOIN Movies m ON st.Movies_MovieID = m.MovieID
         JOIN CinemaNo cn ON st.CinemaNo_CinemaNoCode = cn.CinemaNoCode
+        JOIN CinemaLocation cl ON st.CinemaLocation_CinemaLocationCode = cl.CinemaLocationCode
       `;
       break;
     case "users":
@@ -389,7 +411,7 @@ import multer from "multer";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-app.post("/admin/:type", upload.single("Image"), (req, res) => {
+app.post("/admin/:type", upload.single("Image"), async (req, res) => {
   const { type } = req.params; // Get the type from the request parameters
   const imageBuffer = req.file?.buffer;
 
@@ -423,42 +445,169 @@ app.post("/admin/:type", upload.single("Image"), (req, res) => {
       break;
     }
     case "cinemas": {
-      const { CinemaLocationCode, Name, Zone_ZoneID } = req.body;
+      const { CinemaLocationCode, Name, ZoneID, NumberOfCinemas } = req.body;
 
-      query = `INSERT INTO CinemaLocation (CinemaLocationCode, Name, Zone_ZoneID) 
-               VALUES (?, ?, ?)`;
-      values = [CinemaLocationCode, Name, Zone_ZoneID];
-      break;
+      try {
+        // ใช้ Promise เพื่อจัดการกับ callback
+        const query = (sql, values) => {
+          return new Promise((resolve, reject) => {
+            db.query(sql, values, (error, results) => {
+              if (error) reject(error);
+              resolve(results);
+            });
+          });
+        };
+
+        // 1. เพิ่มข้อมูล CinemaLocation
+        await query(
+          `INSERT IGNORE INTO CinemaLocation (CinemaLocationCode, Name, Zone_ZoneID) 
+           VALUES (?, ?, ?)`,
+          [CinemaLocationCode, Name, ZoneID]
+        );
+
+        // หา CinemaNo ล่าสุดของโรงภาพยนตร์นี้
+        const lastCinemaResult = await query(
+          `SELECT MAX(CinemaNoCode) as lastNumber
+           FROM CinemaNo`,
+        );
+        
+        const startNumber = (lastCinemaResult[0].lastNumber || 0) + 1;
+        
+        // เพิ่ม CinemaNo ใหม่ต่อจากหมายเลขล่าสุด
+        for (let i = startNumber; i < startNumber + parseInt(NumberOfCinemas); i++) {
+          await query(
+            `INSERT INTO CinemaNo (CinemaNoCode, Name, CinemaLocation_CinemaLocationCode)
+             VALUES (?, ?, ?)`,
+            [i, `Cinema ${i - startNumber + 1}`, CinemaLocationCode]
+          );
+        }
+
+        return res.json({ 
+          success: true, 
+          message: "เพิ่มโรงภาพยนตร์และโรงฉายสำเร็จ"
+        });
+
+      } catch (error) {
+        console.error("Error adding cinema:", error);
+        return res.status(500).json({ 
+          success: false, 
+          message: "เกิดข้อผิดพลาดในการเพิ่มโรงภาพยนตร์",
+          error: error.message 
+        });
+      }
     }
     case "showtimes": {
       const {
         TimeCode,
         ShowDateTime,
         MovieID,
+        CinemaNoCode,
         CinemaLocationCode,
-        Zone_ZoneID,
+        ZoneID,
       } = req.body;
-      const CinemaLocation_CinemaLocationCode = 1;
 
-      console.log("Showtime data:", {
-        TimeCode,
-        ShowDateTime,
-        MovieID,
-        CinemaLocationCode,
-        CinemaLocation_CinemaLocationCode,
-        Zone_ZoneID,
-      });
-      query = `INSERT INTO ShowTime (TimeCode, ShowDateTime, Movies_MovieID, CinemaNo_CinemaNoCode, CinemaLocation_CinemaLocationCode, Zone_ZoneID) 
-               VALUES (?, ?, ?, ?, ?, ?)`;
-      values = [
-        TimeCode,
-        ShowDateTime,
-        MovieID,
-        CinemaLocationCode,
-        CinemaLocation_CinemaLocationCode,
-        Zone_ZoneID,
-      ];
-      break;
+      try {
+        // ใช้ Promise เพื่อจัดการกับ callback
+        const query = (sql, values) => {
+          return new Promise((resolve, reject) => {
+            db.query(sql, values, (error, results) => {
+              if (error) reject(error);
+              resolve(results);
+            });
+          });
+        };
+
+        // 1. เพิ่มข้อมูลใน CinemaLocation_has_Movies
+        await query(
+          `INSERT INTO CinemaLocation_has_Movies 
+           (CinemaLocation_CinemaLocationCode, Zone_ZoneID, Movies_MovieID)
+           VALUES (?, ?, ?)
+           ON DUPLICATE KEY UPDATE
+           CinemaLocation_CinemaLocationCode = VALUES(CinemaLocation_CinemaLocationCode)`,
+          [CinemaLocationCode, ZoneID, MovieID]
+        );
+
+        // 2. เพิ่มข้อมูลใน Movies_has_CinemaNo
+        await query(
+          `INSERT INTO Movies_has_CinemaNo 
+           (Movies_MovieID, CinemaNo_CinemaNoCode, CinemaLocation_CinemaLocationCode, Zone_ZoneID)
+           VALUES (?, ?, ?, ?)
+           ON DUPLICATE KEY UPDATE
+           Movies_MovieID = VALUES(Movies_MovieID)`,
+          [MovieID, CinemaNoCode, CinemaLocationCode, ZoneID]
+        );
+
+        // 3. เพิ่มข้อมูลใน ShowTime
+        await query(
+          `INSERT INTO ShowTime 
+           (TimeCode, ShowDateTime, Movies_MovieID, CinemaNo_CinemaNoCode, CinemaLocation_CinemaLocationCode, Zone_ZoneID)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [TimeCode, ShowDateTime, MovieID, CinemaNoCode, CinemaLocationCode, ZoneID]
+        );
+
+        // 4. ลบที่นั่งเก่าก่อนเพิ่มที่นั่งใหม่ (ถ้ามี)
+        await query(
+          `DELETE FROM Seats WHERE ShowTime_TimeCode = ?`,
+          [TimeCode]
+        );
+
+        // หา SeatCode ล่าสุด
+        const [lastSeat] = await query(
+          `SELECT MAX(SeatCode) as maxCode FROM Seats`
+        );
+
+        let nextSeatCode = (lastSeat.maxCode || 0) + 1;
+
+        // 5. สร้างที่นั่งใหม่แบบต่อเนื่อง
+          const insertSeats = async (rowLabels, seatCount, price) => {
+            for (const row of rowLabels) {
+              for (let seatNum = 1; seatNum <= seatCount; seatNum++) {
+                await query(
+                  `INSERT INTO Seats 
+                  (SeatCode, SeatName, Status, Price, ShowTime_TimeCode, ShowTime_Movies_MovieID, 
+                   ShowTime_CinemaNo_CinemaNoCode, ShowTime_CinemaLocation_CinemaLocationCode, 
+                   ShowTime_Zone_ZoneID)
+                  VALUES (?, ?, 'available', ?, ?, ?, ?, ?, ?)`,
+                  [
+                    nextSeatCode,
+                    `${row}${seatNum}`,
+                    price,
+                    TimeCode,
+                    MovieID,
+                    CinemaNoCode,
+                    CinemaLocationCode,
+                    ZoneID
+                  ]
+                );
+                nextSeatCode++;
+              }
+            }
+          };
+
+          // แถว A (4 ที่นั่ง)
+          await insertSeats(['A'], 4, 600.00);
+          
+          // แถว B-D (14 ที่นั่ง/แถว)
+          await insertSeats(['B', 'C', 'D'], 14, 240.00);
+          
+          // แถว E-H (18 ที่นั่ง/แถว)
+          await insertSeats(['E', 'F', 'G', 'H'], 18, 200.00);
+
+        console.log('Seats added successfully');
+
+        return res.json({ 
+          success: true, 
+          message: "เพิ่มรอบฉายและที่นั่งสำเร็จ"
+        });
+
+      } catch (error) {
+        console.error("Error adding showtime:", error);
+        return res.status(500).json({ 
+          success: false, 
+          message: "เกิดข้อผิดพลาดในการเพิ่มรอบฉาย",
+          error: error.message 
+        });
+      }
     }
     default:
       return res.status(400).send("Invalid type");
@@ -475,34 +624,23 @@ app.post("/admin/:type", upload.single("Image"), (req, res) => {
 
 // อัพเดทข้อมูล
 app.put("/admin/:type/:id", (req, res) => {
-  const type = req.params.type;
-  const id = req.params.id;
   const data = req.body;
 
   let query = "";
   let values = [];
 
-  switch (type) {
-    case "movies":
-      query =
-        "UPDATE Movies SET Title = ?, Description = ?, Genre = ?, Rating = ?, Duration = ?, ReleaseDate = ? WHERE MovieID = ?";
-      values = [
-        data.Title,
-        data.Description,
-        data.Genre,
-        data.Rating,
-        data.Duration,
-        data.ReleaseDate,
-        id,
-      ];
+  switch (data.type) {
+    case "movieRating":
+      query = "UPDATE Movies SET Rating = ? WHERE MovieID = ?";
+      values = [data.Rating, data.MovieID];
       break;
     // เพิ่ม cases อื่นๆ ตามความต้องการ
   }
 
   db.query(query, values, (err, result) => {
     if (err) {
-      console.error(`Error updating ${type}:`, err);
-      res.status(500).send(`Error updating ${type}`);
+      console.error(`Error updating ${data.type}:`, err);
+      res.status(500).send(`Error updating ${data.type}`);
     } else {
       res.json({ message: "Updated successfully" });
     }
@@ -514,33 +652,129 @@ app.delete("/admin/:type/:id", (req, res) => {
   const type = req.params.type;
   const id = req.params.id;
 
-  let query = "";
   switch (type) {
     case "movies":
-      query = "DELETE FROM Movies WHERE MovieID = ?";
+      // ลบข้อมูลตามลำดับ foreign key
+      db.query("DELETE FROM Seats WHERE ShowTime_Movies_MovieID = ?", [id], (err) => {
+        if (err) {
+          console.error("Error deleting seats:", err);
+          return res.status(500).send("Error deleting seats");
+        }
+        
+        db.query("DELETE FROM ShowTime WHERE Movies_MovieID = ?", [id], (err) => {
+          if (err) {
+            console.error("Error deleting showtimes:", err);
+            return res.status(500).send("Error deleting showtimes");
+          }
+
+          db.query("DELETE FROM Movies_has_CinemaNo WHERE Movies_MovieID = ?", [id], (err) => {
+            if (err) {
+              console.error("Error deleting movies_has_cinemano:", err);
+              return res.status(500).send("Error deleting movies_has_cinemano");
+            }
+
+            db.query("DELETE FROM CinemaLocation_has_Movies WHERE Movies_MovieID = ?", [id], (err) => {
+              if (err) {
+                console.error("Error deleting cinemalocation_has_movies:", err);
+                return res.status(500).send("Error deleting cinemalocation_has_movies");
+              }
+
+              db.query("DELETE FROM Movies WHERE MovieID = ?", [id], (err) => {
+                if (err) {
+                  console.error("Error deleting movie:", err);
+                  return res.status(500).send("Error deleting movie");
+                }
+                res.json({ message: "Deleted successfully" });
+              });
+            });
+          });
+        });
+      });
       break;
 
     case "cinemas":
-      query = "DELETE FROM Cinemalocation  WHERE CinemaLocationCode = ?";
-      break;
+      // ลบข้อมูลตามลำดับ foreign key
+      db.query("DELETE FROM Seats WHERE ShowTime_CinemaLocation_CinemaLocationCode = ?", [id], (err) => {
+        if (err) {
+          console.error("Error deleting seats:", err);
+          return res.status(500).send("Error deleting seats");
+        }
 
-    case "users":
-      query = "DELETE FROM User WHERE UserID = ?";
+        db.query("DELETE FROM ShowTime WHERE CinemaLocation_CinemaLocationCode = ?", [id], (err) => {
+          if (err) {
+            console.error("Error deleting showtimes:", err);
+            return res.status(500).send("Error deleting showtimes");
+          }
+
+          // ลบข้อมูลจาก Movies_has_CinemaNo โดยใช้ subquery
+          db.query(`
+            DELETE FROM Movies_has_CinemaNo 
+            WHERE CinemaNo_CinemaNoCode IN (
+              SELECT CinemaNoCode 
+              FROM CinemaNo 
+              WHERE CinemaLocation_CinemaLocationCode = ?
+            )`, [id], (err) => {
+            if (err) {
+              console.error("Error deleting movies_has_cinemano:", err);
+              return res.status(500).send("Error deleting movies_has_cinemano");
+            }
+
+            db.query("DELETE FROM CinemaLocation_has_Movies WHERE CinemaLocation_CinemaLocationCode = ?", [id], (err) => {
+              if (err) {
+                console.error("Error deleting cinemalocation_has_movies:", err);
+                return res.status(500).send("Error deleting cinemalocation_has_movies");
+              }
+
+              db.query("DELETE FROM CinemaNo WHERE CinemaLocation_CinemaLocationCode = ?", [id], (err) => {
+                if (err) {
+                  console.error("Error deleting cinema numbers:", err);
+                  return res.status(500).send("Error deleting cinema numbers");
+                }
+
+                db.query("DELETE FROM CinemaLocation WHERE CinemaLocationCode = ?", [id], (err) => {
+                  if (err) {
+                    console.error("Error deleting cinema location:", err);
+                    return res.status(500).send("Error deleting cinema location");
+                  }
+                  res.json({ message: "Deleted successfully" });
+                });
+              });
+            });
+          });
+        });
+      });
       break;
 
     case "showtimes":
-      query = "DELETE FROM ShowTime WHERE TimeCode = ?";
+      db.query("DELETE FROM Seats WHERE ShowTime_TimeCode = ?", [id], (err) => {
+        if (err) {
+          console.error("Error deleting seats:", err);
+          return res.status(500).send("Error deleting seats");
+        }
+        
+        db.query("DELETE FROM ShowTime WHERE TimeCode = ?", [id], (err) => {
+          if (err) {
+            console.error("Error deleting showtime:", err);
+            return res.status(500).send("Error deleting showtime");
+          }
+          res.json({ message: "Deleted successfully" });
+        });
+      });
       break;
-  }
 
-  db.query(query, [id], (err, result) => {
-    if (err) {
-      console.error(`Error deleting ${type}:`, err);
-      res.status(500).send(`Error deleting ${type}`);
-    } else {
-      res.json({ message: "Deleted successfully" });
-    }
-  });
+    case "users":
+      db.query("DELETE FROM User WHERE UserID = ?", [id], (err) => {
+        if (err) {
+          console.error("Error deleting user:", err);
+          return res.status(500).send("Error deleting user");
+        }
+        res.json({ message: "Deleted successfully" });
+      });
+      break;
+
+    default:
+      res.status(400).send("Invalid type");
+  }
 });
 
 // เริ่มต้นเซิร์ฟเวอร์
