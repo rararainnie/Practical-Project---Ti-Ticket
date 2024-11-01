@@ -136,7 +136,6 @@ function ShowSeats({
   };
 
   const handleBookingSuccess = () => {
-    setShowConfirmation(false);
     window.location.href = "/";
   };
 

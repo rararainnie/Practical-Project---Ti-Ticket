@@ -1,11 +1,13 @@
 import { useState, useContext } from "react";
 import PropTypes from "prop-types";
 import { AuthContext } from "../context/AuthContext";
+import { QRCodeSVG } from 'qrcode.react';
+import PaymentOptions from './PaymentOptions';
 
 function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isPaid, setIsPaid] = useState(false);
   const { currentUser } = useContext(AuthContext);
 
   const updateSeatStatus = async (seatCode, newStatus) => {
@@ -34,7 +36,6 @@ function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
   };
 
   const handleConfirmBooking = async () => {
-    setIsLoading(true);
     setError(null);
     try {
       await Promise.all(
@@ -43,13 +44,33 @@ function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
         )
       );
       setIsSuccess(true);
-      setTimeout(() => {
-        onConfirm();
-      }, 1500);
     } catch (err) {
       setError("ไม่สามารถยืนยันการจองได้ กรุณาลองใหม่อีกครั้ง", err);
-    } finally {
-      setIsLoading(false);
+    }
+  };
+
+  // สร้างข้อมูลสำหรับ QR Code
+  const generateQRData = () => {
+    const bookingInfo = {
+      movieTitle: bookingData.movie.title,
+      cinema: bookingData.cinemaLocationName,
+      cinemaNo: bookingData.cinemaNoName,
+      showTime: new Date(bookingData.showDateTime).toLocaleString(),
+      seats: bookingData.selectedSeats.map(seat => seat.SeatName).join(", "),
+      totalPrice: bookingData.totalPrice.toFixed(2),
+      bookingDate: new Date().toLocaleString(),
+      customerName: `${currentUser.FName} ${currentUser.LName}`,
+    };
+    
+    // สร้าง URL ที่มีข้อมูลตั๋ว
+    const ticketData = encodeURIComponent(JSON.stringify(bookingInfo));
+    return `${window.location.origin}/ticket?data=${ticketData}`;
+  };
+
+  const handlePaymentComplete = (success) => {
+    if (success) {
+      setIsPaid(true);
+      handleConfirmBooking();
     }
   };
 
@@ -65,18 +86,42 @@ function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
           <p>โรงภาพยนตร์: {bookingData.cinemaLocationName}</p>
           <p>โรงที่: {bookingData.cinemaNoName}</p>
           <p>รอบฉาย: {new Date(bookingData.showDateTime).toLocaleString()}</p>
-          <p>
-            ที่นั่งที่เลือก:{" "}
-            {bookingData.selectedSeats.map((seat) => seat.SeatName).join(", ")}
-          </p>
+          <p>ที่นั่งที่เลือก: {bookingData.selectedSeats.map(seat => seat.SeatName).join(", ")}</p>
           <p>ราคารวม: {bookingData.totalPrice.toFixed(2)} บาท</p>
         </div>
 
-        {error && <p className="text-red-500 mt-4">{error}</p>}
+        {!isSuccess && !isPaid && (
+          <PaymentOptions
+            totalAmount={bookingData.totalPrice}
+            onPaymentComplete={handlePaymentComplete}
+          />
+        )}
 
         {isSuccess && (
-          <p className="text-green-500 mt-4 text-center">การจองสำเร็จ!</p>
+          <div className="mt-4 flex flex-col items-center">
+            <p className="text-green-500 mb-4 text-center">การจองสำเร็จ!</p>
+            <div className="bg-white p-4 rounded-lg">
+              <QRCodeSVG
+                value={generateQRData()}
+                size={200}
+                level="H"
+                imageSettings={{
+                  src: bookingData.movie.poster,
+                  x: undefined,
+                  y: undefined,
+                  height: 40,
+                  width: 40,
+                  excavate: true,
+                }}
+              />
+            </div>
+            <p className="text-yellow-500 mt-2 text-sm text-center">
+              แสกน QR Code เพื่อดูรายละเอียดการจอง
+            </p>
+          </div>
         )}
+
+        {error && <p className="text-red-500 mt-4">{error}</p>}
 
         <div className="flex justify-end space-x-4 mt-6">
           {isSuccess ? (
@@ -87,22 +132,12 @@ function BookingConfirmationPopup({ bookingData, onClose, onConfirm }) {
               กลับหน้าหลัก
             </button>
           ) : (
-            <>
-              <button
-                onClick={onClose}
-                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-                disabled={isLoading}
-              >
-                ยกเลิก
-              </button>
-              <button
-                onClick={handleConfirmBooking}
-                disabled={isLoading}
-                className="px-4 py-2 bg-yellow-500 text-black rounded hover:bg-yellow-600 disabled:bg-gray-400"
-              >
-                {isLoading ? "กำลังดำเนินการ..." : "ยืนยันการจอง"}
-              </button>
-            </>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+            >
+              ยกเลิก
+            </button>
           )}
         </div>
       </div>

@@ -12,17 +12,31 @@ app.use(cors());
 const db = createConnection({
   host: "localhost", // หรือ IP ของฐานข้อมูล MySQL
   user: "root", // ชื่อผู้ใช้งาน MySQL
-  password: "rainnie", // รหัสผ่าน MySQL (ให้ใส่รหัสของคุณ)
+  password: "pun1234", // รหัสผ่าน MySQL
   database: "movies_ticket_schema", // ชื่อฐานข้อมูล
 });
 
 // ตรวจสอบการเชื่อมต่อ
 db.connect((err) => {
   if (err) {
-    console.error("Error connecting to the database:", err);
+    console.error('Error connecting to MySQL:', err);
     return;
   }
-  console.log("Connected to MySQL database");
+  console.log('Connected to MySQL Cloud successfully');
+});
+
+// จัดการ error ที่อาจเกิดขึ้น
+db.on('error', (err) => {
+  console.error('Database error:', err);
+  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+    console.log('Reconnecting to database...');
+    // พยายามเชื่อมต่อใหม่
+    setTimeout(() => {
+      db.connect();
+    }, 2000);
+  } else {
+    throw err;
+  }
 });
 
 // สร้าง API เพื่อดึงข้อมูลหนังทั้งหมดจากตาราง Movies
